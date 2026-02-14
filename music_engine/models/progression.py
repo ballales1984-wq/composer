@@ -62,7 +62,13 @@ class Progression:
     @property
     def key(self) -> Optional[Note]:
         """Get the detected or specified key."""
-        return self._key
+        # Return explicitly set key, or detect from first chord
+        if self._key:
+            return self._key
+        # Try to get detected key from analysis
+        if self._analysis and self._analysis.get('detected_key'):
+            return self._analysis['detected_key']
+        return None
 
     @property
     def key_name(self) -> Optional[str]:

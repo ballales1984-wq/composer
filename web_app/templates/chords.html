@@ -483,6 +483,9 @@ async function fetchChord() {
 }
 
 function displayChord(chord) {
+    // Store chord data for playback
+    currentChordData = { chord: chord };
+    
     document.getElementById('chord-result').style.display = 'block';
     document.getElementById('chord-error').style.display = 'none';
     

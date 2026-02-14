@@ -214,7 +214,19 @@ class Note:
 
     @property
     def semitone(self) -> int:
-        """Get the semitone value (0-11)."""
+        """Get the MIDI semitone value (0-127).
+        
+        Note: This returns the absolute MIDI value (C4 = 60).
+        For the chromatic index (0-11), use the 'chroma' property.
+        """
+        return self.midi
+    
+    @property
+    def chroma(self) -> int:
+        """Get the chromatic index (0-11), independent of octave.
+        
+        C any octave = 0, C# = 1, ..., B = 11
+        """
         return self._semitone
     
     @property

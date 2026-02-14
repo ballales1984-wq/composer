@@ -8,7 +8,7 @@
 - [x] 2. Registrare il nuovo blueprint in app.py
 - [x] 3. Aggiungere sezione Circolo delle Quinte in chords.html
 - [x] 4. Aggiungere funzionalità interattive (click su tasti, relazioni)
-- [ ] 5. Testare le nuove funzionalità
+- [x] 5. Testare le nuove funzionalità
 
 ### Note:
 - Il Circolo delle Quinte già esiste in scales.html ma può essere migliorato

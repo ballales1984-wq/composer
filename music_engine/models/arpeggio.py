@@ -104,12 +104,12 @@ class Arpeggio:
         elif self._direction == 'down':
             pattern = list(reversed(base_notes))
         elif self._direction == 'up_down':
-            # Up and then down (without duplicating the top note)
-            pattern = base_notes + list(reversed(base_notes[:-1]))
+            # Up and then down (including the top note in both directions)
+            pattern = base_notes + list(reversed(base_notes))
         elif self._direction == 'down_up':
-            # Down and then up (without duplicating the bottom note)
+            # Down and then up (including the bottom note in both directions)
             reversed_notes = list(reversed(base_notes))
-            pattern = reversed_notes + base_notes[1:]
+            pattern = reversed_notes + base_notes
 
         return pattern
 

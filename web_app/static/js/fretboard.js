@@ -279,10 +279,12 @@ class GuitarFretboard {
             });
         }
         
-        // Strings (from bottom = low E to top = high e)
-        const stringThicknesses = [3, 2.5, 2, 1.5, 1, 0.8]; // Low E thick, high e thin
+        // Strings (from top = high e to bottom = low E for correct guitar diagram view)
+        // In guitar diagrams: high e string is at TOP, low E is at BOTTOM
+        const stringThicknesses = [0.8, 1, 1.5, 2, 2.5, 3]; // High e thin, low E thick
         for (let i = 0; i < 6; i++) {
-            const y = 40 + i * stringHeight;
+            // Invert the y position: i=0 (high e) -> top, i=5 (low E) -> bottom
+            const y = 40 + (5 - i) * stringHeight;
             const thickness = stringThicknesses[i];
             svg += `<line x1="${stringLabelWidth}" y1="${y}" x2="${width-20}" y2="${y}" 
                     stroke="url(#stringGradient)" stroke-width="${thickness}" 
@@ -309,10 +311,10 @@ class GuitarFretboard {
                     stroke="${fretColor}" stroke-width="${fretWidthAttr}"/>`;
         }
         
-        // String names (left side)
+        // String names (left side) - now correctly showing high e at top, low E at bottom
         if (showStringNames) {
             for (let i = 0; i < 6; i++) {
-                const y = 40 + i * stringHeight;
+                const y = 40 + (5 - i) * stringHeight;
                 svg += `<text x="${stringLabelWidth/2}" y="${y+5}" 
                         text-anchor="middle" fill="#888" font-size="14" font-weight="bold">
                         ${this.currentTuning[i]}</text>`;
@@ -328,9 +330,9 @@ class GuitarFretboard {
             }
         }
         
-        // Notes
+        // Notes - render at correct positions matching the inverted string layout
         for (let stringIdx = 0; stringIdx < 6; stringIdx++) {
-            const y = 40 + stringIdx * stringHeight;
+            const y = 40 + (5 - stringIdx) * stringHeight;
             
             for (let fret = 0; fret <= numFrets; fret++) {
                 const note = this.getNoteAtPosition(stringIdx, fret);
@@ -370,7 +372,9 @@ class GuitarFretboard {
                     const cy = parseFloat(circle.getAttribute('cy'));
                     
                     // Calculate string and fret from position
-                    const stringIdx = Math.round((cy - 40) / stringHeight);
+                    // Note: y position is inverted for display, so we need to convert back
+                    const visualStringIdx = Math.round((cy - 40) / stringHeight);
+                    const stringIdx = 5 - visualStringIdx; // Convert visual position to actual string index
                     const fret = Math.round((cx - stringLabelWidth) / fretWidth);
                     
                     if (stringIdx >= 0 && stringIdx < 6 && fret >= 0 && fret <= numFrets) {

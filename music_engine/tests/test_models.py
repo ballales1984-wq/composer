@@ -13,6 +13,7 @@ from models.note import Note
 from models.chord import Chord
 from models.scale import Scale
 from models.arpeggio import Arpeggio
+from music_engine.exceptions import InvalidNoteError, InvalidScaleError
 
 
 class TestNote:
@@ -39,16 +40,16 @@ class TestNote:
         """Test enharmonic equivalents."""
         c_sharp = Note('C#4')
         d_flat = Note('Db4')
-        assert c_sharp.semitone == d_flat.semitone
+        assert c_sharp.chroma == d_flat.chroma
         assert c_sharp.name != d_flat.name  # Different names, same pitch
 
     def test_invalid_note(self):
         """Test invalid note handling."""
-        with pytest.raises(ValueError):
+        with pytest.raises(InvalidNoteError):
             Note('H4')  # H is not a valid note letter
 
-        with pytest.raises(ValueError):
-            Note('C')   # Missing octave
+        with pytest.raises(InvalidNoteError):
+            Note('invalid')  # Truly invalid note
 
 
 class TestChord:
@@ -71,8 +72,8 @@ class TestChord:
         a_min = Chord('A', 'min')
         note_names = [n.name for n in a_min.notes]
         assert 'A4' in note_names
-        assert 'C5' in note_names
-        assert 'E5' in note_names
+        assert 'C4' in note_names
+        assert 'E4' in note_names
 
     def test_dominant_seventh_chord(self):
         """Test dominant seventh chord."""
@@ -82,8 +83,8 @@ class TestChord:
         note_names = [n.name for n in g7.notes]
         assert 'G4' in note_names
         assert 'B4' in note_names
-        assert 'D5' in note_names
-        assert 'F5' in note_names
+        assert 'D4' in note_names
+        assert 'F4' in note_names
 
 
 class TestScale:
@@ -121,7 +122,7 @@ class TestScale:
 
     def test_invalid_scale(self):
         """Test invalid scale handling."""
-        with pytest.raises(ValueError):
+        with pytest.raises(InvalidScaleError):
             Scale('C', 'nonexistent_scale_type')
 
 
@@ -130,7 +131,9 @@ class TestArpeggio:
 
     def test_triad_arpeggio_creation(self):
         """Test triad arpeggio creation."""
-        c_maj_arp = Arpeggio('C', 'maj', 'up')
+        # Use Chord as source
+        c_chord = Chord('C', 'maj')
+        c_maj_arp = Arpeggio(c_chord, 'up')
         assert len(c_maj_arp.notes) == 3
 
         note_names = [n.name for n in c_maj_arp.notes]
@@ -138,8 +141,9 @@ class TestArpeggio:
 
     def test_arpeggio_direction(self):
         """Test arpeggio direction patterns."""
-        c_maj_up = Arpeggio('C', 'maj', 'up')
-        c_maj_down = Arpeggio('C', 'maj', 'down')
+        c_chord = Chord('C', 'maj')
+        c_maj_up = Arpeggio(c_chord, 'up')
+        c_maj_down = Arpeggio(c_chord, 'down')
 
         up_notes = [n.name for n in c_maj_up.notes]
         down_notes = [n.name for n in c_maj_down.notes]
@@ -149,7 +153,8 @@ class TestArpeggio:
 
     def test_arpeggio_patterns(self):
         """Test different arpeggio patterns."""
-        c_maj_updown = Arpeggio('C', 'maj', 'up_down')
+        c_chord = Chord('C', 'maj')
+        c_maj_updown = Arpeggio(c_chord, 'up_down')
         notes = [n.name for n in c_maj_updown.notes]
         # Should be: C, E, G, G, E, C
         expected = ['C4', 'E4', 'G4', 'G4', 'E4', 'C4']

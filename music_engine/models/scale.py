@@ -16,6 +16,7 @@ SCALE_INTERVALS = {
     'ionian': [0, 2, 4, 5, 7, 9, 11],
     # Minor scales
     'minor_natural': [0, 2, 3, 5, 7, 8, 10],
+    'minor': [0, 2, 3, 5, 7, 8, 10],  # Alias for minor_natural
     'aeolian': [0, 2, 3, 5, 7, 8, 10],
     'minor_harmonic': [0, 2, 3, 5, 7, 8, 11],
     'minor_melodic': [0, 2, 3, 5, 7, 9, 11],
@@ -42,6 +43,7 @@ SCALE_INTERVALS = {
 SCALE_NAMES = {
     'major': 'Major (Ionian)',
     'minor_natural': 'Natural Minor (Aeolian)',
+    'minor': 'Natural Minor',
     'minor_harmonic': 'Harmonic Minor',
     'minor_melodic': 'Melodic Minor',
     'dorian': 'Dorian',
@@ -155,8 +157,8 @@ class Scale:
 
     @property
     def semitones(self) -> List[int]:
-        """Get semitone values of all notes in the scale."""
-        return [note.semitone for note in self._notes]
+        """Get chroma values (0-11) of all notes in the scale."""
+        return [note.chroma for note in self._notes]
 
     def _generate_notes(self) -> List[Note]:
         """Generate the list of notes for this scale."""
@@ -165,8 +167,8 @@ class Scale:
         root_octave = self._root.octave
 
         for interval in self._intervals:
-            # Calculate absolute semitone value
-            total_semitones = self._root.semitone + interval
+            # Calculate absolute semitone value using chroma (0-11)
+            total_semitones = self._root.chroma + interval
 
             # Calculate octave offset (each 12 semitones = 1 octave)
             octave_offset = total_semitones // 12
@@ -211,7 +213,7 @@ class Scale:
             True if note is in scale, False otherwise
         """
         check_note = Note(note) if not isinstance(note, Note) else note
-        return check_note.semitone in self.semitones
+        return check_note.chroma in self.semitones
 
     def get_chord(self, degree: int, chord_type: str = 'maj') -> 'Chord':
         """
@@ -239,7 +241,7 @@ class Scale:
             Triad chord (maj, min, or dim based on scale)
         """
         # Determine chord quality based on scale type and degree
-        if self._scale_type in ['major', 'ionian', 'lydian', 'mixolydian']:
+        if self._scale_type in ['major', 'ionian', 'lydian', 'mixolydian', 'minor']:
             triad_qualities = ['maj', 'min', 'min', 'maj', 'maj', 'min', 'dim']
         elif self._scale_type in ['minor_natural', 'aeolian']:
             triad_qualities = ['min', 'dim', 'maj', 'min', 'min', 'maj', 'maj']
