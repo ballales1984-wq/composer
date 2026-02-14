@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}Learn Music Theory - Music Theory Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Learn Music Theory</h1>
+    <p>A comprehensive guide to music theory, inspired by Open Music Theory</p>
+    
+    <div class="external-link-box">
+        <p>This content is inspired by <strong><a href="https://viva.pressbooks.pub/openmusictheory/" target="_blank">Open Music Theory</a></strong></p>
+    </div>
+
+<div class="card toc-card">
+    <h2 class="card-title">Table of Contents</h2>
+    <div class="toc-grid">
+        <a href="#fundamentals" class="toc-item">Fundamentals</a>
+        <a href="#intervals" class="toc-item">Intervals</a>
+        <a href="#scales" class="toc-item">Scales</a>
+        <a href="#chords" class="toc-item">Chords</a>
+        <a href="#progressions" class="toc-item">Progressions</a>
+        <a href="#harmony" class="toc-item">Harmony</a>
+    </div>
+
+<div id="fundamentals" class="theory-section">
+    <div class="section-header">
+        <h2>Fundamentals of Music</h2>
+    </div>
+    
+    <div class="card">
+        <h3>What is Music Theory?</h3>
+        <p>Music theory is the study of the practices and possibilities of music. It describes how music is made, how it is structured, and how it is understood.</p>
+        
+        <div class="tip-box">
+            <strong>Key Point:</strong> Music theory is not a set of rules - it is a way of describing what composers and musicians have done.
+        </div>
+        
+        <h4>Why Learn Music Theory?</h4>
+        <ul>
+            <li><strong>Communication:</strong> Speak the same language as other musicians</li>
+            <li><strong>Composition:</strong> Understand how to create effective music</li>
+            <li><strong>Analysis:</strong> Deepen your appreciation of music</li>
+            <li><strong>Improvisation:</strong> Learn the grammar of music</li>
+        </ul>
+    </div>
+    
+    <div class="card">
+        <h3>Pitch and Frequency</h3>
+        <p>Sound is produced by vibrations. The frequency of a vibration (measured in Hertz) determines the pitch we hear.</p>
+        
+        <div class="example-box">
+            <h4>Standard Reference: A440</h4>
+            <p>The note <strong>A4</strong> is standardized at 440 Hz. All other pitches are relative to this.</p>
+        </div>
+        
+        <h4>Note Names</h4>
+        <p>In Western music, we use seven note names: <strong>A, B, C, D, E, F, G</strong></p>
+    </div>
+
+<div id="intervals" class="theory-section">
+    <div class="section-header">
+        <h2>Intervals</h2>
+    </div>
+    
+    <div class="card">
+        <h3>What is an Interval?</h3>
+        <p>An <strong>interval</strong> is the distance between two pitches. Intervals are the building blocks of melody and harmony.</p>
+        
+        <div class="tip-box">
+            <strong>Remember:</strong> Intervals are always measured from the lower pitch to the higher pitch (ascending).
+        </div>
+        
+        <h4>Interval Naming</h4>
+        <table class="theory-table">
+            <tr><th>Number</th><th>Name</th><th>Semitones</th><th>Example</th></tr>
+            <tr><td>1</td><td>Unison</td><td>0</td><td>C - C</td></tr>
+            <tr><td>2</td><td>Minor 2nd</td><td>1</td><td>C - Db</td></tr>
+            <tr><td>2</td><td>Major 2nd</td><td>2</td><td>C - D</td></tr>
+            <tr><td>3</td><td>Minor 3rd</td><td>3</td><td>C - Eb</td></tr>
+            <tr><td>3</td><td>Major 3rd</td><td>4</td><td>C - E</td></tr>
+            <tr><td>4</td><td>Perfect 4th</td><td>5</td><td>C - F</td></tr>
+            <tr><td>4</td><td>Tritone</td><td>6</td><td>C - Gb</td></tr>
+            <tr><td>5</td><td>Perfect 5th</td><td>7</td><td>C - G</td></tr>
+            <tr><td>6</td><td>Minor 6th</td><td>8</td><td>C - Ab</td></tr>
+            <tr><td>6</td><td>Major 6th</td><td>9</td><td>C - A</td></tr>
+            <tr><td>7</td><td>Minor 7th</td><td>10</td><td>C - Bb</td></tr>
+            <tr><td>7</td><td>Major 7th</td><td>11</td><td>C - B</td></tr>
+            <tr><td>8</td><td>Octave</td><td>12</td><td>C - C</td></tr>
+        </table>
+    </div>
+
+<div id="scales" class="theory-section">
+    <div class="section-header">
+        <h2>Scales</h2>
+    </div>
+    
+    <div class="card">
+        <h3>What is a Scale?</h3>
+        <p>A <strong>scale</strong> is an ordered sequence of pitches. Scales provide the vocabulary of notes for a particular musical context.</p>
+        
+        <div class="tip-box">
+            <strong>Key Concept:</strong> A scale root is the note the scale is named after and typically feels like home.
+        </div>
+    
+    <div class="card">
+        <h3>The Major Scale</h3>
+        <p>The <strong>major scale</strong> is the most fundamental scale in Western music.</p>
+        
+        <div class="scale-pattern">
+            <h4>Pattern: W-W-H-W-W-W-H</h4>
+            <p>W = Whole step (2 semitones), H = Half step (1 semitone)</p>
+        </div>
+        
+        <div class="example-box">
+            <h4>C Major Scale</h4>
+            <div class="note-sequence">
+                <span class="note-pill">C</span> - <span class="note-pill">D</span> - <span class="note-pill">E</span> - <span class="note-pill">F</span> - <span class="note-pill">G</span> - <span class="note-pill">A</span> - <span class="note-pill">B</span> - <span class="note-pill">C</span>
+            </div>
+        
+        <div class="try-it-box">
+            <p>Use the <a href="/scales">Scales Explorer</a> to hear and visualize the major scale in all keys!</p>
+        </div>
+    
+    <div class="card">
+        <h3>The Natural Minor Scale</h3>
+        <p>The <strong>natural minor scale</strong> has a darker, sadder sound than the major scale.</p>
+        
+        <div class="scale-pattern">
+            <h4>Pattern: W-H-W-W-H-W-W</h4>
+        </div>
+        
+        <div class="example-box">
+            <h4>A Natural Minor Scale</h4>
+            <div class="note-sequence">
+                <span class="note-pill">A</span> - <span class="note-pill">B</span> - <span class="note-pill">C</span> - <span class="note-pill">D</span> - <span class="note-pill">E</span> - <span class="note-pill">F</span> - <span class="note-pill">G</span> - <span class="note-pill">A</span>
+            </div>
+    </div>
+
+<div id="chords" class="theory-section">
+    <div class="section-header">
+        <h2>Chords</h2>
+    </div>
+    
+    <div class="card">
+        <h3>What is a Chord?</h3>
+        <p>A <strong>chord</strong> is three or more notes played simultaneously. Chords provide the harmonic foundation of music.</p>
+        
+        <div class="tip-box">
+            <strong>Key Concept:</strong> The root of a chord is the note the chord is named after. The quality describes the type of chord.
+        </div>
+    
+    <div class="card">
+        <h3>Triads</h3>
+        <p>The most basic chord type consists of three notes: the root, third, and fifth.</p>
+        
+        <table class="theory-table">
+            <tr><th>Quality</th><th>Abbreviation</th><th>Intervals</th><th>Sound</th><th>Example</th></tr>
+            <tr><td>Major</td><td>maj</td><td>1 - 3 - 5</td><td>Bright, stable</td><td>C-E-G</td></tr>
+            <tr><td>Minor</td><td>min or m</td><td>1 - b3 - 5</td><td>Dark, sad</td><td>C-Eb-G</td></tr>
+            <tr><td>Diminished</td><td>dim</td><td>1 - b3 - b5</td><td>Tense, unstable</td><td>C-Eb-Gb</td></tr>
+            <tr><td>Augmented</td><td>aug</td><td>1 - 3 - #5</td><td>Mysterious</td><td>C-E-G#</td></tr>
+        </table>
+        
+        <div class="try-it-box">
+            <p>Explore different chord qualities using the <a href="/chords">Chord Builder</a>!</p>
+        </div>
+    
+    <div class="card">
+        <h3>Seventh Chords</h3>
+        <p>Adding a seventh above the root creates more complex harmonies.</p>
+        
+        <table class="theory-table">
+            <tr><th>Type</th><th>Symbol</th><th>Notes</th><th>Sound</th></tr>
+            <tr><td>Major 7th</td><td>maj7</td><td>1 - 3 - 5 - 7</td><td>Dreamy, smooth</td></tr>
+            <tr><td>Dominant 7th</td><td>7</td><td>1 - 3 - 5 - b7</td><td>Bluesy</td></tr>
+            <tr><td>Minor 7th</td><td>min7</td><td>1 - b3 - 5 - b7</td><td>Soft, mellow</td></tr>
+            <tr><td>Diminished 7th</td><td>dim7</td><td>1 - b3 - b5 - bb7</td><td>Very tense</td></tr>
+        </table>
+    </div>
+
+<div id="progressions" class="theory-section">
+    <div class="section-header">
+        <h2>Chord Progressions</h2>
+    </div>
+    
+    <div class="card">
+        <h3>What is a Chord Progression?</h3>
+        <p>A <strong>chord progression</strong> is a sequence of chords that creates the harmonic structure of a piece of music.</p>
+        
+        <div class="tip-box">
+            <strong>Key Concept:</strong> Roman numerals indicate the scale degree of each chord. Uppercase = major, lowercase = minor.
+        </div>
+    
+    <div class="card">
+        <h3>Common Progressions</h3>
+        
+        <div class="progressions-list">
+            <div class="progression-card">
+                <h4>I - IV - V - I</h4>
+                <p class="description">The most fundamental progression</p>
+                <div class="example">C - F - G - C</div>
+            
+            <div class="progression-card">
+                <h4>I - V - vi - IV</h4>
+                <p class="description">The pop progression</p>
+                <div class="example">C - G - Am - F</div>
+            
+            <div class="progression-card">
+                <h4>ii - V - I</h4>
+                <p class="description">The jazz essential</p>
+                <div class="example">Dm7 - G7 - Cmaj7</div>
+            
+            <div class="progression-card">
+                <h4>I - vi - IV - V</h4>
+                <p class="description">50s progression</p>
+                <div class="example">C - Am - F - G</div>
+        </div>
+        
+        <div class="try-it-box">
+            <p>Analyze and create progressions with the <a href="/progressions">Progression Analyzer</a>!</p>
+        </div>
+</div>
+
+<div id="harmony" class="theory-section">
+    <div class="section-header">
+        <h2>Harmony</h2>
+    </div>
+    
+    <div class="card">
+        <h3>Consonance and Dissonance</h3>
+        <p><strong>Consonance</strong> sounds stable and restful. <strong>Dissonance</strong> sounds tense and needs to resolve.</p>
+        
+        <div class="harmony-table">
+            <div class="consonance-col">
+                <h4>Consonant Intervals</h4>
+                <ul>
+                    <li>Perfect Unison (P1)</li>
+                    <li>Perfect Octave (P8)</li>
+                    <li>Perfect Fifth (P5)</li>
+                    <li>Perfect Fourth (P4)</li>
+                    <li>Major Third (M3)</li>
+                    <li>Minor Third (m3)</li>
+                </ul>
+            </div>
+            <div class="dissonance-col">
+                <h4>Dissonant Intervals</h4>
+                <ul>
+                    <li>Minor Second (m2)</li>
+                    <li>Major Second (M2)</li>
+                    <li>Tritone (TT)</li>
+                    <li>Minor Seventh (m7)</li>
+                    <li>Major Seventh (M7)</li>
+                </ul>
+            </div>
+    </div>
+    
+    <div class="card">
+        <h3>Functional Harmony</h3>
+        <p>Chords are classified by their <strong>function</strong> - how they relate to the tonic.</p>
+        
+        <div class="functions-grid">
+            <div class="function-card tonic">
+                <h4>Tonic (T)</h4>
+                <p>Home base. Chords: I, iii, vi</p>
+            </div>
+            <div class="function-card subdominant">
+                <h4>Subdominant (SD)</h4>
+                <p>Moving away from home. Chords: IV, ii</p>
+            </div>
+<div class="function-card dominant">
+                <h4>Dominant (D)</h4>
+                <p>Creates tension. Chords: V, vii</p>
+            </div>
+    </div>
+
+<style>
+.page-header { text-align: center; margin-bottom: 2rem; }
+.page-header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+.external-link-box { background: rgba(99, 102, 241, 0.15); border: 1px solid var(--primary); border-radius: 12px; padding: 1rem; margin-top: 1rem; display: inline-block; }
+.external-link-box a { color: var(--secondary); font-weight: 600; }
+.toc-card { text-align: center; }
+.toc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.toc-item { background: rgba(99, 102, 241, 0.15); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; color: var(--light); text-decoration: none; transition: all 0.3s; }
+.toc-item:hover { background: var(--primary); transform: translateY(-3px); }
+.theory-section { margin-bottom: 3rem; }
+.section-header { border-bottom: 2px solid var(--primary); margin-bottom: 1.5rem; padding-bottom: 0.5rem; }
+.section-header h2 { color: var(--primary); font-size: 1.8rem; }
+.tip-box { background: rgba(99, 102, 241, 0.15); border-left: 4px solid var(--primary); padding: 1rem; border-radius: 0 8px 8px 0; margin: 1.5rem 0; }
+.example-box { background: rgba(16, 185, 129, 0.15); border-left: 4px solid var(--success); padding: 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+.try-it-box { background: rgba(236, 72, 153, 0.15); border-left: 4px solid var(--secondary); padding: 1rem; border-radius: 0 8px 8px 0; margin: 1.5rem 0; }
+.try-it-box a { color: var(--secondary); font-weight: 600; }
+.theory-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+.theory-table th, .theory-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+.theory-table th { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
+.note-sequence { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap; }
+.note-pill { background: var(--primary); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; }
+.scale-pattern { background: rgba(99, 102, 241, 0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0; }
+.scale-pattern h4 { color: var(--primary); margin-bottom: 0.5rem; }
+.progressions-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.progression-card { background: rgba(30, 30, 46, 0.8); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+.progression-card h4 { color: var(--primary); margin-bottom: 0.5rem; }
+.progression-card .example { background: rgba(99, 102, 241, 0.2); padding: 0.5rem; border-radius: 6px; font-weight: 600; margin-top: 0.5rem; }
+.harmony-table { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 1rem 0; }
+.consonance-col, .dissonance-col { background: rgba(30, 30, 46, 0.8); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+.consonance-col h4 { color: var(--success); margin-bottom: 1rem; }
+.dissonance-col h4 { color: var(--danger); margin-bottom: 1rem; }
+.consonance-col ul, .dissonance-col ul { list-style: none; padding: 0; }
+.consonance-col li, .dissonance-col li { padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+.functions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.function-card { background: rgba(30, 30, 46, 0.8); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
+.function-card.tonic { border-top: 4px solid var(--success); }
+.function-card.subdominant { border-top: 4px solid var(--warning); }
+.function-card.dominant { border-top: 4px solid var(--danger); }
+</style>
+{% endblock %}

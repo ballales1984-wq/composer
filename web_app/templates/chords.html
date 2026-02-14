@@ -6,6 +6,109 @@
 <div class="page-header">
     <h1>🎸 Chord Builder</h1>
     <p>Build and explore chord voicings</p>
+    
+    <div class="help-tabs">
+        <button class="tab-btn active" onclick="showChordHelp('theory')">📖 Teoria</button>
+        <button class="tab-btn" onclick="showChordHelp('types')">🎵 Tipi di Accordi</button>
+        <button class="tab-btn" onclick="showChordHelp('voicings')">🎹 Voicing</button>
+        <button class="tab-btn" onclick="showChordHelp('symbols')">📝 Simboli</button>
+    </div>
+    
+    <div id="chord-help-theory" class="help-content">
+        <div class="help-box">
+            <h3>📚 Cos'è un Accordo?</h3>
+            <p>Un accordo è un gruppo di tre o più note suonate simultaneamente. Gli accordi sono la base dell'armonia nella musica.</p>
+            
+            <h4>🎯 Concetti Chiave:</h4>
+            <ul>
+                <li><strong>Fondamentale (Root)</strong>: La nota base dell'accordo</li>
+                <li><strong>Triade</strong>: Le prime tre note (fondamentale, terza, quinta)</li>
+                <li><strong>Qualità</strong>: Il "colore" dell'accordo (maggiore, minore, etc.)</li>
+                <li><strong>Voicing</strong>: La disposizione delle note</li>
+            </ul>
+            
+            <div class="tip-box">
+                <strong>💡 Suggerimento:</strong> La differenza tra accordo maggiore e minore è solo la terza! La maggiore ha terza maggiore (4 semitoni), la minore ha terza minore (3 semitoni).
+            </div>
+        </div>
+    </div>
+    
+    <div id="chord-help-types" class="help-content" style="display: none;">
+        <div class="help-box">
+            <h3>🎵 Tipi di Accordi</h3>
+            
+            <table class="chords-table">
+                <tr><th>Tipo</th><th>Intervalli</th><th>Esempio</th><th>Suono</th></tr>
+                <tr><td>Maggiore</td><td>1 - 3 - 5</td><td>C-E-G</td><td>Allegro, stabile</td></tr>
+                <tr><td>Minore</td><td>1 - ♭3 - 5</td><td>C-Eb-G</td><td>Malinconico</td></tr>
+                <tr><td>Diminuito</td><td>1 - ♭3 - ♭5</td><td>C-Eb-Gb</td><td>Tenso</td></tr>
+                <tr><td>Aumentato</td><td>1 - 3 - #5</td><td>C-E-G#</td><td>Misterioso</td></tr>
+                <tr><td>Sus2</td><td>1 - 2 - 5</td><td>C-D-G</td><td>Vago</td></tr>
+                <tr><td>Sus4</td><td>1 - 4 - 5</td><td>C-F-G</td><td>Sospeso</td></tr>
+                <tr><td>Magg7</td><td>1 - 3 - 5 - 7</td><td>C-E-G-B</td><td>Jazzy</td></tr>
+                <tr><td>Dom7</td><td>1 - 3 - 5 - ♭7</td><td>C-E-G-Bb</td><td>Bluesy</td></tr>
+            </table>
+        </div>
+    </div>
+    
+    <div id="chord-help-voicings" class="help-content" style="display: none;">
+        <div class="help-box">
+            <h3>🎹 Voicing e Inversioni</h3>
+            <p>Il voicing è la disposizione delle note di un accordo. Puoi cambiare l'ordine delle note per creare effetti diversi.</p>
+            
+            <h4>📖 Inversioni:</h4>
+            <ul>
+                <li><strong>Posizione Fondamentale</strong>: La nota più bassa è la fondamentale</li>
+                <li><strong>Prima Inversione</strong>: La terza è la nota più bassa</li>
+                <li><strong>Seconda Inversione</strong>: La quinta è la nota più bassa</li>
+            </ul>
+            
+            <div class="tip-box">
+                <strong>💡 Suggerimento:</strong> Per un suono più "pieno", usa la posizione fondamentale. Per transizioni più fluide tra accordi, usa le inversioni!
+            </div>
+        </div>
+    </div>
+    
+    <div id="chord-help-symbols" class="help-content" style="display: none;">
+        <div class="help-box">
+            <h3>📝 Simboli degli Accordi</h3>
+            
+            <div class="symbols-grid">
+                <div class="symbol-item">
+                    <span class="symbol">C</span>
+                    <span>Do Maggiore</span>
+                </div>
+                <div class="symbol-item">
+                    <span class="symbol">Cm</span>
+                    <span>Do Minore</span>
+                </div>
+                <div class="symbol-item">
+                    <span class="symbol">C7</span>
+                    <span>Do Dominante 7</span>
+                </div>
+                <div class="symbol-item">
+                    <span class="symbol">Cmaj7</span>
+                    <span>Do Maggiore 7</span>
+                </div>
+                <div class="symbol-item">
+                    <span class="symbol">Cm7</span>
+                    <span>Do Minore 7</span>
+                </div>
+                <div class="symbol-item">
+                    <span class="symbol">Cdim</span>
+                    <span>Do Diminuito</span>
+                </div>
+                <div class="symbol-item">
+                    <span class="symbol">Caug</span>
+                    <span>Do Aumentato</span>
+                </div>
+                <div class="symbol-item">
+                    <span class="symbol">Csus4</span>
+                    <span>Do Suspended 4</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="grid grid-2">

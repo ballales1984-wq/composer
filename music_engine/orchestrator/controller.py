@@ -17,7 +17,7 @@ if parent_dir not in sys.path:
 from models import Note, Chord, Scale, Progression
 from core.harmony import HarmonyEngine
 from .solver import ScaleSolver, ChordSolver, ConflictResolver
-from .genre_rules import GenreDetector, GenreRules
+from .genre_rules import GenreDetector, GenreRules, JazzRules, PopRules, RockRules, BluesRules
 
 
 class InputController:

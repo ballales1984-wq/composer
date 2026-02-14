@@ -79,6 +79,12 @@ def realtime_page():
     return render_template('realtime.html')
 
 
+@app.route('/learn')
+def learn_page():
+    """Learn music theory page."""
+    return render_template('learn.html')
+
+
 @app.errorhandler(404)
 def not_found(e):
     """Handle 404 errors."""

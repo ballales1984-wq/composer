@@ -4,75 +4,102 @@
 
 {% block content %}
 <div class="hero">
+    <div class="hero-bg">
+        <div class="floating-note note-1">♪</div>
+        <div class="floating-note note-2">♫</div>
+        <div class="floating-note note-3">♬</div>
+        <div class="floating-note note-4">🎵</div>
+        <div class="floating-note note-5">🎶</div>
+    </div>
     <h1>🎵 Music Theory Engine</h1>
     <p class="subtitle">Professional music theory tools for musicians & guitarists</p>
     
+    <div class="quick-search">
+        <input type="text" placeholder="Search scales, chords, progressions..." id="quick-search">
+        <button onclick="performSearch()">🔍</button>
+    </div>
+    
     <div class="features-grid">
-        <a href="/analyzer" class="feature-card">
+        <a href="/analyzer" class="feature-card" style="animation-delay: 0.1s">
             <div class="feature-icon">🎵</div>
             <h3>Harmony Analyzer</h3>
-            <p>Analyze chord-scale compatibility with tonal & modal logic</p>
+            <p>Analyze chord-scale compatibility</p>
+            <span class="feature-badge">AI</span>
         </a>
         
-        <a href="/scales" class="feature-card">
+        <a href="/scales" class="feature-card" style="animation-delay: 0.2s">
             <div class="feature-icon">🎼</div>
             <h3>Scale Explorer</h3>
-            <p>Explore scales, modes, and pentatonic scales</p>
+            <p>Explore 50+ scales & modes</p>
+            <span class="feature-count">50+</span>
         </a>
         
-        <a href="/chords" class="feature-card">
+        <a href="/chords" class="feature-card" style="animation-delay: 0.3s">
             <div class="feature-icon">🎸</div>
             <h3>Chord Builder</h3>
-            <p>Build and explore chord voicings</p>
+            <p>Build & explore voicings</p>
+            <span class="feature-badge">PRO</span>
         </a>
         
-        <a href="/progressions" class="feature-card">
+        <a href="/progressions" class="feature-card" style="animation-delay: 0.4s">
             <div class="feature-icon">🎶</div>
             <h3>Progressions</h3>
-            <p>Analyze chord progressions</p>
+            <p>Analyze & generate progressions</p>
         </a>
         
-        <a href="/fretboard" class="feature-card">
+        <a href="/fretboard" class="feature-card" style="animation-delay: 0.5s">
             <div class="feature-icon">🎹</div>
             <h3>Fretboard</h3>
-            <p>Visualize notes on guitar fretboard</p>
+            <p>Visualize notes on guitar</p>
         </a>
         
-        <a href="/realtime" class="feature-card">
+        <a href="/realtime" class="feature-card" style="animation-delay: 0.6s">
             <div class="feature-icon">⚡</div>
             <h3>Real-time</h3>
-            <p>Play keyboard and analyze in real-time</p>
+            <p>Play & analyze instantly</p>
+            <span class="pulse-dot"></span>
         </a>
     </div>
 </div>
 
 <div class="grid grid-2">
-    <div class="card">
+    <div class="card glass-card">
         <div class="card-header">
-            <h2 class="card-title">Quick Start</h2>
+            <h2 class="card-title">🚀 Quick Start</h2>
         </div>
-        
-        <h3>Try these examples:</h3>
         
         <div class="quick-examples">
             <div class="example-item" onclick="loadExample('scale')">
-                <strong>C Major Scale</strong>
-                <span>C, D, E, F, G, A, B</span>
+                <div class="example-icon">🎼</div>
+                <div class="example-info">
+                    <strong>C Major Scale</strong>
+                    <span>C, D, E, F, G, A, B</span>
+                </div>
+                <span class="example-arrow">→</span>
             </div>
             <div class="example-item" onclick="loadExample('chord')">
-                <strong>G7 Chord</strong>
-                <span>G, B, D, F</span>
+                <div class="example-icon">🎸</div>
+                <div class="example-info">
+                    <strong>G7 Chord</strong>
+                    <span>G, B, D, F</span>
+                </div>
+                <span class="example-arrow">→</span>
             </div>
             <div class="example-item" onclick="loadExample('progression')">
-                <strong>I-IV-V Progression</strong>
-                <span>C → F → G</span>
+                <div class="example-icon">🎶</div>
+                <div class="example-info">
+                    <strong>I-IV-V Progression</strong>
+                    <span>C → F → G</span>
+                </div>
+                <span class="example-arrow">→</span>
             </div>
         </div>
     </div>
     
-    <div class="card">
+    <div class="card glass-card">
         <div class="card-header">
-            <h2 class="card-title">API Status</h2>
+            <h2 class="card-title">📚 API Status</h2>
+            <span class="live-badge">LIVE</span>
         </div>
         
         <div id="api-status">
@@ -81,9 +108,9 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card glass-card">
     <div class="card-header">
-        <h2 class="card-title">Available Scale Types</h2>
+        <h2 class="card-title">🎵 Available Scale Types</h2>
     </div>
     
     <div class="scale-types-grid" id="scale-types">
@@ -92,156 +119,335 @@
 </div>
 
 <style>
+    /* Hero Section */
     .hero {
         text-align: center;
         padding: 3rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    .floating-note {
+        position: absolute;
+        font-size: 2rem;
+        opacity: 0.1;
+        animation: float 20s infinite ease-in-out;
+    }
+    
+    .note-1 { top: 10%; left: 10%; animation-delay: 0s; }
+    .note-2 { top: 20%; right: 15%; animation-delay: 2s; }
+    .note-3 { bottom: 30%; left: 20%; animation-delay: 4s; }
+    .note-4 { bottom: 10%; right: 10%; animation-delay: 6s; }
+    .note-5 { top: 50%; left: 5%; animation-delay: 8s; }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-20px) rotate(10deg); }
+        50% { transform: translateY(0) rotate(0deg); }
+        75% { transform: translateY(20px) rotate(-10deg); }
     }
     
     .hero h1 {
-        font-size: 3rem;
+        font-size: 3.5rem;
         margin-bottom: 0.5rem;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        background: linear-gradient(135deg, #6366f1, #ec4899, #f59e0b);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        animation: gradient-shift 5s ease infinite;
+        background-size: 200% 200%;
+    }
+    
+    @keyframes gradient-shift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
     }
     
     .subtitle {
         font-size: 1.25rem;
-        color: var(--gray);
+        color: #94a3b8;
         margin-bottom: 2rem;
     }
     
+    /* Quick Search */
+    .quick-search {
+        display: flex;
+        max-width: 500px;
+        margin: 0 auto 3rem;
+        background: rgba(30, 30, 46, 0.8);
+        border-radius: 50px;
+        padding: 0.5rem;
+        border: 1px solid #334155;
+    }
+    
+    .quick-search input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        color: #fff;
+        font-size: 1rem;
+        outline: none;
+    }
+    
+    .quick-search button {
+        background: linear-gradient(135deg, #6366f1, #ec4899);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 1.25rem;
+        transition: transform 0.2s;
+    }
+    
+    .quick-search button:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Features Grid */
     .features-grid {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 1.5rem;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 1rem;
         margin-top: 2rem;
+        position: relative;
+        z-index: 1;
     }
     
     @media (max-width: 1200px) {
-        .features-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
+        .features-grid { grid-template-columns: repeat(3, 1fr); }
     }
     
     @media (max-width: 768px) {
-        .features-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    
-    @media (max-width: 500px) {
-        .features-grid {
-            grid-template-columns: 1fr;
-        }
+        .features-grid { grid-template-columns: repeat(2, 1fr); }
+        .hero h1 { font-size: 2.5rem; }
     }
     
     .feature-card {
-        background: rgba(30, 30, 46, 0.8);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 2rem;
+        background: linear-gradient(145deg, rgba(30, 30, 46, 0.9), rgba(30, 30, 46, 0.6));
+        border: 1px solid #334155;
+        border-radius: 20px;
+        padding: 1.5rem 1rem;
         text-align: center;
         text-decoration: none;
-        color: var(--light);
-        transition: all 0.3s;
+        color: #f8fafc;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #6366f1, #ec4899);
+        transform: scaleX(0);
+        transition: transform 0.3s;
     }
     
     .feature-card:hover {
-        transform: translateY(-5px);
-        border-color: var(--primary);
-        box-shadow: 0 10px 40px rgba(99, 102, 241, 0.2);
+        transform: translateY(-8px);
+        border-color: #6366f1;
+        box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+    }
+    
+    .feature-card:hover::before {
+        transform: scaleX(1);
     }
     
     .feature-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        display: block;
     }
     
     .feature-card h3 {
-        font-size: 1.25rem;
+        font-size: 1rem;
         margin-bottom: 0.5rem;
+        font-weight: 600;
     }
     
     .feature-card p {
-        color: var(--gray);
-        font-size: 0.875rem;
+        color: #94a3b8;
+        font-size: 0.8rem;
+        line-height: 1.4;
     }
     
+    .feature-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, #6366f1, #ec4899);
+        color: white;
+        font-size: 0.65rem;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+    
+    .feature-count {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        font-size: 0.65rem;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+    
+    .pulse-dot {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    }
+    
+    /* Glass Card */
+    .glass-card {
+        background: linear-gradient(145deg, rgba(30, 30, 46, 0.9), rgba(30, 30, 46, 0.6));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    
+    /* Quick Examples */
     .quick-examples {
         margin-top: 1rem;
     }
     
     .example-item {
         display: flex;
-        justify-content: space-between;
         align-items: center;
         padding: 1rem;
-        background: var(--dark);
-        border-radius: 8px;
-        margin-bottom: 0.5rem;
+        background: rgba(15, 15, 25, 0.5);
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s;
+        border: 1px solid transparent;
     }
     
     .example-item:hover {
-        background: var(--primary);
+        background: rgba(99, 102, 241, 0.1);
+        border-color: #6366f1;
+        transform: translateX(10px);
     }
     
-    .example-item strong {
-        color: var(--light);
+    .example-icon {
+        font-size: 1.5rem;
+        margin-right: 1rem;
     }
     
-    .example-item span {
-        color: var(--gray);
+    .example-info {
+        flex: 1;
+        text-align: left;
     }
     
+    .example-info strong {
+        display: block;
+        color: #f8fafc;
+        font-size: 0.95rem;
+    }
+    
+    .example-info span {
+        color: #94a3b8;
+        font-size: 0.8rem;
+    }
+    
+    .example-arrow {
+        font-size: 1.25rem;
+        color: #6366f1;
+        opacity: 0;
+        transition: all 0.3s;
+    }
+    
+    .example-item:hover .example-arrow {
+        opacity: 1;
+    }
+    
+    /* Live Badge */
+    .live-badge {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        font-size: 0.7rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        animation: pulse 2s infinite;
+    }
+    
+    /* Scale Types */
     .scale-types-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 0.75rem;
     }
     
     .scale-type-tag {
-        background: var(--dark);
+        background: linear-gradient(145deg, rgba(15, 15, 25, 0.5), rgba(30, 30, 46, 0.5));
         padding: 0.75rem 1rem;
-        border-radius: 8px;
+        border-radius: 10px;
         text-align: center;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s;
+        border: 1px solid transparent;
+        font-size: 0.85rem;
     }
     
     .scale-type-tag:hover {
-        background: var(--primary);
+        background: linear-gradient(145deg, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.1));
+        border-color: #6366f1;
+        transform: scale(1.02);
     }
     
     .api-status-item {
         display: flex;
         justify-content: space-between;
-        padding: 0.75rem;
-        border-bottom: 1px solid var(--border);
-    }
-    
-    .api-status-item:last-child {
-        border-bottom: none;
+        align-items: center;
+        padding: 1rem;
+        background: rgba(15, 15, 25, 0.5);
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
     }
     
     .status-badge {
-        padding: 0.25rem 0.75rem;
+        padding: 0.35rem 1rem;
         border-radius: 20px;
-        font-size: 0.875rem;
+        font-size: 0.85rem;
         font-weight: 500;
     }
     
     .status-available {
         background: rgba(16, 185, 129, 0.2);
-        color: var(--success);
+        color: #10b981;
     }
     
     .status-unavailable {
         background: rgba(239, 68, 68, 0.2);
-        color: var(--danger);
+        color: #ef4444;
     }
 </style>
 
@@ -255,6 +461,23 @@ async function loadExample(type) {
         window.location.href = '/progressions?chords=C,F,G';
     }
 }
+
+function performSearch() {
+    const query = document.getElementById('quick-search').value.toLowerCase();
+    if (query.includes('scale') || query.includes('major') || query.includes('minor')) {
+        window.location.href = '/scales?root=C&type=major';
+    } else if (query.includes('chord') || query.includes('accord')) {
+        window.location.href = '/chords?root=C&quality=maj7';
+    } else if (query.includes('progress') || query.includes('progressione')) {
+        window.location.href = '/progressions';
+    } else if (query.includes('fret') || query.includes('chitarra')) {
+        window.location.href = '/fretboard';
+    }
+}
+
+document.getElementById('quick-search').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') performSearch();
+});
 
 async function loadApiStatus() {
     try {
@@ -288,7 +511,7 @@ async function loadScaleTypes() {
         const data = await response.json();
         
         if (data.success) {
-            const html = data.scale_types.map(scale => `
+            const html = data.scale_types.slice(0, 12).map(scale => `
                 <div class="scale-type-tag" onclick="window.location.href='/scales?type=${scale.id}'">
                     ${scale.name}
                 </div>
@@ -305,6 +528,17 @@ async function loadScaleTypes() {
 document.addEventListener('DOMContentLoaded', () => {
     loadApiStatus();
     loadScaleTypes();
+    
+    // Add animation to cards
+    document.querySelectorAll('.feature-card').forEach((card, i) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, i * 100);
+    });
 });
 </script>
 {% endblock %}

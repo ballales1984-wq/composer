@@ -6,6 +6,148 @@
 <div class="page-header">
     <h1>🎼 Scale Explorer</h1>
     <p>Explore musical scales and their properties</p>
+    
+    <div class="help-tabs">
+        <button class="tab-btn active" onclick="showHelp('theory')">📖 Teoria</button>
+        <button class="tab-btn" onclick="showHelp('intervals')">🎵 Intervalli</button>
+        <button class="tab-btn" onclick="showHelp('degrees')">📊 Gradi</button>
+        <button class="tab-btn" onclick="showHelp('practice')">💪 Pratica</button>
+    </div>
+    
+    <div id="help-theory" class="help-content">
+        <div class="help-box">
+            <h3>📚 Cos'è una Scala?</h3>
+            <p>Una scala è una sequenza ordinata di note musicali organizzate per altezza. Le scale sono la base della melodia e dell'armonia nella musica occidentale.</p>
+            
+            <h4>🎯 Concetti Chiave:</h4>
+            <ul>
+                <li><strong>Tonica (I)</strong>: La nota base della scala - il "rifugio" sonoro</li>
+                <li><strong>Modo</strong>: Il "colore" della scala (maggiore, minore, dorico, etc.)</li>
+                <li><strong>Intervallo</strong>: La distanza tra due note</li>
+                <li><strong>Grado</strong>: La posizione di una nota nella scala (I, II, III, etc.)</li>
+            </ul>
+            
+            <div class="tip-box">
+                <strong>💡 Suggerimento:</strong> La differenza tra scala maggiore e minore è solo una questione di intervalli! La maggiore suona "allegra", la minore "malinconica".
+            </div>
+        </div>
+    </div>
+    
+    <div id="help-intervals" class="help-content" style="display: none;">
+        <div class="help-box">
+            <h3>🎵 Gli Intervalli</h3>
+            <p>Un intervallo è la distanza tra due note. Si misura in semitoni (mezzi toni).</p>
+            
+            <table class="intervals-table">
+                <tr><th>Intervallo</th><th>Semitoni</th><th>Esempio</th><th>Suono</th></tr>
+                <tr><td>Unisono</td><td>0</td><td>C - C</td><td>Stesso</td></tr>
+                <tr><td>Seconda minore</td><td>1</td><td>C - Db</td><td>Attrito</td></tr>
+                <tr><td>Seconda maggiore</td><td>2</td><td>C - D</td><td>Movimento</td></tr>
+                <tr><td>Terza minore</td><td>3</td><td>C - Eb</td><td>Malinconico</td></tr>
+                <tr><td>Terza maggiore</td><td>4</td><td>C - E</td><td>Allegro</td></tr>
+                <tr><td>Quarta</td><td>5</td><td>C - F</td><td>Stabile</td></tr>
+                <tr><td>Tritono</td><td>6</td><td>C - Gb</td><td>Instabile</td></tr>
+                <tr><td>Quinta</td><td>7</td><td>C - G</td><td>Perfetto</td></tr>
+                <tr><td>Sesta</td><td>9</td><td>C - A</td><td>Espansivo</td></tr>
+                <tr><td>Settima</td><td>10</td><td>C - Bb</td><td>Tensione</td></tr>
+                <tr><td>Ottava</td><td>12</td><td>C - C</td><td>Ritorno</td></tr>
+            </table>
+        </div>
+    </div>
+    
+    <div id="help-degrees" class="help-content" style="display: none;">
+        <div class="help-box">
+            <h3>📊 I Gradi della Scala</h3>
+            <p>Ogni nota della scala ha un numero (grado) e un nome che indica la sua funzione:</p>
+            
+            <div class="degrees-explainer">
+                <div class="degree-item">
+                    <span class="degree-num">I</span>
+                    <div>
+                        <strong>Tonica</strong>
+                        <p>La nota base - il centro tonale</p>
+                    </div>
+                </div>
+                <div class="degree-item">
+                    <span class="degree-num">II</span>
+                    <div>
+                        <strong>Sopratonica</strong>
+                        <p>Movimento verso la dominante</p>
+                    </div>
+                </div>
+                <div class="degree-item">
+                    <span class="degree-num">III</span>
+                    <div>
+                        <strong>Modale</strong>
+                        <p>Definisce se maggiore o minore</p>
+                    </div>
+                </div>
+                <div class="degree-item">
+                    <span class="degree-num">IV</span>
+                    <div>
+                        <strong>Sottodominante</strong>
+                        <p>Prepara il ritorno alla tonica</p>
+                    </div>
+                </div>
+                <div class="degree-item">
+                    <span class="degree-num">V</span>
+                    <div>
+                        <strong>Dominante</strong>
+                        <p>Il grado più forte dopo la tonica</p>
+                    </div>
+                </div>
+                <div class="degree-item">
+                    <span class="degree-num">VI</span>
+                    <div>
+                        <strong>Sopradominante</strong>
+                        <p>Funzione simmetrica alla sottodominante</p>
+                    </div>
+                </div>
+                <div class="degree-item">
+                    <span class="degree-num">VII</span>
+                    <div>
+                        <strong>Sensibile</strong>
+                        <p>Tensione verso la tonica (mezzo tono)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="help-practice" class="help-content" style="display: none;">
+        <div class="help-box">
+            <h3>💪 Esercizi Pratici</h3>
+            
+            <div class="practice-tips">
+                <div class="tip-card">
+                    <h4>🎸 Pratica con la Chitarra</h4>
+                    <ol>
+                        <li>Suona la scala in su e giù</li>
+                        <li>Cambia posizione ogni settimana</li>
+                        <li>Tocca la tonica all'inizio e fine</li>
+                    </ol>
+                </div>
+                
+                <div class="tip-card">
+                    <h4>👂 Training Auditivo</h4>
+                    <ol>
+                        <li>Ascolta la "colorazione" di ogni grado</li>
+                        <li>Canta i gradi dopo il pianoforte</li>
+                        <li>Identifica la tonica ad occhi chiusi</li>
+                    </ol>
+                </div>
+                
+                <div class="tip-card">
+                    <h4>🎹 Pratica al Piano</h4>
+                    <ol>
+                        <li>Suona le scale con mani alternate</li>
+                        <li>Impara le posizioni dei Modi</li>
+                        <li>Costruisci gli accordi di ogni grado</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="grid grid-2">
@@ -249,8 +391,173 @@
         margin-bottom: 0.5rem;
     }
     
-    .page-header p {
+.page-header p {
         color: var(--gray);
+    }
+    
+    /* Educational Content Styles */
+    .help-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 1.5rem 0;
+        flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+        background: rgba(30, 30, 46, 0.8);
+        border: 1px solid var(--border);
+        color: var(--light);
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    
+    .tab-btn:hover {
+        background: rgba(99, 102, 241, 0.2);
+        border-color: var(--primary);
+    }
+    
+    .tab-btn.active {
+        background: linear-gradient(135deg, #6366f1, #ec4899);
+        border-color: transparent;
+    }
+    
+    .help-content {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .help-box {
+        background: linear-gradient(145deg, rgba(30, 30, 46, 0.9), rgba(30, 30, 46, 0.6));
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: left;
+    }
+    
+    .help-box h3 {
+        color: var(--primary);
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .help-box h4 {
+        color: var(--light);
+        margin: 1.5rem 0 0.75rem;
+    }
+    
+    .help-box ul {
+        margin-left: 1.5rem;
+        color: #cbd5e1;
+    }
+    
+    .help-box li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .tip-box {
+        background: rgba(99, 102, 241, 0.15);
+        border-left: 4px solid var(--primary);
+        padding: 1rem;
+        border-radius: 0 8px 8px 0;
+        margin-top: 1.5rem;
+    }
+    
+    .intervals-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    
+    .intervals-table th,
+    .intervals-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .intervals-table th {
+        background: rgba(99, 102, 241, 0.2);
+        color: var(--primary);
+    }
+    
+    .intervals-table tr:hover {
+        background: rgba(99, 102, 241, 0.1);
+    }
+    
+    .degrees-explainer {
+        display: grid;
+        gap: 1rem;
+    }
+    
+    .degree-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(15, 15, 25, 0.5);
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        transition: all 0.3s;
+    }
+    
+    .degree-item:hover {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.1);
+    }
+    
+    .degree-num {
+        background: linear-gradient(135deg, #6366f1, #ec4899);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+    
+    .degree-item strong {
+        color: var(--light);
+        display: block;
+    }
+    
+    .degree-item p {
+        color: var(--gray);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+    
+    .practice-tips {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .tip-card {
+        background: rgba(15, 15, 25, 0.5);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+    
+    .tip-card h4 {
+        color: var(--secondary);
+        margin-bottom: 1rem;
+    }
+    
+    .tip-card ol {
+        margin-left: 1.25rem;
+        color: #cbd5e1;
+    }
+    
+    .tip-card li {
+        margin-bottom: 0.5rem;
     }
     
     /* Piano Keyboard Styles */
@@ -920,6 +1227,25 @@ function selectCircleKey(root, scaleTypeToSet = 'major') {
 
 // Initialize Circle of Fifths on page load
 document.addEventListener('DOMContentLoaded', initCircleOfFifths);
+
+// Show help tabs function
+function showHelp(tabId) {
+    // Hide all help contents
+    document.querySelectorAll('.help-content').forEach(content => {
+        content.style.display = 'none';
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected content
+    document.getElementById('help-' + tabId).style.display = 'block';
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+}
 </script>
 {% endblock %}
 
