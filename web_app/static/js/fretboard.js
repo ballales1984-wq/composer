@@ -25,10 +25,10 @@ class GuitarFretboard {
         this.tunings = {
             'standard': ['E', 'B', 'G', 'D', 'A', 'E'],  // High E at top, low E at bottom
             'drop_d': ['E', 'B', 'G', 'D', 'A', 'D'],  // Drop D tuning
-            'open_g': ['D', 'B', 'G', 'D', 'G', 'D'],  // Open G
-            'open_d': ['D', 'A', 'D', 'F#', 'A', 'D'],  // Open D
-            'half_step': ['Eb', 'Bb', 'Gb', 'Db', 'Ab', 'Eb'],  // Half step down
-            'full_step': ['D', 'A', 'G', 'C', 'F', 'D']  // Full step down
+            'open_g': ['D', 'B', 'G', 'D', 'G', 'D'],  // Open G (D G D G B D)
+            'open_d': ['D', 'A', 'F#', 'D', 'A', 'D'],  // Open D (D A D F# A D) - FIXED: high to low
+            'half_step': ['Eb', 'Bb', 'Gb', 'Db', 'Ab', 'Eb'],  // Half step down (Eb Ab Db Gb Bb eb)
+            'full_step': ['D', 'A', 'F', 'C', 'G', 'D']  // Full step down (D G C F A D) - FIXED: high to low
         };
         
         this.chromaticNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
