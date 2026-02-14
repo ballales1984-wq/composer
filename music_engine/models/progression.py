@@ -8,6 +8,7 @@ progressions and their harmonic analysis.
 from typing import List, Optional, Union, Set, Dict
 from .note import Note
 from .chord import Chord
+from music_engine.exceptions import InvalidProgressionError, InvalidChordError
 
 
 class Progression:
@@ -34,7 +35,15 @@ class Progression:
         Args:
             chords: List of Chord objects or chord specification strings
             key: Optional key specification (Note object or string)
+
+        Raises:
+            InvalidProgressionError: If chords list is empty or invalid
+            InvalidChordError: If any chord cannot be created
         """
+        if not chords:
+            raise InvalidProgressionError("Chords list cannot be empty", 
+                                        details={'chords': chords})
+        
         self._chords = []
         for chord in chords:
             if isinstance(chord, str):

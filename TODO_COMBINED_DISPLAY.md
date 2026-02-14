@@ -7,8 +7,8 @@ Visualizzare simultaneamente le note della scala E dell'accordo sul manico della
 
 - [x] 1. Modificare fretboard.js - aggiungere metodo per visualizzazione combinata
 - [x] 2. Modificare fretboard.html - aggiungere opzione "Scale + Chord" 
-- [ ] 3. Modificare scales.html - aggiungere pulsante "View on Fretboard"
-- [ ] 4. Modificare chords.html - aggiungere pulsante "View on Fretboard"
+- [x] 3. Modificare scales.html - aggiungere pulsante "View on Fretboard"
+- [x] 4. Modificare chords.html - aggiungere pulsante "View on Fretboard"
 - [x] 5. Testare navigazione e visualizzazione
 
 ## Dettagli Tecnici
@@ -21,4 +21,6 @@ Visualizzare simultaneamente le note della scala E dell'accordo sul manico della
 ### Parametri URL:
 - /fretboard?root=C&scale=major&chord=G&chord_quality=dom7
 - /fretboard?mode=scale_chord&root=C&scale=major&chord_root=G&chord_quality=dom7
+
+## ✅ STATO: COMPLETATO
 

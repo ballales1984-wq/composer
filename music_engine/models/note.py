@@ -151,9 +151,13 @@ class Note:
 
         Returns:
             Note object
+
+        Raises:
+            InvalidNoteError: If semitone value is out of range
         """
         if not (0 <= semitone <= 11):
-            raise ValueError(f"Semitone value must be between 0 and 11, got {semitone}")
+            raise InvalidNoteError(f"Semitone value must be between 0 and 11, got {semitone}", 
+                                  details={'semitone': semitone, 'valid_range': '0-11'})
 
         names = SEMITONE_TO_NOTES[semitone]
         if len(names) == 1:
@@ -178,9 +182,13 @@ class Note:
 
         Returns:
             Note object
+
+        Raises:
+            InvalidNoteError: If MIDI number is out of range
         """
         if not (0 <= midi_number <= 127):
-            raise ValueError(f"MIDI note number must be between 0 and 127, got {midi_number}")
+            raise InvalidNoteError(f"MIDI note number must be between 0 and 127, got {midi_number}", 
+                                  details={'midi_number': midi_number, 'valid_range': '0-127'})
         
         # Calculate octave and semitone
         # MIDI 60 = C4, so octave = midi // 12 - 1

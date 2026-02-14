@@ -1,5 +1,9 @@
 # Music Theory Engine
 
+[![Tests](https://github.com/blackboxai/music-theory-engine/actions/workflows/test.yml/badge.svg)](https://github.com/blackboxai/music-theory-engine/actions/workflows/test.yml)
+[![Coverage](https://codecov.io/gh/blackboxai/music-theory-engine/branch/main/graph/badge.svg)](https://codecov.io/gh/blackboxai/music-theory-engine)
+[![Python Version](https://img.shields.io/pypi/pyversions/music-theory-engine.svg)](https://pypi.org/project/music-theory-engine/)
+
 A comprehensive Python library and web application for music theory analysis, composition, and education.
 
 ## Features
