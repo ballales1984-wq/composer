@@ -163,9 +163,9 @@ class Progression:
         if not self._chords:
             return []
 
-        # Get all notes in the progression
+# Get all notes in the progression
         prog_notes = self.all_notes
-        prog_semitones = {note.semitone for note in prog_notes}
+        prog_semitones = {note.chroma for note in prog_notes}
 
         compatible_scales = []
 
