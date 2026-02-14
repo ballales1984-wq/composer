@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+
+{% block title %}Progression Analyzer - Music Theory Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🎶 Progression Analyzer</h1>
+    <p>Analyze chord progressions and find compatible scales</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Enter Chord Progression</h2>
+    </div>
+    
+    <div class="form-group">
+        <label class="form-label">Key</label>
+        <select id="key" class="form-select" style="max-width: 200px;">
+            <option value="C">C</option>
+            <option value="C#">C# / Db</option>
+            <option value="D">D</option>
+            <option value="D#">D# / Eb</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="F#">F# / Gb</option>
+            <option value="G">G</option>
+            <option value="G#">G# / Ab</option>
+            <option value="A">A</option>
+            <option value="A#">A# / Bb</option>
+            <option value="B">B</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label class="form-label">Chords (comma separated)</label>
+        <input type="text" id="chords-input" class="form-input" placeholder="e.g., C, F, G, C or Cmaj7, Dm7, G7, Cmaj7">
+        <small style="color: var(--gray);">Enter chord names like: C, Cmaj7, Dm, F#m, G7, etc.</small>
+    </div>
+    
+    <div style="display: flex; gap: 1rem;">
+        <button id="analyze-btn" class="btn btn-primary">
+            Analyze Progression
+        </button>
+        <button id="roman-btn" class="btn btn-secondary">
+            Get Roman Numerals
+        </button>
+        <button id="scales-btn" class="btn btn-success">
+            Suggest Scales
+        </button>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Analysis Results</h2>
+        </div>
+        
+        <div id="analysis-result">
+            <p>Enter a chord progression to see analysis</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Roman Numerals</h2>
+        </div>
+        
+        <div id="roman-result">
+            <p>Click "Get Roman Numerals" to convert</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Suggested Scales</h2>
+    </div>
+    
+    <div id="scales-result">
+        <p>Click "Suggest Scales" to find compatible scales</p>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-header p {
+        color: var(--gray);
+    }
+    
+    .progression-display {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+    
+    .progression-chord {
+        background: var(--primary);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+    
+    .analysis-item {
+        background: var(--dark);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+    }
+    
+    .analysis-label {
+        font-size: 0.875rem;
+        color: var(--gray);
+        margin-bottom: 0.25rem;
+    }
+    
+    .analysis-value {
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+    
+    .roman-display {
+        display: flex;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .roman-item {
+        text-align: center;
+    }
+    
+    .roman-chord {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--secondary);
+    }
+    
+    .roman-numeral {
+        font-size: 1.25rem;
+        color: var(--primary);
+    }
+    
+    .scale-suggestion {
+        background: var(--dark);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+    }
+    
+    .scale-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--success);
+    }
+    
+    .scale-notes {
+        margin-top: 0.5rem;
+    }
+</style>
+
+<script>
+const chordsInput = document.getElementById('chords-input');
+const keySelect = document.getElementById('key');
+const analyzeBtn = document.getElementById('analyze-btn');
+const romanBtn = document.getElementById('roman-btn');
+const scalesBtn = document.getElementById('scales-btn');
+
+// Load from URL params
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('key')) {
+    keySelect.value = urlParams.get('key');
+}
+if (urlParams.get('chords')) {
+    chordsInput.value = urlParams.get('chords');
+    analyzeProgression();
+}
+
+analyzeBtn.addEventListener('click', analyzeProgression);
+romanBtn.addEventListener('click', getRomanNumerals);
+scalesBtn.addEventListener('click', suggestScales);
+
+async function analyzeProgression() {
+    const key = keySelect.value;
+    const chordsStr = chordsInput.value.trim();
+    
+    if (!chordsStr) {
+        showError('Please enter at least one chord');
+        return;
+    }
+    
+    const chords = chordsStr.split(',').map(c => c.trim()).filter(c => c);
+    
+    try {
+        const response = await fetch(`/api/progressions/analyze?chords=${chords.join('&chords=')}&key=${key}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayAnalysis(data.analysis);
+        } else {
+            showError(data.error);
+        }
+    } catch (error) {
+        showError(error.message);
+    }
+}
+
+function displayAnalysis(analysis) {
+    const html = `
+        <div class="analysis-item">
+            <div class="analysis-label">Key</div>
+            <div class="analysis-value">${analysis.key || 'Not detected'}</div>
+        </div>
+        
+        <div class="analysis-item">
+            <div class="analysis-label">Progression</div>
+            <div class="progression-display">
+                ${analysis.chords.map(c => `<span class="progression-chord">${c}</span>`).join('')}
+            </div>
+        </div>
+        
+        <div class="analysis-item">
+            <div class="analysis-label">All Notes</div>
+            <div class="note-list">
+                ${analysis.all_notes.map(n => `<span class="note-tag">${n}</span>`).join('')}
+            </div>
+        </div>
+        
+        <div class="analysis-item">
+            <div class="analysis-label">Complexity</div>
+            <div class="analysis-value">${analysis.complexity || 'simple'}</div>
+        </div>
+    `;
+    
+    document.getElementById('analysis-result').innerHTML = html;
+}
+
+async function getRomanNumerals() {
+    const key = keySelect.value;
+    const chordsStr = chordsInput.value.trim();
+    
+    if (!chordsStr) {
+        showError('Please enter at least one chord');
+        return;
+    }
+    
+    const chords = chordsStr.split(',').map(c => c.trim()).filter(c => c);
+    
+    try {
+        const response = await fetch(`/api/progressions/roman?key=${key}&chords=${chords.join('&chords=')}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayRoman(data);
+        } else {
+            showError(data.error);
+        }
+    } catch (error) {
+        showError(error.message);
+    }
+}
+
+function displayRoman(data) {
+    const html = `
+        <div class="analysis-item">
+            <div class="analysis-label">Key: ${data.key}</div>
+            <div class="roman-display">
+                ${data.roman_numerals.map((rn, i) => `
+                    <div class="roman-item">
+                        <div class="roman-chord">${data.chords[i]}</div>
+                        <div class="roman-numeral">${rn}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('roman-result').innerHTML = html;
+}
+
+async function suggestScales() {
+    const chordsStr = chordsInput.value.trim();
+    
+    if (!chordsStr) {
+        showError('Please enter at least one chord');
+        return;
+    }
+    
+    const chords = chordsStr.split(',').map(c => c.trim()).filter(c => c);
+    
+    try {
+        const response = await fetch(`/api/progressions/scales?chords=${chords.join('&chords=')}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayScales(data.scales);
+        } else {
+            showError(data.error);
+        }
+    } catch (error) {
+        showError(error.message);
+    }
+}
+
+function displayScales(scales) {
+    if (scales.length === 0) {
+        document.getElementById('scales-result').innerHTML = '<p>No scales found</p>';
+        return;
+    }
+    
+    const html = scales.map(scale => `
+        <div class="scale-suggestion">
+            <div class="scale-name">${scale.name}</div>
+            <div class="scale-notes">
+                <span class="note-tag">${scale.notes.join('</span><span class="note-tag">')}</span>
+            </div>
+        </div>
+    `).join('');
+    
+    document.getElementById('scales-result').innerHTML = html;
+}
+
+function showError(message) {
+    document.getElementById('analysis-result').innerHTML = `
+        <div class="result-box" style="border-color: var(--danger);">
+            <p>${message}</p>
+        </div>
+    `;
+}
+</script>
+{% endblock %}
+

@@ -1,0 +1,9 @@
+customtkinter>=5.2.0
+pillow>=10.0.0
+pyinstaller>=6.0.0
+numpy>=1.21.0
+pyaudio>=0.2.11
+simpleaudio>=1.0.4
+mido>=1.2.10
+music21>=7.0.0
+mingus>=0.6.0

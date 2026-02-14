@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}About - Music Theory Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>ℹ️ About</h1>
+    <p>Learn more about Music Theory Engine</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Music Theory Engine</h2>
+    </div>
+    
+    <p>A comprehensive Python library for music theory analysis designed specifically for guitarists and musicians.</p>
+    
+    <h3 style="margin-top: 1.5rem;">Features</h3>
+    <ul style="margin-top: 0.5rem; margin-left: 1.5rem; line-height: 1.8;">
+        <li>Scale Construction (Major, Minor, Modal, Pentatonic, Blues)</li>
+        <li>Chord Building (Triads, 7ths, Extended chords)</li>
+        <li>Arpeggio Generation</li>
+        <li>Progression Analysis with Roman Numerals</li>
+        <li>Integration with music21 and mingus libraries</li>
+    </ul>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Technologies</h2>
+        </div>
+        
+        <ul style="line-height: 2;">
+            <li><strong>Backend:</strong> Flask (Python)</li>
+            <li><strong>Core Engine:</strong> music_engine</li>
+            <li><strong>Integrations:</strong> music21, mingus</li>
+            <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript</li>
+        </ul>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">API Endpoints</h2>
+        </div>
+        
+        <ul style="line-height: 2;">
+            <li><code>/api/scales</code> - Scale operations</li>
+            <li><code>/api/chords</code> - Chord operations</li>
+            <li><code>/api/progressions</code> - Progression analysis</li>
+            <li><code>/api/analysis</code> - Advanced analysis</li>
+        </ul>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Quick Links</h2>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="/scales" class="btn btn-primary">Scale Explorer</a>
+        <a href="/chords" class="btn btn-secondary">Chord Builder</a>
+        <a href="/progressions" class="btn btn-success">Progression Analyzer</a>
+        <a href="/fretboard" class="btn btn-primary">Fretboard</a>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-header p {
+        color: var(--gray);
+    }
+    
+    code {
+        background: var(--dark);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+</style>
+{% endblock %}
+

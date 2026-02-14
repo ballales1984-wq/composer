@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Scale Explorer - Music Theory Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🎼 Scale Explorer</h1>
+    <p>Explore musical scales and their properties</p>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Select Scale</h2>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Root Note</label>
+            <select id="root-note" class="form-select">
+                <option value="C">C</option>
+                <option value="C#">C# / Db</option>
+                <option value="D">D</option>
+                <option value="D#">D# / Eb</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="F#">F# / Gb</option>
+                <option value="G">G</option>
+                <option value="G#">G# / Ab</option>
+                <option value="A">A</option>
+                <option value="A#">A# / Bb</option>
+                <option value="B">B</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Scale Type</label>
+            <select id="scale-type" class="form-select">
+                <optgroup label="Major & Minor">
+                    <option value="major" selected>Major</option>
+                    <option value="minor_natural">Natural Minor</option>
+                    <option value="minor_harmonic">Harmonic Minor</option>
+                    <option value="minor_melodic">Melodic Minor</option>
+                </optgroup>
+                <optgroup label="Modal Scales">
+                    <option value="dorian">Dorian</option>
+                    <option value="phrygian">Phrygian</option>
+                    <option value="lydian">Lydian</option>
+                    <option value="mixolydian">Mixolydian</option>
+                    <option value="locrian">Locrian</option>
+                </optgroup>
+                <optgroup label="Pentatonic">
+                    <option value="pentatonic_major">Major Pentatonic</option>
+                    <option value="pentatonic_minor">Minor Pentatonic</option>
+                </optgroup>
+                <optgroup label="Blues">
+                    <option value="blues_major">Major Blues</option>
+                    <option value="blues_minor">Minor Blues</option>
+                </optgroup>
+                <optgroup label="Other">
+                    <option value="whole_tone">Whole Tone</option>
+                    <option value="chromatic">Chromatic</option>
+                    <option value="diminished">Diminished</option>
+                </optgroup>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Octaves</label>
+            <select id="octaves" class="form-select">
+                <option value="1" selected>1 Octave</option>
+                <option value="2">2 Octaves</option>
+                <option value="3">3 Octaves</option>
+            </select>
+        </div>
+        
+        <button id="get-scale" class="btn btn-primary" style="width: 100%;">
+            Get Scale Info
+        </button>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Scale Information</h2>
+        </div>
+        
+        <div id="scale-result" class="result-box" style="display: none;">
+            <div class="result-title">Scale Name</div>
+            <div class="result-value" id="scale-name">-</div>
+            
+            <div class="result-title" style="margin-top: 1rem;">Notes</div>
+            <div class="note-list" id="scale-notes"></div>
+            
+            <div class="result-title" style="margin-top: 1rem;">Intervals</div>
+            <div class="note-list" id="scale-intervals"></div>
+        </div>
+        
+        <div id="scale-error" class="result-box" style="display: none; border-color: var(--danger);">
+            <p id="error-message"></p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Scale Degrees</h2>
+    </div>
+    
+    <div id="degrees-result">
+        <p>Select a scale to see degree information</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Diatonic Chords</h2>
+    </div>
+    
+    <div id="diatonic-chords">
+        <p>Select a scale to see diatonic chords</p>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-header p {
+        color: var(--gray);
+    }
+    
+    .degree-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .degree-card {
+        background: var(--dark);
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .degree-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .degree-note {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0.5rem 0;
+    }
+    
+    .degree-name {
+        font-size: 0.875rem;
+        color: var(--gray);
+    }
+    
+    .chord-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .chord-card {
+        background: var(--dark);
+        padding: 1rem;
+        border-radius: 8px;
+    }
+    
+    .chord-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--secondary);
+    }
+    
+    .chord-notes {
+        font-size: 0.875rem;
+        color: var(--gray);
+        margin-top: 0.5rem;
+    }
+</style>
+
+<script>
+const rootNote = document.getElementById('root-note');
+const scaleType = document.getElementById('scale-type');
+const octaves = document.getElementById('octaves');
+const getScaleBtn = document.getElementById('get-scale');
+
+// Load from URL params
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('root')) {
+    rootNote.value = urlParams.get('root');
+}
+if (urlParams.get('type')) {
+    scaleType.value = urlParams.get('type');
+}
+
+getScaleBtn.addEventListener('click', fetchScale);
+
+async function fetchScale() {
+    const root = rootNote.value;
+    const type = scaleType.value;
+    const oct = octaves.value;
+    
+    try {
+        const response = await fetch(`/api/scales?root=${root}&type=${type}&octaves=${oct}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayScale(data.scale);
+            fetchDiatonicChords(root, type);
+        } else {
+            showError(data.error);
+        }
+    } catch (error) {
+        showError(error.message);
+    }
+}
+
+function displayScale(scale) {
+    document.getElementById('scale-result').style.display = 'block';
+    document.getElementById('scale-error').style.display = 'none';
+    
+    document.getElementById('scale-name').textContent = scale.name;
+    
+    // Display notes
+    const notesHtml = scale.notes.map(note => 
+        `<span class="note-tag">${note}</span>`
+    ).join('');
+    document.getElementById('scale-notes').innerHTML = notesHtml;
+    
+    // Display intervals
+    const intervalsHtml = scale.intervals.map(interval => 
+        `<span class="note-tag">${interval}</span>`
+    ).join('');
+    document.getElementById('scale-intervals').innerHTML = intervalsHtml;
+    
+    // Display degrees
+    const degreesHtml = Object.entries(scale.degrees).map(([degree, note]) => `
+        <div class="degree-card">
+            <div class="degree-number">${degree}</div>
+            <div class="degree-note">${note}</div>
+            <div class="degree-name">Degree ${degree}</div>
+        </div>
+    `).join('');
+    document.getElementById('degrees-result').innerHTML = `
+        <div class="degree-grid">${degreesHtml}</div>
+    `;
+}
+
+async function fetchDiatonicChords(root, type) {
+    try {
+        const response = await fetch(`/api/scales/chords?root=${root}&type=${type}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const chordsHtml = data.chords.map(chord => `
+                <div class="chord-card">
+                    <div class="chord-name">${chord.chord}</div>
+                    <div class="chord-notes">${chord.notes.join(', ')}</div>
+                </div>
+            `).join('');
+            document.getElementById('diatonic-chords').innerHTML = `
+                <div class="chord-grid">${chordsHtml}</div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error fetching diatonic chords:', error);
+    }
+}
+
+function showError(message) {
+    document.getElementById('scale-result').style.display = 'none';
+    document.getElementById('scale-error').style.display = 'block';
+    document.getElementById('error-message').textContent = message;
+}
+
+// Load scale on page load if params exist
+if (urlParams.get('root') || urlParams.get('type')) {
+    fetchScale();
+}
+</script>
+{% endblock %}
+
