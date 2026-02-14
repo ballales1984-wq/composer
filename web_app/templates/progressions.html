@@ -113,6 +113,33 @@
     </div>
 </div>
 
+<!-- Chord Diagrams Section -->
+<div class="card" id="chord-diagrams-section" style="display: none;">
+    <div class="card-header">
+        <h2 class="card-title">🎸 Chord Diagrams</h2>
+    </div>
+    
+    <p style="color: var(--gray); margin-bottom: 1rem;">Guitar voicings for each chord in the progression</p>
+    
+    <div id="chord-diagrams-container"></div>
+</div>
+
+<style>
+    .chord-diagram-item {
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .chord-diagram-caption {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--gray);
+    }
+</style>
+
+<script src="{{ url_for('static', filename='js/chord_diagram.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chord_voicings.js') }}"></script>
+
 <style>
     .page-header {
         text-align: center;
@@ -472,6 +499,135 @@ function displayContinuations(continuations) {
     
     document.getElementById('expansion-results').innerHTML = html;
 }
+
+// ============================================
+// Chord Diagrams Functions
+// ============================================
+
+function parseChordName(chordStr) {
+    // Parse chord string like "Cmaj7", "Dm", "G7" into root and quality
+    const match = chordStr.trim().match(/^([A-G][#b]?)(.*)$/);
+    if (!match) return { root: chordStr, quality: 'maj' };
+    
+    let root = match[1];
+    let quality = match[2] || 'maj';
+    
+    // Normalize quality names
+    const qualityMap = {
+        'maj7': 'maj7',
+        'm7': 'min7',
+        'maj': 'maj',
+        'm': 'min',
+        'dim': 'dim',
+        'aug': 'aug',
+        '7': 'dom7',
+        'sus2': 'sus2',
+        'sus4': 'sus4',
+        '9': '9',
+        '11': '11',
+        '13': '13'
+    };
+    
+    // Handle special cases
+    if (quality === '7') quality = 'dom7';
+    else if (quality === '') quality = 'maj';
+    else if (quality === 'm') quality = 'min';
+    
+    return { root: root, quality: quality };
+}
+
+function displayChordDiagrams(chords) {
+    const section = document.getElementById('chord-diagrams-section');
+    const container = document.getElementById('chord-diagrams-container');
+    
+    if (!chords || chords.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+    
+    // Show the section
+    section.style.display = 'block';
+    
+    // Build HTML for chord diagrams
+    let html = '<div style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center;">';
+    
+    chords.forEach((chordStr, index) => {
+        const { root, quality } = parseChordName(chordStr);
+        
+        // Get chord positions from our data
+        const positions = getChordPositions(root, quality);
+        
+        // If we have positions, show them
+        if (positions && positions.length > 0) {
+            positions.forEach((pos, posIdx) => {
+                html += `
+                    <div class="chord-diagram-item" style="text-align: center;">
+                        <div id="prog-chord-${index}-${posIdx}"></div>
+                        <div class="chord-diagram-caption">
+                            <strong>${chordStr}</strong><br>
+                            ${pos.position || 'Position ' + (posIdx + 1)}
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            // No position found, show a simple placeholder
+            html += `
+                <div class="chord-diagram-item" style="text-align: center;">
+                    <div style="width: 120px; height: 140px; display: flex; align-items: center; justify-content: center; background: var(--dark); border-radius: 8px;">
+                        <span style="color: var(--gray);">${chordStr}</span>
+                    </div>
+                    <div class="chord-diagram-caption">
+                        <strong>${chordStr}</strong><br>
+                        Voicing not available
+                    </div>
+                </div>
+            `;
+        }
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+    
+    // Draw each diagram
+    chords.forEach((chordStr, index) => {
+        const { root, quality } = parseChordName(chordStr);
+        const positions = getChordPositions(root, quality);
+        
+        if (positions && positions.length > 0) {
+            positions.forEach((pos, posIdx) => {
+                const diagram = new ChordBoxDiagram(`prog-chord-${index}-${posIdx}`, {
+                    width: 120,
+                    height: 140
+                });
+                diagram.draw({
+                    root: root,
+                    quality: quality,
+                    frets: pos.frets,
+                    fingers: pos.fingers,
+                    barre: pos.barre
+                });
+            });
+        }
+    });
+}
+
+// Also update the displayAnalysis and displayRoman functions to show diagrams
+const originalDisplayAnalysis = displayAnalysis;
+displayAnalysis = function(analysis) {
+    originalDisplayAnalysis(analysis);
+    if (analysis.chords) {
+        displayChordDiagrams(analysis.chords);
+    }
+};
+
+const originalDisplayRoman = displayRoman;
+displayRoman = function(data) {
+    originalDisplayRoman(data);
+    if (data.chords) {
+        displayChordDiagrams(data.chords);
+    }
+};
 </script>
 {% endblock %}
 
