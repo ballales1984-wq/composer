@@ -1,0 +1,41 @@
+# Music Theory Engine - Web App Dockerfile
+# A comprehensive music theory analysis engine for guitarists and musicians
+
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    FLASK_APP=web_app.app \
+    FLASK_ENV=development
+
+# Install system dependencies for audio libraries
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libportaudio2 \
+    portaudio19-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy pyproject.toml and requirements first for better caching
+COPY music_engine/pyproject.toml /app/pyproject.toml
+COPY web_app/requirements.txt /app/web_app/requirements.txt
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -e .[web]
+RUN pip install --no-cache-dir -r /app/web_app/requirements.txt
+
+# Copy the rest of the application
+COPY music_engine/ /app/music_engine/
+COPY web_app/ /app/web_app/
+COPY README.md /app/README.md
+COPY LICENSE /app/LICENSE
+
+# Expose Flask port
+EXPOSE 5000
+
+# Set default command
+CMD ["flask", "run", "--host=0.0.0.0"]
+

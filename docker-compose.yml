@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # CLI Tool (Music Theory Engine)
+  music-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: music-theory-engine:latest
+    container_name: music-theory-engine
+    volumes:
+      - ./music_engine:/app/music_engine
+    command: ["python", "-m", "music_engine.cli", "--help"]
+    profiles:
+      - cli
+
+  # Web App
+  web-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    image: music-theory-engine-web:latest
+    container_name: music-theory-engine-web
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=web_app.app
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    volumes:
+      - ./web_app:/app/web_app
+      - ./music_engine:/app/music_engine
+    depends_on:
+      - music-engine
+    profiles:
+      - web
+
+  # Development Environment
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: music-theory-engine:latest
+    container_name: music-theory-engine-dev
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: /bin/bash
+    profiles:
+      - dev
+

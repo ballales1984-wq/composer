@@ -7,6 +7,9 @@ with its name, accidental, and semitone value.
 
 from typing import Optional, Union, List
 
+# Import custom exceptions
+from music_engine.exceptions import InvalidNoteError, ValidationError
+
 # Constants (copied to avoid circular imports)
 NATURAL_NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 NOTE_TO_SEMITONE = {
@@ -63,11 +66,11 @@ class Note:
         elif isinstance(note, int):
             self._from_semitone(note, octave)
         else:
-            raise ValueError(f"Invalid note input: {note}")
+            raise InvalidNoteError(f"Invalid note input: {note}", details={'input': str(note), 'type': type(note).__name__})
 
         # Validate octave
         if not (0 <= self._octave <= 8):
-            raise ValueError(f"Octave must be between 0 and 8, got {self._octave}")
+            raise InvalidNoteError(f"Octave must be between 0 and 8, got {self._octave}", details={'octave': self._octave})
 
     def _from_string(self, note_name: str, accidental: Optional[str] = None, octave: int = 4):
         """Parse note from string representation."""
@@ -91,7 +94,7 @@ class Note:
         normalized = self._normalize_note_name(note_part)
 
         if normalized not in NOTE_TO_SEMITONE:
-            raise ValueError(f"Invalid note name: {note_name}")
+            raise InvalidNoteError(f"Invalid note name: {note_name}", details={'note_name': note_name})
 
         self._name = normalized
         self._semitone = NOTE_TO_SEMITONE[normalized]
@@ -100,7 +103,7 @@ class Note:
     def _from_semitone(self, semitone: int, octave: int = 4):
         """Create note from semitone value."""
         if not (0 <= semitone <= 11):
-            raise ValueError(f"Semitone value must be between 0 and 11, got {semitone}")
+            raise InvalidNoteError(f"Semitone value must be between 0 and 11, got {semitone}", details={'semitone': semitone})
 
         self._semitone = semitone
         self._octave = octave

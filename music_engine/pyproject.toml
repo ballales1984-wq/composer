@@ -1,0 +1,218 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "music-theory-engine"
+version = "1.0.0"
+description = "A comprehensive music theory analysis engine for guitarists and musicians"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [
+    {name = "AI Music Engineer", email = "music.engine@example.com"}
+]
+keywords = ["music", "theory", "guitar", "chords", "scales", "harmony", "education"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+
+# Core dependencies (installed by default)
+dependencies = [
+    "click>=8.0.0",
+    "rich>=10.0.0",
+    "customtkinter>=5.2.0",
+    "pillow>=10.0.0",
+    "numpy>=1.21.0",
+]
+
+# Optional dependencies
+[project.optional-dependencies]
+# Audio and MIDI support
+audio = [
+    "pyaudio>=0.2.11",
+    "simpleaudio>=1.0.4",
+    "mido>=1.2.10",
+]
+
+# Music theory libraries
+integrations = [
+    "music21>=8.0.0,<9.0.0",
+    "mingus>=0.6.0",
+]
+
+# GUI support
+gui = [
+    "customtkinter>=5.2.0",
+    "pillow>=10.0.0",
+]
+
+# Web app support
+web = [
+    "flask>=2.0.0",
+    "flask-cors>=3.0.0",
+]
+
+# Development dependencies
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=3.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "mypy>=0.950",
+    "ruff>=0.1.0",
+]
+
+# Build dependencies
+build = [
+    "pyinstaller>=6.0.0",
+]
+
+# All optional dependencies
+all = [
+    "music-theory-engine[audio]",
+    "music-theory-engine[integrations]",
+    "music-theory-engine[gui]",
+    "music-theory-engine[web]",
+    "music-theory-engine[dev]",
+]
+
+# Entry points for CLI
+[project.scripts]
+music-engine = "music_engine.cli:main"
+music-theory-gui = "music_engine.main_gui:main"
+
+# Package metadata
+[project.urls]
+Homepage = "https://github.com/yourusername/music-theory-engine"
+Documentation = "https://music-theory-engine.readthedocs.io"
+Repository = "https://github.com/yourusername/music-theory-engine"
+Issues = "https://github.com/yourusername/music-theory-engine/issues"
+
+# Dynamic versioning
+[tool.setuptools]
+packages = ["music_engine"]
+
+[tool.setuptools.dynamic]
+version = {attr = "music_engine.__version__"}
+
+# Tool configurations
+[tool.pytest.ini_options]
+testpaths = ["music_engine/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+follow_imports = "normal"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tkinter.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "customtkinter.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "music21.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mingus.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pyaudio.*"
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["music_engine"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+

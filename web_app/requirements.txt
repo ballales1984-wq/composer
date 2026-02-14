@@ -1,0 +1,5 @@
+# Web App requirements for Music Theory Engine
+flask>=2.0.0
+flask-cors>=3.0.0
+werkzeug>=2.0.0
+
