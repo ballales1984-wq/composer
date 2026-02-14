@@ -4,49 +4,80 @@
 
 {% block content %}
 <div class="page-header">
-    <h1>🎶 Progression Analyzer</h1>
-    <p>Analyze chord progressions and find compatible scales</p>
+    <h1>🎶 Progression Analyzer & Generator</h1>
+    <p>Analyze, generate and expand chord progressions</p>
 </div>
 
-<div class="card">
+<div class="grid grid-2">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Analyze Progression</h2>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Key</label>
+            <select id="key" class="form-select" style="max-width: 200px;">
+                <option value="C">C</option>
+                <option value="C#">C# / Db</option>
+                <option value="D">D</option>
+                <option value="D#">D# / Eb</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="F#">F# / Gb</option>
+                <option value="G">G</option>
+                <option value="G#">G# / Ab</option>
+                <option value="A">A</option>
+                <option value="A#">A# / Bb</option>
+                <option value="B">B</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Chords</label>
+            <input type="text" id="chords-input" class="form-input" placeholder="e.g., C, F, G, C">
+            <small style="color: var(--gray);">Enter: C, Cmaj7, Dm, F#m, G7, etc.</small>
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button id="analyze-btn" class="btn btn-primary">Analyze</button>
+            <button id="roman-btn" class="btn btn-secondary">Roman</button>
+            <button id="scales-btn" class="btn btn-success">Scales</button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Generate / Expand</h2>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Starting Chords (2-4)</label>
+            <input type="text" id="expand-input" class="form-input" placeholder="e.g., C, G, Am, F">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Target Length</label>
+            <select id="target-length" class="form-select" style="max-width: 150px;">
+                <option value="4">4 chords</option>
+                <option value="6">6 chords</option>
+                <option value="8" selected>8 chords</option>
+            </select>
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button id="expand-btn" class="btn btn-primary">Expand</button>
+            <button id="continue-btn" class="btn btn-secondary">Continue</button>
+        </div>
+    </div>
+</div>
+
+<div class="card" id="expansion-result-card">
     <div class="card-header">
-        <h2 class="card-title">Enter Chord Progression</h2>
+        <h2 class="card-title">Generated Progressions</h2>
     </div>
     
-    <div class="form-group">
-        <label class="form-label">Key</label>
-        <select id="key" class="form-select" style="max-width: 200px;">
-            <option value="C">C</option>
-            <option value="C#">C# / Db</option>
-            <option value="D">D</option>
-            <option value="D#">D# / Eb</option>
-            <option value="E">E</option>
-            <option value="F">F</option>
-            <option value="F#">F# / Gb</option>
-            <option value="G">G</option>
-            <option value="G#">G# / Ab</option>
-            <option value="A">A</option>
-            <option value="A#">A# / Bb</option>
-            <option value="B">B</option>
-        </select>
-    </div>
-    
-    <div class="form-group">
-        <label class="form-label">Chords (comma separated)</label>
-        <input type="text" id="chords-input" class="form-input" placeholder="e.g., C, F, G, C or Cmaj7, Dm7, G7, Cmaj7">
-        <small style="color: var(--gray);">Enter chord names like: C, Cmaj7, Dm, F#m, G7, etc.</small>
-    </div>
-    
-    <div style="display: flex; gap: 1rem;">
-        <button id="analyze-btn" class="btn btn-primary">
-            Analyze Progression
-        </button>
-        <button id="roman-btn" class="btn btn-secondary">
-            Get Roman Numerals
-        </button>
-        <button id="scales-btn" class="btn btn-success">
-            Suggest Scales
-        </button>
+    <div id="expansion-results">
+        <p>Enter starting chords and click "Expand" to generate progressions</p>
     </div>
 </div>
 
@@ -175,6 +206,10 @@ const keySelect = document.getElementById('key');
 const analyzeBtn = document.getElementById('analyze-btn');
 const romanBtn = document.getElementById('roman-btn');
 const scalesBtn = document.getElementById('scales-btn');
+const expandInput = document.getElementById('expand-input');
+const targetLength = document.getElementById('target-length');
+const expandBtn = document.getElementById('expand-btn');
+const continueBtn = document.getElementById('continue-btn');
 
 // Load from URL params
 const urlParams = new URLSearchParams(window.location.search);
@@ -189,6 +224,8 @@ if (urlParams.get('chords')) {
 analyzeBtn.addEventListener('click', analyzeProgression);
 romanBtn.addEventListener('click', getRomanNumerals);
 scalesBtn.addEventListener('click', suggestScales);
+expandBtn.addEventListener('click', expandProgression);
+continueBtn.addEventListener('click', continueProgression);
 
 async function analyzeProgression() {
     const key = keySelect.value;
@@ -336,6 +373,104 @@ function showError(message) {
             <p>${message}</p>
         </div>
     `;
+}
+
+async function expandProgression() {
+    const chordsStr = expandInput.value.trim();
+    const length = targetLength.value;
+    
+    if (!chordsStr) {
+        document.getElementById('expansion-results').innerHTML = '<p style="color: var(--danger);">Please enter starting chords</p>';
+        return;
+    }
+    
+    const chords = chordsStr.split(',').map(c => c.trim()).filter(c => c);
+    
+    if (chords.length < 2) {
+        document.getElementById('expansion-results').innerHTML = '<p style="color: var(--danger);">Please enter at least 2 chords</p>';
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/orchestrator/expand', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({chords: chords, target_length: parseInt(length)})
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            displayExpansions(data.expansions);
+        } else {
+            document.getElementById('expansion-results').innerHTML = `<p style="color: var(--danger);">${data.error}</p>`;
+        }
+    } catch (error) {
+        document.getElementById('expansion-results').innerHTML = `<p style="color: var(--danger);">Error: ${error.message}</p>`;
+    }
+}
+
+function displayExpansions(expansions) {
+    if (!expansions || expansions.length === 0) {
+        document.getElementById('expansion-results').innerHTML = '<p>No expansions found</p>';
+        return;
+    }
+    
+    const html = expansions.map((prog, idx) => `
+        <div class="analysis-item">
+            <div class="analysis-label">Option ${idx + 1}</div>
+            <div class="progression-display">
+                ${prog.map(c => `<span class="progression-chord">${c}</span>`).join('')}
+            </div>
+        </div>
+    `).join('');
+    
+    document.getElementById('expansion-results').innerHTML = html;
+}
+
+async function continueProgression() {
+    const chordsStr = expandInput.value.trim();
+    
+    if (!chordsStr) {
+        document.getElementById('expansion-results').innerHTML = '<p style="color: var(--danger);">Please enter chords to continue</p>';
+        return;
+    }
+    
+    const chords = chordsStr.split(',').map(c => c.trim()).filter(c => c);
+    
+    try {
+        const response = await fetch('/api/orchestrator/continuation', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({chords: chords, num_chords: 4})
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            displayContinuations(data.continuations);
+        } else {
+            document.getElementById('expansion-results').innerHTML = `<p style="color: var(--danger);">${data.error}</p>`;
+        }
+    } catch (error) {
+        document.getElementById('expansion-results').innerHTML = `<p style="color: var(--danger);">Error: ${error.message}</p>`;
+    }
+}
+
+function displayContinuations(continuations) {
+    if (!continuations || continuations.length === 0) {
+        document.getElementById('expansion-results').innerHTML = '<p>No continuations found</p>';
+        return;
+    }
+    
+    const html = continuations.map((prog, idx) => `
+        <div class="analysis-item">
+            <div class="analysis-label">Option ${idx + 1}</div>
+            <div class="progression-display">
+                ${prog.map(c => `<span class="progression-chord">${c}</span>`).join('')}
+            </div>
+        </div>
+    `).join('');
+    
+    document.getElementById('expansion-results').innerHTML = html;
 }
 </script>
 {% endblock %}

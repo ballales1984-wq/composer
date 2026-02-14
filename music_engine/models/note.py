@@ -159,6 +159,32 @@ class Note:
             name = names[0] if use_sharps else names[1]
 
         return cls(name, octave=octave)
+    
+    @classmethod
+    def from_midi(cls, midi_number: int) -> 'Note':
+        """
+        Create a Note from a MIDI note number.
+        
+        MIDI note numbers:
+        - 0 = C-1 (or C0 depending on convention)
+        - 60 = C4 (middle C)
+        - 127 = G8
+
+        Args:
+            midi_number: MIDI note number (0-127)
+
+        Returns:
+            Note object
+        """
+        if not (0 <= midi_number <= 127):
+            raise ValueError(f"MIDI note number must be between 0 and 127, got {midi_number}")
+        
+        # Calculate octave and semitone
+        # MIDI 60 = C4, so octave = midi // 12 - 1
+        octave = midi_number // 12 - 1
+        semitone = midi_number % 12
+        
+        return cls.from_semitone(semitone, octave, use_sharps=True)
 
     @property
     def name(self) -> str:
@@ -179,6 +205,26 @@ class Note:
     def semitone(self) -> int:
         """Get the semitone value (0-11)."""
         return self._semitone
+    
+    @property
+    def midi(self) -> int:
+        """Get the MIDI note number (0-127).
+        
+        MIDI note numbers:
+        - 0 = C-1 (or C0)
+        - 60 = C4 (middle C)
+        - 127 = G8
+        """
+        return (self._octave + 1) * 12 + self._semitone
+    
+    @property
+    def frequency(self) -> float:
+        """Get the frequency in Hz.
+        
+        Uses A4 = 440Hz as reference.
+        """
+        # MIDI 69 = A4 = 440Hz
+        return 440 * (2 ** ((self.midi - 69) / 12))
 
     @property
     def letter(self) -> str:

@@ -159,12 +159,12 @@ class Chord:
     @property
     def name(self) -> str:
         """Get the full name of the chord."""
-        root_name = self._root.name
+        root_name = self._root.note_name  # Use note_name without octave
         quality_name = CHORD_NAMES.get(self._quality, self._quality.upper())
         chord_name = f"{root_name}{quality_name}"
 
         if self._bass and self._bass != self._root:
-            chord_name += f"/{self._bass.name}"
+            chord_name += f"/{self._bass.note_name}"
 
         return chord_name
 

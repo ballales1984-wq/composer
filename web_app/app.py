@@ -19,13 +19,15 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'music-theory-secret-key-2024'
 
 # Import API routes
-from web_app.api import scales, chords, progressions, analysis
+from web_app.api import scales, chords, progressions, analysis, analyzer, orchestrator
 
 # Register blueprints
 app.register_blueprint(scales.bp)
 app.register_blueprint(chords.bp)
 app.register_blueprint(progressions.bp)
 app.register_blueprint(analysis.bp)
+app.register_blueprint(analyzer.bp)
+app.register_blueprint(orchestrator.bp)
 
 
 @app.route('/')
@@ -62,6 +64,18 @@ def fretboard_page():
 def about():
     """About page."""
     return render_template('about.html')
+
+
+@app.route('/analyzer')
+def analyzer_page():
+    """Harmony analyzer page."""
+    return render_template('analyzer.html')
+
+
+@app.route('/realtime')
+def realtime_page():
+    """Real-time analysis page with virtual keyboard."""
+    return render_template('realtime.html')
 
 
 @app.errorhandler(404)

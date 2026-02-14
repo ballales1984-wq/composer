@@ -16,8 +16,9 @@ def _get_mingus():
     global _mingus
     if _mingus is None:
         try:
-            import mingus
-            _mingus = mingus
+            # Import specific containers to avoid issues
+            from mingus import containers as mingus_containers
+            _mingus = mingus_containers
         except ImportError:
             raise ImportError("mingus is required for this functionality. Install with: pip install mingus")
     return _mingus
@@ -85,10 +86,8 @@ class MingusConverter:
         note_name = note.note_name
         octave = note.octave
         
-        # Create mingus note
-        mingus_note = mingus.containers.Note()
-        mingus_note.name = note_name
-        mingus_note.octave = octave
+        # Create mingus note - use Note directly from containers
+        mingus_note = mingus.Note(note_name, octave)
         
         return mingus_note
     
@@ -111,37 +110,33 @@ class MingusConverter:
         return EngineNote(note_name)
     
     @staticmethod
-    def chord_to_mingus(chord) -> 'mingus.containers.Chord':
+    def chord_to_mingus(chord) -> 'mingus.containers.NoteContainer':
         """
-        Convert a Chord object to a mingus Chord.
+        Convert a Chord object to a mingus NoteContainer.
         
         Args:
             chord: Chord object from music_engine
             
         Returns:
-            mingus.containers.Chord object
+            mingus.containers.NoteContainer object
         """
         mingus = _get_mingus()
         
         # Get note names from the chord
         note_names = [note.note_name for note in chord.notes]
         
-        # Create mingus chord
-        mingus_chord = mingus.containers.Chord(note_names)
-        
-        # Set quality
-        if chord.quality in MingusConverter.QUALITY_TO_MINGUS:
-            mingus_chord.quality = MingusConverter.QUALITY_TO_MINGUS[chord.quality]
+        # Create mingus NoteContainer (mingus doesn't have a Chord class)
+        mingus_chord = mingus.NoteContainer(note_names)
         
         return mingus_chord
     
     @staticmethod
     def mingus_to_chord(mingus_chord, root_note: Optional = None) -> 'music_engine.models.Chord':
         """
-        Convert a mingus Chord to a Chord object.
+        Convert a mingus Chord/NoteContainer to a Chord object.
         
         Args:
-            mingus_chord: mingus.containers.Chord object
+            mingus_chord: mingus.containers.NoteContainer or Chord object
             root_note: Optional root note (auto-detected if not provided)
             
         Returns:
@@ -149,17 +144,27 @@ class MingusConverter:
         """
         from music_engine.models import Note as EngineNote, Chord as EngineChord
         
-        # Determine root note
-        if root_note is None:
-            root_name = mingus_chord.name
-            root_note = EngineNote(root_name)
+        # Handle NoteContainer (doesn't have .name, use first note instead)
+        if hasattr(mingus_chord, 'notes'):
+            # It's a NoteContainer - get notes from it
+            notes_list = list(mingus_chord.notes)
+            if notes_list:
+                # mingus stores notes like 'C-4' (note + octave) or just 'C'
+                first_note = str(notes_list[0])
+                # Parse the note name (remove octave if present)
+                if '-' in first_note:
+                    # Format is like 'C-4' means C in octave 4
+                    parts = first_note.rsplit('-', 1)
+                    root_name = parts[0]
+                else:
+                    root_name = first_note
+                if root_note is None:
+                    root_note = EngineNote(root_name)
+        elif root_note is None:
+            raise ValueError("root_note is required when converting from NoteContainer without notes")
         
-        # Determine quality from mingus chord
-        quality = mingus_chord.quality
-        if quality in MingusConverter.MINGUS_QUALITY_TO_INTERNAL:
-            internal_quality = MingusConverter.MINGUS_QUALITY_TO_INTERNAL[quality]
-        else:
-            internal_quality = 'maj'  # Default
+        # Determine quality (NoteContainer doesn't have quality)
+        internal_quality = 'maj'  # Default
         
         # Get bass note if present
         bass_note = None
@@ -372,40 +377,42 @@ class MingusConverter:
         
         for numeral in numeral_strings:
             # Determine quality from numeral
-            numeral_upper = numeral.upper().replace('°', '').replace('7', '')
+            numeral_upper = numeral.upper().replace('°', '')
             
             is_upper = numeral[0].isupper()
-            is_diminished = 'VII' in numeral_upper and not is_upper or '°' in numeral
+            has_7th = '7' in numeral
             
-            # Determine degree (1-7)
+            # Check for diminished - VII is diminished in major key
+            is_diminished = ('VII' in numeral_upper or '°' in numeral) and not is_upper
+            
+            # Determine degree (1-7) using proper mapping
             degree = 1
-            for d, (major, minor) in enumerate([(1, 'i'), (2, 'ii'), (3, 'iii'), 
-                                                 (4, 'iv'), (5, 'v'), (6, 'vi'), (7, 'vii')], 1):
-                if major in numeral_upper or minor in numeral_upper:
-                    degree = d
+            degree_mapping = {
+                'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6, 'VII': 7,
+            }
+            
+            # Check for degree in the cleaned numeral
+            for deg_str, deg_num in degree_mapping.items():
+                if deg_str in numeral_upper:
+                    degree = deg_num
                     break
             
             # Get root note from scale
             root = scale.get_degree(degree)
             
-            # Determine quality
+            # Determine quality based on degree and 7th presence
             if is_diminished or degree == 7:
-                quality = 'dim'
+                # vii° is diminished
+                quality = 'dim7' if has_7th else 'dim'
             elif not is_upper:
-                quality = 'min'
-            elif degree in [2, 3, 6]:
-                quality = 'min'
+                # Minor chords: ii, iii, vi
+                quality = 'min7' if has_7th else 'min'
+            elif degree == 5:
+                # V is dominant7 in major key
+                quality = 'dom7' if has_7th else 'maj'
             else:
-                quality = 'maj'
-            
-            # Add 7th if numeral contains 7
-            if '7' in numeral:
-                if quality == 'dim':
-                    quality = 'dim7'
-                elif quality == 'min':
-                    quality = 'min7'
-                else:
-                    quality = 'dom7'
+                # Major chords: I, IV
+                quality = 'maj7' if has_7th else 'maj'
             
             chord = EngineChord(root, quality)
             chords.append(chord)

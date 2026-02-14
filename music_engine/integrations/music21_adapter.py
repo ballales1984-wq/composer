@@ -111,9 +111,8 @@ class Music21Converter:
         """
         m21 = _get_music21()
         
-        # Create music21 note with pitch
-        m21_note = m21.note.Note()
-        m21_note.pitch = note.name
+        # Create music21 note with pitch using the correct API
+        m21_note = m21.note.Note(note.name)
         
         return m21_note
     

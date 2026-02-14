@@ -8,6 +8,12 @@
     <p class="subtitle">Professional music theory tools for musicians & guitarists</p>
     
     <div class="features-grid">
+        <a href="/analyzer" class="feature-card">
+            <div class="feature-icon">🎵</div>
+            <h3>Harmony Analyzer</h3>
+            <p>Analyze chord-scale compatibility with tonal & modal logic</p>
+        </a>
+        
         <a href="/scales" class="feature-card">
             <div class="feature-icon">🎼</div>
             <h3>Scale Explorer</h3>
@@ -30,6 +36,12 @@
             <div class="feature-icon">🎹</div>
             <h3>Fretboard</h3>
             <p>Visualize notes on guitar fretboard</p>
+        </a>
+        
+        <a href="/realtime" class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Real-time</h3>
+            <p>Play keyboard and analyze in real-time</p>
         </a>
     </div>
 </div>
@@ -102,18 +114,24 @@
     
     .features-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         gap: 1.5rem;
         margin-top: 2rem;
     }
     
-    @media (max-width: 1024px) {
+    @media (max-width: 1200px) {
+        .features-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
         .features-grid {
             grid-template-columns: repeat(2, 1fr);
         }
     }
     
-    @media (max-width: 600px) {
+    @media (max-width: 500px) {
         .features-grid {
             grid-template-columns: 1fr;
         }

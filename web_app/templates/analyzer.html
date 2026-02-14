@@ -1,0 +1,620 @@
+{% extends "base.html" %}
+
+{% block title %}Harmony Analyzer - Music Theory Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🎵 Harmony Analyzer</h1>
+    <p>Enter a chord or scale to analyze harmonic relationships</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Analyze Input</h2>
+    </div>
+    
+    <div class="form-group">
+        <label class="form-label">Enter Chord or Scale</label>
+        <input type="text" id="analyzer-input" class="form-input" 
+               placeholder="e.g., Cmaj7, Dm7, G7, C major, A minor, D dorian">
+        <small style="color: var(--gray);">Examples: Cmaj7, Dm, G7, F#dim, C major, A minor, D dorian</small>
+    </div>
+    
+    <button id="analyze-btn" class="btn btn-primary" style="width: 100%;">
+        Analyze
+    </button>
+</div>
+
+<div id="loading" style="display: none; text-align: center; padding: 2rem;">
+    <p>Analyzing...</p>
+</div>
+
+<!-- Result Section -->
+<div id="result-container" style="display: none;">
+    
+    <!-- Input Type Badge -->
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span class="note-tag" id="input-type-badge" style="font-size: 1rem; padding: 0.5rem 1rem;">CHORD</span>
+            <h2 id="result-name" style="margin: 0;">-</h2>
+        </div>
+    </div>
+    
+    <!-- Basic Info -->
+    <div class="grid grid-2">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Notes</h3>
+            </div>
+            <div class="note-list" id="result-notes"></div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Intervals</h3>
+            </div>
+            <div class="note-list" id="result-intervals"></div>
+        </div>
+    </div>
+    
+    <!-- Scale-specific: Degrees -->
+    <div id="degrees-section" class="card" style="display: none;">
+        <div class="card-header">
+            <h3 class="card-title">Scale Degrees</h3>
+        </div>
+        <div class="degree-grid" id="result-degrees"></div>
+    </div>
+    
+    <!-- Scale-specific: Diatonic Chords -->
+    <div id="diatonic-section" class="card" style="display: none;">
+        <div class="card-header">
+            <h3 class="card-title">Diatonic Chords</h3>
+        </div>
+        <div class="chord-grid" id="result-diatonic"></div>
+    </div>
+    
+    <!-- Chord-specific: Compatible Scales -->
+    <div id="compatible-scales-section" class="card" style="display: none;">
+        <div class="card-header">
+            <h3 class="card-title">Compatible Scales</h3>
+        </div>
+        
+        <h4 style="margin: 1rem 0 0.5rem; color: var(--primary);">Tonal Scales</h4>
+        <div class="scale-list" id="result-tonal-scales"></div>
+        
+        <h4 style="margin: 1rem 0 0.5rem; color: var(--secondary);">Modal Scales</h4>
+        <div class="scale-list" id="result-modal-scales"></div>
+    </div>
+    
+    <!-- Fretboard Visualization -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Fretboard Positions</h3>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Display Mode</label>
+            <select id="fretboard-mode" class="form-select" style="max-width: 200px;">
+                <option value="all">All Notes</option>
+                <option value="scale" selected>Scale/Chord Notes</option>
+            </select>
+        </div>
+        
+        <div id="fretboard-container">
+            <div class="fretboard">
+                <!-- String 1 (High e) -->
+                <div class="string" data-string="1">
+                    <span class="string-name">e</span>
+                    {% for fret in range(13) %}
+                    <div class="fret" data-fret="{{ fret }}"></div>
+                    {% endfor %}
+                </div>
+                <!-- String 2 (B) -->
+                <div class="string" data-string="2">
+                    <span class="string-name">B</span>
+                    {% for fret in range(13) %}
+                    <div class="fret" data-fret="{{ fret }}"></div>
+                    {% endfor %}
+                </div>
+                <!-- String 3 (G) -->
+                <div class="string" data-string="3">
+                    <span class="string-name">G</span>
+                    {% for fret in range(13) %}
+                    <div class="fret" data-fret="{{ fret }}"></div>
+                    {% endfor %}
+                </div>
+                <!-- String 4 (D) -->
+                <div class="string" data-string="4">
+                    <span class="string-name">D</span>
+                    {% for fret in range(13) %}
+                    <div class="fret" data-fret="{{ fret }}"></div>
+                    {% endfor %}
+                </div>
+                <!-- String 5 (A) -->
+                <div class="string" data-string="5">
+                    <span class="string-name">A</span>
+                    {% for fret in range(13) %}
+                    <div class="fret" data-fret="{{ fret }}"></div>
+                    {% endfor %}
+                </div>
+                <!-- String 6 (Low E) -->
+                <div class="string" data-string="6">
+                    <span class="string-name">E</span>
+                    {% for fret in range(13) %}
+                    <div class="fret" data-fret="{{ fret }}"></div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="fret-numbers">
+                <div></div>
+                {% for fret in range(13) %}
+                <div class="fret-number">{{ fret }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div id="note-legend" style="margin-top: 1rem;">
+            <div class="legend-title">Displayed Notes:</div>
+            <div class="note-list" id="fretboard-notes"></div>
+        </div>
+    </div>
+</div>
+
+<div id="error-container" class="card" style="display: none; border-color: var(--danger);">
+    <p id="error-message" style="color: var(--danger);"></p>
+</div>
+
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-header p {
+        color: var(--gray);
+    }
+    
+    /* Fretboard Styles */
+    .fretboard {
+        background: linear-gradient(180deg, #8B4513 0%, #654321 100%);
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-x: auto;
+    }
+    
+    .string {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        position: relative;
+    }
+    
+    .string::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: calc(2px + var(--string-number, 3px) * 0.5px);
+        background: linear-gradient(90deg, #c0c0c0, #e8e8e8);
+        transform: translateY(-50%);
+    }
+    
+    .string[data-string="6"] { --string-number: 6; }
+    .string[data-string="5"] { --string-number: 5; }
+    .string[data-string="4"] { --string-number: 4; }
+    .string[data-string="3"] { --string-number: 3; }
+    .string[data-string="2"] { --string-number: 2; }
+    .string[data-string="1"] { --string-number: 1; }
+    
+    .string-name {
+        width: 30px;
+        font-weight: 600;
+        color: var(--light);
+        z-index: 1;
+    }
+    
+    .fret {
+        width: 50px;
+        height: 40px;
+        border-right: 3px solid #444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .fret:first-child {
+        border-right: 5px solid #666;
+        background: rgba(255,255,255,0.1);
+    }
+    
+    .fret .note {
+        background: var(--primary);
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 2;
+    }
+    
+    .fret .note.root {
+        background: var(--secondary);
+    }
+    
+    .fret.playing {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .fret-number {
+        text-align: center;
+        padding: 0.5rem;
+        color: var(--gray);
+        font-size: 0.875rem;
+    }
+    
+    .fret-numbers {
+        display: flex;
+        padding-left: 30px;
+    }
+    
+    .fret-numbers > div {
+        width: 50px;
+    }
+    
+    .fret-numbers > div:first-child {
+        width: 30px;
+    }
+    
+    /* Grid styles */
+    .degree-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .degree-card {
+        background: var(--dark);
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .degree-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .degree-note {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0.5rem 0;
+    }
+    
+    .chord-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .chord-card {
+        background: var(--dark);
+        padding: 1rem;
+        border-radius: 8px;
+    }
+    
+    .chord-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--secondary);
+    }
+    
+    .chord-notes {
+        font-size: 0.875rem;
+        color: var(--gray);
+        margin-top: 0.5rem;
+    }
+    
+    .scale-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .scale-item {
+        background: var(--dark);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+    }
+    
+    .scale-name {
+        font-weight: 600;
+        color: var(--primary);
+    }
+    
+    .scale-notes {
+        font-size: 0.75rem;
+        color: var(--gray);
+    }
+    
+    .legend-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<script>
+// Audio context
+let audioContext = null;
+let currentNotes = [];
+let rootNote = 'C';
+
+const chromaticNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const tunings = ['E', 'A', 'D', 'G', 'B', 'e'];
+
+// Note frequencies
+const noteFrequencies = {
+    'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
+    'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+    'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+};
+
+function initAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function playNote(note, octave = 4) {
+    initAudio();
+    const frequency = noteFrequencies[note] * Math.pow(2, octave - 4);
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+function getNoteForPosition(stringIndex, fret) {
+    const openNote = tunings[stringIndex];
+    const openIndex = chromaticNotes.indexOf(openNote.replace('e', 'E').replace('b', 'B'));
+    const noteIndex = (openIndex + fret) % 12;
+    return chromaticNotes[noteIndex];
+}
+
+// Event handlers
+const inputField = document.getElementById('analyzer-input');
+const analyzeBtn = document.getElementById('analyze-btn');
+
+analyzeBtn.addEventListener('click', performAnalysis);
+inputField.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') performAnalysis();
+});
+
+// Load from URL params
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('input')) {
+    inputField.value = urlParams.get('input');
+    performAnalysis();
+}
+
+async function performAnalysis() {
+    const input = inputField.value.trim();
+    if (!input) return;
+    
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('result-container').style.display = 'none';
+    document.getElementById('error-container').style.display = 'none';
+    
+    try {
+        const response = await fetch(`/api/analyzer?input=${encodeURIComponent(input)}`);
+        const data = await response.json();
+        
+        document.getElementById('loading').style.display = 'none';
+        
+        if (data.success) {
+            displayResult(data);
+        } else {
+            showError(data.error || 'Could not analyze input');
+        }
+    } catch (error) {
+        document.getElementById('loading').style.display = 'none';
+        showError(error.message);
+    }
+}
+
+function displayResult(data) {
+    document.getElementById('result-container').style.display = 'block';
+    
+    // Set input type badge
+    const badge = document.getElementById('input-type-badge');
+    badge.textContent = data.type.toUpperCase();
+    badge.style.background = data.type === 'chord' ? 'var(--primary)' : 'var(--secondary)';
+    
+    // Set name
+    document.getElementById('result-name').textContent = data.input;
+    
+    // Display notes
+    const notes = data.type === 'chord' ? data.chord.notes : data.scale.notes;
+    currentNotes = notes;
+    rootNote = data.type === 'chord' ? data.chord.root : data.scale.root;
+    
+    document.getElementById('result-notes').innerHTML = notes.map(n => 
+        `<span class="note-tag" ${n === rootNote ? 'style="background: var(--secondary);"' : ''}>${n}</span>`
+    ).join('');
+    
+    // Display intervals
+    const intervals = data.type === 'chord' ? data.chord.intervals : data.scale.intervals;
+    document.getElementById('result-intervals').innerHTML = intervals.map(i => 
+        `<span class="note-tag">${i}</span>`
+    ).join('');
+    
+    // Show/hide sections based on type
+    if (data.type === 'scale') {
+        document.getElementById('degrees-section').style.display = 'block';
+        document.getElementById('diatonic-section').style.display = 'block';
+        document.getElementById('compatible-scales-section').style.display = 'none';
+        
+        // Display degrees
+        const degrees = data.scale.degrees;
+        document.getElementById('result-degrees').innerHTML = Object.entries(degrees).map(([deg, note]) => `
+            <div class="degree-card">
+                <div class="degree-number">${deg}</div>
+                <div class="degree-note">${note}</div>
+            </div>
+        `).join('');
+        
+        // Display diatonic chords
+        const diatonic = data.diatonic_chords || [];
+        document.getElementById('result-diatonic').innerHTML = diatonic.map(c => `
+            <div class="chord-card">
+                <div class="chord-name">${c.chord}</div>
+                <div class="chord-notes">${c.notes.join(', ')}</div>
+            </div>
+        `).join('');
+    } else {
+        document.getElementById('degrees-section').style.display = 'none';
+        document.getElementById('diatonic-section').style.display = 'none';
+        document.getElementById('compatible-scales-section').style.display = 'block';
+        
+        // Display compatible scales
+        const tonal = data.tonal_scales || [];
+        document.getElementById('result-tonal-scales').innerHTML = tonal.map(s => `
+            <div class="scale-item">
+                <div class="scale-name">${s.name}</div>
+                <div class="scale-notes">${s.notes.join(', ')}</div>
+            </div>
+        `).join('') || '<p>No tonal scales found</p>';
+        
+        const modal = data.modal_scales || [];
+        document.getElementById('result-modal-scales').innerHTML = modal.map(s => `
+            <div class="scale-item">
+                <div class="scale-name">${s.name}</div>
+                <div class="scale-notes">${s.notes.join(', ')}</div>
+            </div>
+        `).join('') || '<p>No modal scales found</p>';
+    }
+    
+    // Display fretboard
+    updateFretboard(data.fretboard_positions || {});
+    updateFretboardLegend(notes);
+}
+
+function updateFretboard(positions) {
+    // Clear previous notes
+    document.querySelectorAll('.fret .note').forEach(n => n.remove());
+    
+    // If positions is empty, show all notes
+    if (Object.keys(positions).length === 0) {
+        const strings = document.querySelectorAll('.string');
+        strings.forEach((stringEl, stringIndex) => {
+            const frets = stringEl.querySelectorAll('.fret');
+            frets.forEach((fretEl, fretIndex) => {
+                const note = getNoteForPosition(stringIndex, fretIndex);
+                if (currentNotes.includes(note)) {
+                    addNoteToFret(fretEl, note);
+                }
+            });
+        });
+        return;
+    }
+    
+    // Add notes from positions
+    for (const [note, posList] of Object.entries(positions)) {
+        for (const pos of posList) {
+            const stringEl = document.querySelector(`.string[data-string="${pos.string}"]`);
+            if (stringEl) {
+                const fretEl = stringEl.querySelector(`.fret[data-fret="${pos.fret}"]`);
+                if (fretEl) {
+                    addNoteToFret(fretEl, note);
+                }
+            }
+        }
+    }
+}
+
+function addNoteToFret(fretEl, note) {
+    const existing = fretEl.querySelector('.note');
+    if (existing) return;
+    
+    const noteEl = document.createElement('span');
+    noteEl.className = 'note';
+    noteEl.textContent = note;
+    if (note === rootNote) {
+        noteEl.classList.add('root');
+    }
+    fretEl.appendChild(noteEl);
+}
+
+function updateFretboardLegend(notes) {
+    const legend = document.getElementById('fretboard-notes');
+    legend.innerHTML = notes.map(n => 
+        `<span class="note-tag" ${n === rootNote ? 'style="background: var(--secondary);"' : ''}>${n}</span>`
+    ).join('');
+}
+
+// Fretboard click handlers
+document.querySelectorAll('.fret').forEach(fret => {
+    fret.addEventListener('click', function() {
+        const stringEl = this.closest('.string');
+        const stringIndex = parseInt(stringEl.dataset.string) - 1;
+        const fretIndex = parseInt(this.dataset.fret);
+        const note = getNoteForPosition(stringIndex, fretIndex);
+        
+        this.classList.add('playing');
+        setTimeout(() => this.classList.remove('playing'), 150);
+        
+        const octave = 4 + Math.floor((6 - parseInt(stringEl.dataset.string)) / 2);
+        playNote(note, octave);
+    });
+});
+
+// Fretboard mode change
+document.getElementById('fretboard-mode').addEventListener('change', async function() {
+    const input = inputField.value.trim();
+    if (!input) return;
+    
+    try {
+        const response = await fetch(`/api/analyzer?input=${encodeURIComponent(input)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            updateFretboard(data.fretboard_positions || {});
+        }
+    } catch (e) {}
+});
+
+function showError(message) {
+    document.getElementById('error-container').style.display = 'block';
+    document.getElementById('error-message').textContent = message;
+}
+</script>
+{% endblock %}
+

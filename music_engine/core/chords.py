@@ -371,7 +371,7 @@ class ChordBuilder:
         Parse a chord string into a Chord object.
 
         Args:
-            chord_string: Chord string (e.g., 'Cmaj7', 'Bbmin', 'F#7')
+            chord_string: Chord string (e.g., 'Cmaj7', 'Bbmin', 'F#7', 'Am')
 
         Returns:
             Chord object
@@ -379,24 +379,32 @@ class ChordBuilder:
         Raises:
             ValueError: If chord string cannot be parsed
         """
-        # Simple parser - can be enhanced for more complex chords
         chord_string = chord_string.strip()
-
-        # Find where the note name ends and quality begins
-        i = 0
-        while i < len(chord_string) and chord_string[i].isalpha():
-            i += 1
-
-        if i == 0:
+        
+        # More robust parser that handles accidentals and quality suffixes
+        # Pattern: [root note][accidental][quality]
+        # Examples: C, Cm, C7, Cmaj7, C#, Db7, Am, Am7, Bb
+        
+        import re
+        
+        # Match root note (letter + optional # or b) + quality
+        pattern = r'^([A-G])([#b]?)(.*)$'
+        match = re.match(pattern, chord_string, re.IGNORECASE)
+        
+        if not match:
             raise ValueError(f"Invalid chord string: {chord_string}")
-
-        root_name = chord_string[:i]
-        quality_part = chord_string[i:].lower()
-
+        
+        root_name = match.group(1).upper()
+        accidental = match.group(2).lower() if match.group(2) else ''
+        quality_part = match.group(3).lower()
+        
+        # Combine root with accidental
+        root = root_name + accidental if accidental else root_name
+        
         # Map common quality abbreviations to our internal format
         quality_map = {
-            '': 'maj',  # Just 'C' means C major
-            'm': 'min',
+            '': 'maj',      # Just 'C' means C major
+            'm': 'min',    # 'Am' = A minor
             'maj': 'maj',
             'maj7': 'maj7',
             'm7': 'min7',
@@ -406,6 +414,7 @@ class ChordBuilder:
             'aug': 'aug',
             'sus2': 'sus2',
             'sus4': 'sus4',
+            'sus': 'sus4',
             '6': '6',
             'm6': 'min6',
             '9': '9',
@@ -418,16 +427,24 @@ class ChordBuilder:
             'm13': 'min13',
             'maj13': 'maj13',
             '7sus4': '7sus4',
+            '7sus': '7sus4',
             'ø7': 'min7b5',
-            'm7b5': 'min7b5'
+            'm7b5': 'min7b5',
+            'add9': '9',
+            'add11': '11',
+            'add13': '13',
         }
-
-        quality = quality_map.get(quality_part, quality_part)
+        
+        # Handle edge case: "A" should be major
+        if root == 'A' and quality_part == '':
+            quality = 'maj'
+        else:
+            quality = quality_map.get(quality_part, quality_part)
 
         if quality not in CHORD_INTERVALS:
-            raise ValueError(f"Unknown chord quality: {quality_part}")
+            raise ValueError(f"Unknown chord quality: '{quality_part}' (parsed from '{chord_string}')")
 
-        return Chord(root_name, quality)
+        return Chord(root, quality)
 
 
 # Convenience functions for quick chord creation

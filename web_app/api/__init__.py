@@ -8,6 +8,7 @@ from . import scales
 from . import chords
 from . import progressions
 from . import analysis
+from . import analyzer
 
-__all__ = ['scales', 'chords', 'progressions', 'analysis']
+__all__ = ['scales', 'chords', 'progressions', 'analysis', 'analyzer']
 

@@ -102,6 +102,88 @@
 
 <div class="card">
     <div class="card-header">
+        <h2 class="card-title">🎵 Circle of Fifths</h2>
+    </div>
+    
+    <p style="color: var(--gray); margin-bottom: 1rem;">Click on a key to select it</p>
+    
+    <div class="circle-of-fifths-container">
+        <svg class="circle-of-fifths" viewBox="0 0 400 400">
+            <!-- Major keys (outer circle) -->
+            <g class="major-keys">
+                <circle-key data-root="C" cx="200" cy="50" r="35" fill="#74c0fc"></circle-key>
+                <circle-key data-root="G" cx="329" cy="108" r="35" fill="#69db7c"></circle-key>
+                <circle-key data-root="D" cx="371" cy="200" r="35" fill="#ffd43b"></circle-key>
+                <circle-key data-root="A" cx="329" cy="292" r="35" fill="#ff8787"></circle-key>
+                <circle-key data-root="E" cx="200" cy="350" r="35" fill="#da77f2"></circle-key>
+                <circle-key data-root="B" cx="71" cy="292" r="35" fill="#63e6be"></circle-key>
+                <circle-key data-root="F#" cx="29" cy="200" r="35" fill="#4dabf7"></circle-key>
+                <circle-key data-root="Db" cx="71" cy="108" r="35" fill="#f783ac"></circle-key>
+                <circle-key data-root="Ab" cx="120" cy="43" r="35" fill="#a9e34b"></circle-key>
+                <circle-key data-root="Eb" cx="280" cy="43" r="35" fill="#ffc078"></circle-key>
+                <circle-key data-root="Bb" cx="320" cy="157" r="35" fill="#b197fc"></circle-key>
+                <circle-key data-root="F" cx="157" cy="343" r="35" fill="#38d9a9"></circle-key>
+            </g>
+            <!-- Minor keys (inner circle) -->
+            <g class="minor-keys">
+                <circle-key data-root="Am" cx="200" cy="100" r="25" fill="#e599f7"></circle-key>
+                <circle-key data-root="Em" cx="285" cy="140" r="25" fill="#a5d8ff"></circle-key>
+                <circle-key data-root="Bm" cx="315" cy="200" r="25" fill="#b2f2bb"></circle-key>
+                <circle-key data-root="F#m" cx="285" cy="260" r="25" fill="#ffe066"></circle-key>
+                <circle-key data-root="C#m" cx="200" cy="300" r="25" fill="#ffa8a8"></circle-key>
+                <circle-key data-root="G#m" cx="115" cy="260" r="25" fill="#d0bfff"></circle-key>
+                <circle-key data-root="D#m" cx="85" cy="200" r="25" fill="#7be9ad"></circle-key>
+                <circle-key data-root="A#m" cx="115" cy="140" r="25" fill="#4dabf7"></circle-key>
+                <circle-key data-root="Fm" cx="140" cy="85" r="25" fill="#f783ac"></circle-key>
+                <circle-key data-root="Cm" cx="260" cy="85" r="25" fill="#a9e34b"></circle-key>
+                <circle-key data-root="Gm" cx="300" cy="175" r="25" fill="#ffc078"></circle-key>
+                <circle-key data-root="Dm" cx="175" cy="315" r="25" fill="#b197fc"></circle-key>
+            </g>
+        </svg>
+    </div>
+    
+    <div id="circle-selection" style="margin-top: 1rem; text-align: center;">
+        <span class="note-tag" id="selected-circle-note">C</span>
+    </div>
+</div>
+
+<!-- Interactive Piano Keyboard -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">🎹 Interactive Piano</h2>
+    </div>
+    
+    <p style="color: var(--gray); margin-bottom: 1rem;">Click on keys to play notes</p>
+    
+    <div class="piano-container">
+        <div class="piano" id="piano-keyboard">
+            <!-- White keys -->
+            <div class="key white" data-note="C" data-octave="4"></div>
+            <div class="key white" data-note="D" data-octave="4"></div>
+            <div class="key white" data-note="E" data-octave="4"></div>
+            <div class="key white" data-note="F" data-octave="4"></div>
+            <div class="key white" data-note="G" data-octave="4"></div>
+            <div class="key white" data-note="A" data-octave="4"></div>
+            <div class="key white" data-note="B" data-octave="4"></div>
+            <div class="key white" data-note="C" data-octave="5"></div>
+            <!-- Black keys -->
+            <div class="key black" data-note="C#" data-octave="4" style="left: 25px;"></div>
+            <div class="key black" data-note="D#" data-octave="4" style="left: 75px;"></div>
+            <div class="key black" data-note="F#" data-octave="4" style="left: 175px;"></div>
+            <div class="key black" data-note="G#" data-octave="4" style="left: 225px;"></div>
+            <div class="key black" data-note="A#" data-octave="4" style="left: 275px;"></div>
+        </div>
+    </div>
+    
+    <div class="form-group" style="margin-top: 1rem;">
+        <label class="form-label">
+            <input type="checkbox" id="highlight-scale" checked> Highlight scale notes
+        </label>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
         <h2 class="card-title">Scale Degrees</h2>
     </div>
     
@@ -133,6 +215,95 @@
     
     .page-header p {
         color: var(--gray);
+    }
+    
+    /* Piano Keyboard Styles */
+    .piano-container {
+        overflow-x: auto;
+        padding: 1rem 0;
+    }
+    
+    .piano {
+        position: relative;
+        display: flex;
+        height: 150px;
+        min-width: 500px;
+    }
+    
+    .key {
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.1s;
+    }
+    
+    .key.white {
+        width: 50px;
+        height: 150px;
+        background: linear-gradient(180deg, #fff 0%, #f0f0f0 100%);
+        border: 1px solid #ccc;
+        border-radius: 0 0 5px 5px;
+        z-index: 1;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: 10px;
+        font-weight: 600;
+        color: #333;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .key.white:hover {
+        background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%);
+    }
+    
+    .key.white:active, .key.white.playing {
+        background: linear-gradient(180deg, #e0e0e0 0%, #d0d0d0 100%);
+        transform: translateY(2px);
+        box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    }
+    
+    .key.black {
+        position: absolute;
+        width: 35px;
+        height: 100px;
+        background: linear-gradient(180deg, #333 0%, #111 100%);
+        border-radius: 0 0 4px 4px;
+        z-index: 2;
+        color: white;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: 8px;
+        box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+    }
+    
+    .key.black:hover {
+        background: linear-gradient(180deg, #444 0%, #222 100%);
+    }
+    
+    .key.black:active, .key.black.playing {
+        background: linear-gradient(180deg, #222 0%, #000 100%);
+        transform: translateY(2px);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    
+    /* Highlight scale notes */
+    .key.white.in-scale {
+        background: linear-gradient(180deg, #a5d8ff 0%, #74c0fc 100%);
+        border-color: var(--primary);
+    }
+    
+    .key.black.in-scale {
+        background: linear-gradient(180deg, #4dabf7 0%, #339af0 100%);
+    }
+    
+    .key.white.root-note {
+        background: linear-gradient(180deg, #b197fc 0%, #9775fa 100%);
+    }
+    
+    .key.black.root-note {
+        background: linear-gradient(180deg, #845ef7 0%, #7048e8 100%);
     }
     
     .degree-grid {
@@ -190,6 +361,45 @@
         color: var(--gray);
         margin-top: 0.5rem;
     }
+    
+    /* Circle of Fifths Styles */
+    .circle-of-fifths-container {
+        display: flex;
+        justify-content: center;
+        padding: 1rem;
+    }
+    
+    .circle-of-fifths {
+        width: 400px;
+        height: 400px;
+        max-width: 100%;
+    }
+    
+    .circle-of-fifths circle-key {
+        cursor: pointer;
+        transition: transform 0.2s, filter 0.2s;
+    }
+    
+    .circle-of-fifths circle-key:hover {
+        transform: scale(1.1);
+        filter: brightness(1.2);
+    }
+    
+    .circle-of-fifths circle-key.selected {
+        stroke: white;
+        stroke-width: 3px;
+        filter: brightness(1.3);
+    }
+    
+    .circle-of-fifths text {
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        fill: #333;
+        pointer-events: none;
+        text-anchor: middle;
+        dominant-baseline: middle;
+    }
 </style>
 
 <script>
@@ -197,6 +407,86 @@ const rootNote = document.getElementById('root-note');
 const scaleType = document.getElementById('scale-type');
 const octaves = document.getElementById('octaves');
 const getScaleBtn = document.getElementById('get-scale');
+const highlightCheckbox = document.getElementById('highlight-scale');
+
+// Audio context for playing notes
+let audioContext = null;
+
+// Note frequencies (A4 = 440Hz)
+const noteFrequencies = {
+    'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
+    'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+    'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+};
+
+function initAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function playNote(note, octave) {
+    initAudio();
+    
+    const frequency = noteFrequencies[note] * Math.pow(2, octave - 4);
+    
+    // Create oscillator
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    
+    // Envelope
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+// Piano keyboard click handlers
+document.querySelectorAll('.key').forEach(key => {
+    key.addEventListener('click', function() {
+        const note = this.dataset.note;
+        const octave = parseInt(this.dataset.octave);
+        
+        // Visual feedback
+        this.classList.add('playing');
+        setTimeout(() => this.classList.remove('playing'), 150);
+        
+        // Play sound
+        playNote(note, octave);
+    });
+});
+
+// Highlight scale notes on piano
+function highlightPianoKeys(scaleNotes, root) {
+    // Clear previous highlights
+    document.querySelectorAll('.key').forEach(key => {
+        key.classList.remove('in-scale', 'root-note');
+    });
+    
+    if (!highlightCheckbox.checked) return;
+    
+    document.querySelectorAll('.key').forEach(key => {
+        const note = key.dataset.note;
+        
+        // Check if note is in scale (without octave)
+        if (scaleNotes.includes(note)) {
+            key.classList.add('in-scale');
+            
+            // Highlight root note specially
+            if (note === root || note === root.replace('#', '').replace('b', '')) {
+                key.classList.add('root-note');
+            }
+        }
+    });
+}
 
 // Load from URL params
 const urlParams = new URLSearchParams(window.location.search);
@@ -208,6 +498,11 @@ if (urlParams.get('type')) {
 }
 
 getScaleBtn.addEventListener('click', fetchScale);
+highlightCheckbox.addEventListener('change', () => {
+    if (window.currentScaleNotes) {
+        highlightPianoKeys(window.currentScaleNotes, rootNote.value);
+    }
+});
 
 async function fetchScale() {
     const root = rootNote.value;
@@ -221,6 +516,10 @@ async function fetchScale() {
         if (data.success) {
             displayScale(data.scale);
             fetchDiatonicChords(root, type);
+            
+            // Highlight piano keys for this scale
+            window.currentScaleNotes = data.scale.notes;
+            highlightPianoKeys(data.scale.notes, root);
         } else {
             showError(data.error);
         }
@@ -291,6 +590,156 @@ function showError(message) {
 if (urlParams.get('root') || urlParams.get('type')) {
     fetchScale();
 }
+
+// Circle of Fifths functionality
+function initCircleOfFifths() {
+    const svg = document.querySelector('.circle-of-fifths');
+    if (!svg) return;
+    
+    // Define note positions for Circle of Fifths
+    const majorKeys = [
+        { root: 'C', cx: 200, cy: 50, color: '#74c0fc' },
+        { root: 'G', cx: 329, cy: 108, color: '#69db7c' },
+        { root: 'D', cx: 371, cy: 200, color: '#ffd43b' },
+        { root: 'A', cx: 329, cy: 292, color: '#ff8787' },
+        { root: 'E', cx: 200, cy: 350, color: '#da77f2' },
+        { root: 'B', cx: 71, cy: 292, color: '#63e6be' },
+        { root: 'F#', cx: 29, cy: 200, color: '#4dabf7' },
+        { root: 'Db', cx: 71, cy: 108, color: '#f783ac' },
+        { root: 'Ab', cx: 120, cy: 43, color: '#a9e34b' },
+        { root: 'Eb', cx: 280, cy: 43, color: '#ffc078' },
+        { root: 'Bb', cx: 320, cy: 157, color: '#b197fc' },
+        { root: 'F', cx: 157, cy: 343, color: '#38d9a9' }
+    ];
+    
+    const minorKeys = [
+        { root: 'Am', cx: 200, cy: 100, color: '#e599f7' },
+        { root: 'Em', cx: 285, cy: 140, color: '#a5d8ff' },
+        { root: 'Bm', cx: 315, cy: 200, color: '#b2f2bb' },
+        { root: 'F#m', cx: 285, cy: 260, color: '#ffe066' },
+        { root: 'C#m', cx: 200, cy: 300, color: '#ffa8a8' },
+        { root: 'G#m', cx: 115, cy: 260, color: '#d0bfff' },
+        { root: 'D#m', cx: 85, cy: 200, color: '#7be9ad' },
+        { root: 'A#m', cx: 115, cy: 140, color: '#4dabf7' },
+        { root: 'Fm', cx: 140, cy: 85, color: '#f783ac' },
+        { root: 'Cm', cx: 260, cy: 85, color: '#a9e34b' },
+        { root: 'Gm', cx: 300, cy: 175, color: '#ffc078' },
+        { root: 'Dm', cx: 175, cy: 315, color: '#b197fc' }
+    ];
+    
+    // Create major key circles
+    const majorGroup = svg.querySelector('.major-keys');
+    majorGroup.innerHTML = '';
+    majorKeys.forEach(key => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'circle-key');
+        g.setAttribute('data-root', key.root);
+        g.style.cursor = 'pointer';
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', key.cx);
+        circle.setAttribute('cy', key.cy);
+        circle.setAttribute('r', '30');
+        circle.setAttribute('fill', key.color);
+        circle.setAttribute('stroke', '#fff');
+        circle.setAttribute('stroke-width', '2');
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', key.cx);
+        text.setAttribute('y', key.cy);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('fill', '#333');
+        text.setAttribute('font-size', '14');
+        text.setAttribute('font-weight', '600');
+        text.textContent = key.root;
+        
+        g.appendChild(circle);
+        g.appendChild(text);
+        
+        g.addEventListener('click', () => selectCircleKey(key.root));
+        g.addEventListener('mouseenter', () => { circle.setAttribute('r', '35'); });
+        g.addEventListener('mouseleave', () => { if (!g.classList.contains('selected')) circle.setAttribute('r', '30'); });
+        
+        majorGroup.appendChild(g);
+    });
+    
+    // Create minor key circles
+    const minorGroup = svg.querySelector('.minor-keys');
+    minorGroup.innerHTML = '';
+    minorKeys.forEach(key => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'circle-key-minor');
+        g.setAttribute('data-root', key.root);
+        g.style.cursor = 'pointer';
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', key.cx);
+        circle.setAttribute('cy', key.cy);
+        circle.setAttribute('r', '22');
+        circle.setAttribute('fill', key.color);
+        circle.setAttribute('stroke', '#fff');
+        circle.setAttribute('stroke-width', '2');
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', key.cx);
+        text.setAttribute('y', key.cy);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('fill', '#333');
+        text.setAttribute('font-size', '11');
+        text.setAttribute('font-weight', '600');
+        text.textContent = key.root;
+        
+        g.appendChild(circle);
+        g.appendChild(text);
+        
+        g.addEventListener('click', () => selectCircleKey(key.root.replace('m', ''), 'minor_natural'));
+        g.addEventListener('mouseenter', () => { circle.setAttribute('r', '25'); });
+        g.addEventListener('mouseleave', () => { circle.setAttribute('r', '22'); });
+        
+        minorGroup.appendChild(g);
+    });
+}
+
+function selectCircleKey(root, scaleTypeToSet = 'major') {
+    // Update root note dropdown
+    rootNote.value = root;
+    
+    // Update scale type
+    if (scaleTypeToSet === 'minor_natural') {
+        scaleType.value = 'minor_natural';
+    } else if (root.includes('m')) {
+        scaleType.value = 'minor_natural';
+    } else {
+        scaleType.value = 'major';
+    }
+    
+    // Update selection display
+    document.getElementById('selected-circle-note').textContent = root;
+    
+    // Add visual selection
+    document.querySelectorAll('.circle-key, .circle-key-minor').forEach(el => {
+        const c = el.querySelector('circle');
+        c.setAttribute('stroke', '#fff');
+        c.setAttribute('stroke-width', '2');
+        el.classList.remove('selected');
+    });
+    
+    const selectedEl = document.querySelector(`.circle-key[data-root="${root}"], .circle-key-minor[data-root="${root}m"]`);
+    if (selectedEl) {
+        const c = selectedEl.querySelector('circle');
+        c.setAttribute('stroke', '#333');
+        c.setAttribute('stroke-width', '4');
+        selectedEl.classList.add('selected');
+    }
+    
+    // Fetch the scale
+    fetchScale();
+}
+
+// Initialize Circle of Fifths on page load
+document.addEventListener('DOMContentLoaded', initCircleOfFifths);
 </script>
 {% endblock %}
 
