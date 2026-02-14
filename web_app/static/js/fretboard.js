@@ -21,14 +21,14 @@ class GuitarFretboard {
             ...options
         };
         
-        // Standard tunings
+        // Standard tunings (from highest pitch at TOP to lowest at BOTTOM)
         this.tunings = {
-            'standard': ['E', 'A', 'D', 'G', 'B', 'e'],
-            'drop_d': ['D', 'A', 'D', 'G', 'B', 'e'],
-            'open_g': ['D', 'G', 'D', 'G', 'B', 'D'],
-            'open_d': ['D', 'A', 'D', 'F#', 'A', 'D'],
-            'half_step': ['Eb', 'Ab', 'Db', 'Gb', 'Bb', 'eb'],
-            'full_step': ['D', 'G', 'C', 'F', 'A', 'D']
+            'standard': ['E', 'B', 'G', 'D', 'A', 'E'],  // High E at top, low E at bottom
+            'drop_d': ['E', 'B', 'G', 'D', 'A', 'D'],  // Drop D tuning
+            'open_g': ['D', 'B', 'G', 'D', 'G', 'D'],  // Open G
+            'open_d': ['D', 'A', 'D', 'F#', 'A', 'D'],  // Open D
+            'half_step': ['Eb', 'Bb', 'Gb', 'Db', 'Ab', 'Eb'],  // Half step down
+            'full_step': ['D', 'A', 'G', 'C', 'F', 'D']  // Full step down
         };
         
         this.chromaticNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -246,11 +246,16 @@ class GuitarFretboard {
         let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" 
                    style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">`;
         
-        // Background
+        // Background and definitions
         svg += `<defs>
             <linearGradient id="fretboardBg" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style="stop-color:#2d1810"/>
                 <stop offset="100%" style="stop-color:#1a0f0a"/>
+            </linearGradient>
+            <linearGradient id="stringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#666"/>
+                <stop offset="50%" style="stop-color:#aaa"/>
+                <stop offset="100%" style="stop-color:#666"/>
             </linearGradient>
             <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
                 <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
@@ -281,24 +286,16 @@ class GuitarFretboard {
         
         // Strings (from top = high e to bottom = low E for correct guitar diagram view)
         // In guitar diagrams: high e string is at TOP, low E is at BOTTOM
-        const stringThicknesses = [0.8, 1, 1.5, 2, 2.5, 3]; // High e thin, low E thick
+        // thickness array: index 0 = first string (top), index 5 = last string (bottom)
+        const stringThicknesses = [1.5, 2, 2.5, 3, 3.5, 4.5]; // High e thin at TOP, low E thick at BOTTOM
         for (let i = 0; i < 6; i++) {
-            // Invert the y position: i=0 (high e) -> top, i=5 (low E) -> bottom
-            const y = 40 + (5 - i) * stringHeight;
+            // i=0 is high e (top), i=5 is low E (bottom)
+            const y = 40 + i * stringHeight;
             const thickness = stringThicknesses[i];
             svg += `<line x1="${stringLabelWidth}" y1="${y}" x2="${width-20}" y2="${y}" 
-                    stroke="url(#stringGradient)" stroke-width="${thickness}" 
-                    opacity="0.9"/>`;
+                    stroke="#cccccc" stroke-width="${thickness}" 
+                    opacity="1.0"/>`;
         }
-        
-        // String gradient
-        svg += `<defs>
-            <linearGradient id="stringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style="stop-color:#666"/>
-                <stop offset="50%" style="stop-color:#aaa"/>
-                <stop offset="100%" style="stop-color:#666"/>
-            </linearGradient>
-        </defs>`;
         
         // Frets (vertical lines)
         for (let i = 0; i <= numFrets; i++) {
@@ -311,10 +308,10 @@ class GuitarFretboard {
                     stroke="${fretColor}" stroke-width="${fretWidthAttr}"/>`;
         }
         
-        // String names (left side) - now correctly showing high e at top, low E at bottom
+        // String names (left side) - high e at top, low E at bottom
         if (showStringNames) {
             for (let i = 0; i < 6; i++) {
-                const y = 40 + (5 - i) * stringHeight;
+                const y = 40 + i * stringHeight;
                 svg += `<text x="${stringLabelWidth/2}" y="${y+5}" 
                         text-anchor="middle" fill="#888" font-size="14" font-weight="bold">
                         ${this.currentTuning[i]}</text>`;
@@ -330,11 +327,12 @@ class GuitarFretboard {
             }
         }
         
-        // Notes - render at correct positions matching the inverted string layout
+        // Notes - render at correct positions (skip fret 0 as it's shown as string names)
         for (let stringIdx = 0; stringIdx < 6; stringIdx++) {
-            const y = 40 + (5 - stringIdx) * stringHeight;
+            const y = 40 + stringIdx * stringHeight;
             
-            for (let fret = 0; fret <= numFrets; fret++) {
+            // Start from fret 1 (skip open strings which are shown as labels)
+            for (let fret = 1; fret <= numFrets; fret++) {
                 const note = this.getNoteAtPosition(stringIdx, fret);
                 
                 if (this.activeNotes.has(note)) {
@@ -372,9 +370,7 @@ class GuitarFretboard {
                     const cy = parseFloat(circle.getAttribute('cy'));
                     
                     // Calculate string and fret from position
-                    // Note: y position is inverted for display, so we need to convert back
-                    const visualStringIdx = Math.round((cy - 40) / stringHeight);
-                    const stringIdx = 5 - visualStringIdx; // Convert visual position to actual string index
+                    const stringIdx = Math.round((cy - 40) / stringHeight);
                     const fret = Math.round((cx - stringLabelWidth) / fretWidth);
                     
                     if (stringIdx >= 0 && stringIdx < 6 && fret >= 0 && fret <= numFrets) {
