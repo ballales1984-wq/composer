@@ -10,7 +10,7 @@
 
 ## Tasks
 - [x] 6.1 Update note.py to use custom exceptions
-- [ ] 6.2 Update chord.py to use custom exceptions
-- [ ] 6.3 Update scale.py to use custom exceptions
-- [ ] 6.4 Test that exceptions work correctly
+- [x] 6.2 Update chord.py to use custom exceptions
+- [x] 6.3 Update scale.py to use custom exceptions
+- [x] 6.4 Test that exceptions work correctly
 

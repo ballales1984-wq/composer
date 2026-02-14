@@ -114,6 +114,104 @@ class GuitarFretboard {
         this.activeNotes.add(root);
     }
     
+    // NEW: Highlight both scale and chord simultaneously
+    highlightScaleAndChord(scaleRoot, scaleType, chordRoot, chordQuality) {
+        // Get scale notes
+        const scaleIntervals = {
+            major: [0, 2, 4, 5, 7, 9, 11],
+            minor_natural: [0, 2, 3, 5, 7, 8, 10],
+            minor_harmonic: [0, 2, 3, 5, 7, 8, 11],
+            minor_melodic: [0, 2, 3, 5, 7, 9, 11],
+            dorian: [0, 2, 3, 5, 7, 9, 10],
+            phrygian: [0, 1, 3, 5, 7, 8, 10],
+            lydian: [0, 2, 4, 6, 7, 9, 11],
+            mixolydian: [0, 2, 4, 5, 7, 9, 10],
+            locrian: [0, 1, 3, 5, 6, 8, 10],
+            pentatonic_major: [0, 2, 4, 7, 9],
+            pentatonic_minor: [0, 3, 5, 7, 10],
+            blues_minor: [0, 3, 5, 6, 7, 10],
+            blues_major: [0, 2, 3, 4, 7, 9]
+        };
+        
+        // Get chord intervals
+        const chordIntervals = {
+            maj: [0, 4, 7],
+            min: [0, 3, 7],
+            dim: [0, 3, 6],
+            aug: [0, 4, 8],
+            dom7: [0, 4, 7, 10],
+            maj7: [0, 4, 7, 11],
+            min7: [0, 3, 7, 10],
+            dim7: [0, 3, 6, 9],
+            min7b5: [0, 3, 6, 10],
+            '9': [0, 4, 7, 10, 14],
+            maj9: [0, 4, 7, 11, 14],
+            min9: [0, 3, 7, 10, 14],
+            '11': [0, 4, 7, 10, 14, 17],
+            '13': [0, 4, 7, 10, 14, 21]
+        };
+        
+        const scaleRootIdx = this.chromaticNotes.indexOf(scaleRoot);
+        const chordRootIdx = this.chromaticNotes.indexOf(chordRoot);
+        
+        const scaleInterv = scaleIntervals[scaleType] || scaleIntervals.major;
+        const chordInterv = chordIntervals[chordQuality] || chordIntervals.maj;
+        
+        const scaleNotes = scaleInterv.map(i => this.chromaticNotes[(scaleRootIdx + i) % 12]);
+        const chordNotes = chordInterv.map(i => this.chromaticNotes[(chordRootIdx + i) % 12]);
+        
+        // Find common notes
+        const commonNotes = scaleNotes.filter(n => chordNotes.includes(n));
+        
+        // Set up active notes with types
+        this.activeNotes = new Set();
+        this.noteType = {};
+        
+        // Mark scale notes (not in chord)
+        scaleNotes.forEach(n => {
+            if (!commonNotes.includes(n)) {
+                this.activeNotes.add(n);
+                this.noteType[n] = 'scale';
+            }
+        });
+        
+        // Mark chord notes (not in common)
+        chordNotes.forEach(n => {
+            if (!commonNotes.includes(n)) {
+                this.activeNotes.add(n);
+                this.noteType[n] = 'chord';
+            }
+        });
+        
+        // Mark common notes
+        commonNotes.forEach(n => {
+            this.activeNotes.add(n);
+            this.noteType[n] = 'common';
+        });
+        
+        // Mark roots
+        this.noteType[scaleRoot] = 'root';
+        this.noteType[chordRoot] = 'root';
+        this.activeNotes.add(scaleRoot);
+        this.activeNotes.add(chordRoot);
+        
+        // Store info for legend
+        this.currentScaleNotes = scaleNotes;
+        this.currentChordNotes = chordNotes;
+        this.currentCommonNotes = commonNotes;
+        
+        this.render();
+    }
+    
+    // Get info about current display for legend
+    getDisplayInfo() {
+        return {
+            scale: this.currentScaleNotes || [],
+            chord: this.currentChordNotes || [],
+            common: this.currentCommonNotes || []
+        };
+    }
+    
     clearNotes() {
         this.activeNotes = new Set();
         this.noteType = {};
@@ -244,6 +342,7 @@ class GuitarFretboard {
                     let color;
                     if (type === 'root') color = colorRoot;
                     else if (type === 'chord') color = colorChord;
+                    else if (type === 'common') color = '#fbbf24';  // Gold for common notes
                     else color = colorScale;
                     
                     // Note circle with shadow

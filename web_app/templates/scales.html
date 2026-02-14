@@ -77,6 +77,12 @@
             Get Scale Info
         </button>
         
+        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+            <a href="/fretboard" id="view-fretboard-scale" class="btn btn-secondary" style="flex: 1; text-align: center; text-decoration: none; padding: 0.5rem; display: none;">
+                🎸 View on Fretboard
+            </a>
+        </div>
+        
         <div class="playback-controls" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
             <button id="play-scale" class="btn btn-success" style="flex: 1;">
                 ▶ Play Scale
@@ -724,6 +730,13 @@ function displayScale(scale) {
     document.getElementById('degrees-result').innerHTML = `
         <div class="degree-grid">${degreesHtml}</div>
     `;
+    
+    // Update View on Fretboard link with scale info
+    const fretboardLink = document.getElementById('view-fretboard-scale');
+    const root = rootNote.value;
+    const type = scaleType.value;
+    fretboardLink.href = `/fretboard?mode=scale&root=${root}&scale=${type}`;
+    fretboardLink.style.display = 'block';
 }
 
 async function fetchDiatonicChords(root, type) {

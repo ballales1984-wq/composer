@@ -7,6 +7,7 @@ with their intervals and note sequences.
 
 from typing import List, Optional, Union, Dict
 from .note import Note
+from music_engine.exceptions import InvalidScaleError, InvalidNoteError
 
 # Constants (copied to avoid circular imports)
 SCALE_INTERVALS = {
@@ -88,24 +89,33 @@ class Scale:
             custom_intervals: Optional custom intervals list (overrides scale_type)
 
         Raises:
-            ValueError: If scale_type is not recognized (unless custom_intervals provided)
+            InvalidScaleError: If scale cannot be created with given parameters
+            InvalidNoteError: If root note is invalid
         """
-        self._root = Note(root) if not isinstance(root, Note) else root
+        # Validate and create root note
+        try:
+            self._root = Note(root) if not isinstance(root, Note) else root
+        except Exception as e:
+            raise InvalidNoteError(f"Invalid root note: {root}", details={'root': str(root), 'error': str(e)})
+        
         self._scale_type = scale_type.lower()
 
         # Support for custom intervals (thread-safe alternative to modifying global dict)
         if custom_intervals is not None:
             if not custom_intervals or custom_intervals[0] != 0:
-                raise ValueError("Custom intervals must start with 0 (unison)")
+                raise InvalidScaleError("Custom intervals must start with 0 (unison)",
+                                       details={'custom_intervals': custom_intervals})
             # Validate intervals
             for i, interval in enumerate(custom_intervals):
                 if interval < 0 or interval > 24:  # Allow up to 2 octaves
-                    raise ValueError(f"Invalid interval at position {i}: {interval}")
+                    raise InvalidScaleError(f"Invalid interval at position {i}: {interval}",
+                                          details={'interval': interval, 'position': i})
             self._intervals = custom_intervals
             self._scale_type = scale_type if scale_type.startswith('custom_') else f'custom_{scale_type}'
         else:
             if self._scale_type not in SCALE_INTERVALS:
-                raise ValueError(f"Unknown scale type: {scale_type}")
+                raise InvalidScaleError(f"Unknown scale type: {scale_type}",
+                                      details={'scale_type': scale_type, 'valid_types': list(SCALE_INTERVALS.keys())})
             self._intervals = SCALE_INTERVALS[self._scale_type]
 
         self._octaves = octaves
@@ -180,12 +190,13 @@ class Scale:
             Note at the specified degree
 
         Raises:
-            IndexError: If degree is out of range
+            InvalidScaleError: If degree is out of range
         """
         # Convert to 0-based index
         index = degree - 1
         if not (0 <= index < len(self._notes)):
-            raise IndexError(f"Scale degree {degree} is out of range for {self._scale_type}")
+            raise InvalidScaleError(f"Scale degree {degree} is out of range for {self._scale_type}",
+                                  details={'degree': degree, 'scale_type': self._scale_type, 'max_degree': len(self._notes)})
 
         return self._notes[index]
 
@@ -308,10 +319,11 @@ class Scale:
             New Scale object representing the mode
 
         Raises:
-            ValueError: If mode_number is invalid
+            InvalidScaleError: If mode_number is invalid
         """
         if not (1 <= mode_number <= len(self._intervals)):
-            raise ValueError(f"Invalid mode number: {mode_number}")
+            raise InvalidScaleError(f"Invalid mode number: {mode_number}",
+                                  details={'mode_number': mode_number, 'max_mode': len(self._intervals)})
 
         # Calculate new root (move up by mode_number - 1 steps)
         mode_root = self._root.transpose(self._intervals[mode_number - 1])

@@ -68,9 +68,45 @@
             </select>
         </div>
         
-        <button id="get-chord" class="btn btn-primary" style="width: 100%;">
+<button id="get-chord" class="btn btn-primary" style="width: 100%;">
             Get Chord Info
         </button>
+        
+        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+            <a href="/fretboard" id="view-fretboard-chord" class="btn btn-secondary" style="flex: 1; text-align: center; text-decoration: none; padding: 0.5rem; display: none;">
+                🎸 View on Fretboard
+            </a>
+        </div>
+        
+        <div class="playback-controls" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+            <button id="play-chord" class="btn btn-success" style="flex: 1;">
+                ▶ Play Chord
+            </button>
+            <button id="play-arpeggio" class="btn btn-secondary" style="flex: 1;">
+                ♪ Play Arpeggio
+            </button>
+        </div>
+        
+        <div class="playback-settings" style="margin-top: 1rem;">
+            <div class="form-group">
+                <label class="form-label">Note Duration</label>
+                <select id="note-duration" class="form-select">
+                    <option value="0.5">Short (500ms)</option>
+                    <option value="1" selected>Normal (1s)</option>
+                    <option value="1.5">Long (1.5s)</option>
+                    <option value="2">Very Long (2s)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Waveform</label>
+                <select id="waveform" class="form-select">
+                    <option value="sine" selected>Sine</option>
+                    <option value="square">Square</option>
+                    <option value="sawtooth">Sawtooth</option>
+                    <option value="triangle">Triangle</option>
+                </select>
+            </div>
+        </div>
     </div>
     
     <div class="card">
@@ -113,8 +149,54 @@
         <h2 class="card-title">Guitar Voicing</h2>
     </div>
     
-    <div id="voicing-result">
+<div id="voicing-result">
         <p>Select a chord to see guitar voicings</p>
+    </div>
+</div>
+
+<!-- Circle of Fifths Section -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">🎵 Circolo delle Quinte</h2>
+    </div>
+    
+    <p style="color: var(--gray); margin-bottom: 1rem;">Clicca su una tonalità per vedere le relazioni e gli accordi</p>
+    
+    <div class="circle-of-fifths-container">
+        <svg class="circle-of-fifths" id="circle-of-fifths-chords" viewBox="0 0 400 400">
+            <!-- Circle will be rendered by JavaScript -->
+        </svg>
+    </div>
+    
+    <div id="circle-selection" style="margin-top: 1rem; text-align: center;">
+        <span class="note-tag" id="selected-circle-key" style="font-size: 1.25rem;">C</span>
+        <span style="color: var(--gray); margin-left: 0.5rem;">(Tonalità selezionata)</span>
+    </div>
+    
+    <!-- Key Information -->
+    <div id="key-info" style="margin-top: 1.5rem; display: none;">
+        <div class="grid grid-2">
+            <div class="card" style="padding: 1rem;">
+                <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">🔗 Relazioni</h3>
+                <div id="key-relationships" style="font-size: 0.875rem;"></div>
+            </div>
+            <div class="card" style="padding: 1rem;">
+                <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">📍 Tonalità Vicine</h3>
+                <div id="key-neighbors" style="font-size: 0.875rem;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Diatonic Chords -->
+    <div id="circle-chords" style="margin-top: 1.5rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">🎹 Accordi Diatonici</h3>
+        <div id="diatonic-chords-circle" class="chord-grid"></div>
+    </div>
+    
+    <!-- Common Progressions -->
+    <div id="circle-progressions" style="margin-top: 1.5rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">📜 Progressioni Comuni</h3>
+        <div id="common-progressions" class="progression-grid"></div>
     </div>
 </div>
 
@@ -175,12 +257,199 @@
     .voicing-note {
         font-weight: 600;
     }
+    
+    /* Circle of Fifths Styles */
+    .circle-of-fifths-container {
+        display: flex;
+        justify-content: center;
+        padding: 1rem;
+    }
+    
+    .circle-of-fifths {
+        width: 400px;
+        height: 400px;
+        max-width: 100%;
+    }
+    
+    .circle-key {
+        cursor: pointer;
+        transition: transform 0.2s, filter 0.2s;
+    }
+    
+    .circle-key:hover circle {
+        transform: scale(1.1);
+        filter: brightness(1.2);
+    }
+    
+    .circle-key.selected circle {
+        stroke: white;
+        stroke-width: 3px;
+        filter: brightness(1.3);
+    }
+    
+    .progression-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .progression-card {
+        background: var(--dark);
+        padding: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .progression-card:hover {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .progression-name {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .progression-chords {
+        font-size: 0.875rem;
+        color: var(--gray);
+        margin-top: 0.5rem;
+    }
 </style>
 
 <script>
 const rootNote = document.getElementById('root-note');
 const chordQuality = document.getElementById('chord-quality');
 const getChordBtn = document.getElementById('get-chord');
+const playChordBtn = document.getElementById('play-chord');
+const playArpeggioBtn = document.getElementById('play-arpeggio');
+const noteDurationSelect = document.getElementById('note-duration');
+const waveformSelect = document.getElementById('waveform');
+
+// Current chord data
+let currentChordData = null;
+let isPlaying = false;
+
+// Audio context
+let audioContext = null;
+
+// Note frequencies (A4 = 440Hz)
+const noteFrequencies = {
+    'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
+    'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+    'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+};
+
+function initAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function getFrequency(noteName) {
+    const match = noteName.match(/^([A-G][#b]?)(-?\d+)?$/);
+    if (!match) return 440;
+    
+    let note = match[1];
+    const octave = match[2] ? parseInt(match[2]) : 4;
+    
+    const noteMap = {
+        'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#'
+    };
+    if (noteMap[note]) note = noteMap[note];
+    
+    const baseFreq = noteFrequencies[note];
+    if (!baseFreq) return 440;
+    
+    return baseFreq * Math.pow(2, octave - 4);
+}
+
+function playNote(noteName, duration, waveform = 'sine') {
+    initAudio();
+    
+    const frequency = getFrequency(noteName);
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = waveform;
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    
+    const attack = 0.02;
+    const decay = 0.05;
+    const sustain = 0.7;
+    const release = 0.1;
+    
+    const now = audioContext.currentTime;
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(0.3, now + attack);
+    gainNode.gain.linearRampToValueAtTime(0.3 * sustain, now + attack + decay);
+    gainNode.gain.setValueAtTime(0.3 * sustain, now + duration - release);
+    gainNode.gain.linearRampToValueAtTime(0, now + duration);
+    
+    oscillator.start(now);
+    oscillator.stop(now + duration);
+}
+
+// Play chord (all notes together)
+async function playChord() {
+    if (!currentChordData || isPlaying) return;
+    
+    isPlaying = true;
+    playChordBtn.disabled = true;
+    playChordBtn.textContent = '⏸ Playing...';
+    
+    const duration = parseFloat(noteDurationSelect.value);
+    const waveform = waveformSelect.value;
+    
+    // Play all chord notes simultaneously
+    for (const note of currentChordData.chord.notes) {
+        playNote(note, duration, waveform);
+    }
+    
+    // Wait for duration
+    await new Promise(resolve => setTimeout(resolve, duration * 1000));
+    
+    isPlaying = false;
+    playChordBtn.disabled = false;
+    playChordBtn.textContent = '▶ Play Chord';
+}
+
+// Play arpeggio (notes sequentially)
+async function playArpeggio() {
+    if (!currentChordData || isPlaying) return;
+    
+    isPlaying = true;
+    playArpeggioBtn.disabled = true;
+    playArpeggioBtn.textContent = '⏸ Playing...';
+    
+    const duration = parseFloat(noteDurationSelect.value) * 0.8;
+    const waveform = waveformSelect.value;
+    
+    // Play each note sequentially
+    for (const note of currentChordData.chord.notes) {
+        playNote(note, duration, waveform);
+        await new Promise(resolve => setTimeout(resolve, duration * 800));
+    }
+    
+    // Play chord at the end
+    for (const note of currentChordData.chord.notes) {
+        playNote(note, duration * 1.5, waveform);
+    }
+    
+    isPlaying = false;
+    playArpeggioBtn.disabled = false;
+    playArpeggioBtn.textContent = '♪ Play Arpeggio';
+}
+
+// Event listeners
+playChordBtn.addEventListener('click', playChord);
+playArpeggioBtn.addEventListener('click', playArpeggio);
 
 // Load from URL params
 const urlParams = new URLSearchParams(window.location.search);
@@ -236,6 +505,13 @@ function displayChord(chord) {
         `<span class="note-tag">${s}</span>`
     ).join('');
     document.getElementById('chord-semitones').innerHTML = semitonesHtml;
+    
+    // Update View on Fretboard link with chord info
+    const fretboardLink = document.getElementById('view-fretboard-chord');
+    const root = rootNote.value;
+    const quality = chordQuality.value;
+    fretboardLink.href = `/fretboard?mode=chord&root=${root}&quality=${quality}`;
+    fretboardLink.style.display = 'block';
 }
 
 async function fetchInversions(root, quality) {
@@ -293,6 +569,278 @@ function showError(message) {
 if (urlParams.get('root') || urlParams.get('quality')) {
     fetchChord();
 }
+
+// ============================================
+// Circle of Fifths - JavaScript Functions
+// ============================================
+
+// Circle of Fifths data
+const majorKeys = [
+    { root: 'C', cx: 200, cy: 50, color: '#74c0fc' },
+    { root: 'G', cx: 329, cy: 108, color: '#69db7c' },
+    { root: 'D', cx: 371, cy: 200, color: '#ffd43b' },
+    { root: 'A', cx: 329, cy: 292, color: '#ff8787' },
+    { root: 'E', cx: 200, cy: 350, color: '#da77f2' },
+    { root: 'B', cx: 71, cy: 292, color: '#63e6be' },
+    { root: 'F#', cx: 29, cy: 200, color: '#4dabf7' },
+    { root: 'Gb', cx: 71, cy: 108, color: '#f783ac' },
+    { root: 'Db', cx: 120, cy: 43, color: '#a9e34b' },
+    { root: 'Ab', cx: 280, cy: 43, color: '#ffc078' },
+    { root: 'Eb', cx: 320, cy: 157, color: '#b197fc' },
+    { root: 'Bb', cx: 157, cy: 343, color: '#38d9a9' },
+    { root: 'F', cx: 200, cy: 350, color: '#38d9a9' }
+];
+
+const minorKeys = [
+    { root: 'Am', cx: 200, cy: 100, color: '#e599f7' },
+    { root: 'Em', cx: 285, cy: 140, color: '#a5d8ff' },
+    { root: 'Bm', cx: 315, cy: 200, color: '#b2f2bb' },
+    { root: 'F#m', cx: 285, cy: 260, color: '#ffe066' },
+    { root: 'C#m', cx: 200, cy: 300, color: '#ffa8a8' },
+    { root: 'G#m', cx: 115, cy: 260, color: '#d0bfff' },
+    { root: 'D#m', cx: 85, cy: 200, color: '#7be9ad' },
+    { root: 'A#m', cx: 115, cy: 140, color: '#4dabf7' },
+    { root: 'Fm', cx: 140, cy: 85, color: '#f783ac' },
+    { root: 'Cm', cx: 260, cy: 85, color: '#a9e34b' },
+    { root: 'Gm', cx: 300, cy: 175, color: '#ffc078' },
+    { root: 'Dm', cx: 175, cy: 315, color: '#b197fc' }
+];
+
+let currentSelectedKey = 'C';
+
+function initCircleOfFifths() {
+    const svg = document.getElementById('circle-of-fifths-chords');
+    if (!svg) return;
+    
+    // Clear SVG
+    svg.innerHTML = '';
+    
+    // Create main group for major keys (outer circle)
+    const majorGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    majorGroup.setAttribute('class', 'major-keys');
+    svg.appendChild(majorGroup);
+    
+    majorKeys.forEach(key => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'circle-key');
+        g.setAttribute('data-root', key.root);
+        g.style.cursor = 'pointer';
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', key.cx);
+        circle.setAttribute('cy', key.cy);
+        circle.setAttribute('r', '30');
+        circle.setAttribute('fill', key.color);
+        circle.setAttribute('stroke', '#fff');
+        circle.setAttribute('stroke-width', '2');
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', key.cx);
+        text.setAttribute('y', key.cy);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('fill', '#333');
+        text.setAttribute('font-size', '14');
+        text.setAttribute('font-weight', '600');
+        text.textContent = key.root;
+        
+        g.appendChild(circle);
+        g.appendChild(text);
+        
+        g.addEventListener('click', () => selectCircleKey(key.root));
+        g.addEventListener('mouseenter', () => { circle.setAttribute('r', '35'); });
+        g.addEventListener('mouseleave', () => { circle.setAttribute('r', '30'); });
+        
+        majorGroup.appendChild(g);
+    });
+    
+    // Create minor keys group (inner circle)
+    const minorGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    minorGroup.setAttribute('class', 'minor-keys');
+    svg.appendChild(minorGroup);
+    
+    minorKeys.forEach(key => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'circle-key circle-key-minor');
+        g.setAttribute('data-root', key.root);
+        g.style.cursor = 'pointer';
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', key.cx);
+        circle.setAttribute('cy', key.cy);
+        circle.setAttribute('r', '22');
+        circle.setAttribute('fill', key.color);
+        circle.setAttribute('stroke', '#fff');
+        circle.setAttribute('stroke-width', '2');
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', key.cx);
+        text.setAttribute('y', key.cy);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('fill', '#333');
+        text.setAttribute('font-size', '11');
+        text.setAttribute('font-weight', '600');
+        text.textContent = key.root;
+        
+        g.appendChild(circle);
+        g.appendChild(text);
+        
+        const rootNote = key.root.replace('m', '');
+        g.addEventListener('click', () => selectCircleKey(rootNote, 'minor'));
+        g.addEventListener('mouseenter', () => { circle.setAttribute('r', '25'); });
+        g.addEventListener('mouseleave', () => { circle.setAttribute('r', '22'); });
+        
+        minorGroup.appendChild(g);
+    });
+    
+    // Load default key
+    selectCircleKey('C');
+}
+
+async function selectCircleKey(root, type = 'major') {
+    currentSelectedKey = root;
+    
+    // Update display
+    document.getElementById('selected-circle-key').textContent = root;
+    
+    // Update visual selection
+    document.querySelectorAll('.circle-key').forEach(el => {
+        const circle = el.querySelector('circle');
+        circle.setAttribute('stroke', '#fff');
+        circle.setAttribute('stroke-width', '2');
+        el.classList.remove('selected');
+    });
+    
+    const selectedEl = document.querySelector(`.circle-key[data-root="${root}"]`);
+    if (selectedEl) {
+        const circle = selectedEl.querySelector('circle');
+        circle.setAttribute('stroke', '#333');
+        circle.setAttribute('stroke-width', '4');
+        selectedEl.classList.add('selected');
+    }
+    
+    // Fetch key info from API
+    try {
+        const response = await fetch(`/api/circle/key/${root}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayKeyInfo(data);
+        }
+    } catch (error) {
+        console.error('Error fetching key info:', error);
+    }
+}
+
+function displayKeyInfo(data) {
+    const keyInfo = document.getElementById('key-info');
+    keyInfo.style.display = 'block';
+    
+    // Display relationships
+    const relationshipsDiv = document.getElementById('key-relationships');
+    const keyData = data.key;
+    const rel = data.relative_key;
+    
+    relationshipsDiv.innerHTML = `
+        <div style="margin-bottom: 0.5rem;">
+            <strong>Relative ${rel.type}:</strong> 
+            <span class="note-tag">${rel.key}</span>
+        </div>
+    `;
+    
+    // Display neighbors
+    const neighborsDiv = document.getElementById('key-neighbors');
+    fetchNeighbors(currentSelectedKey);
+    
+    // Display diatonic chords
+    displayDiatonicChords(data.diatonic_chords);
+    
+    // Display common progressions
+    displayCommonProgressions(data.common_progressions);
+}
+
+async function fetchNeighbors(root) {
+    try {
+        const response = await fetch(`/api/circle/neighbors/${root}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const neighborsDiv = document.getElementById('key-neighbors');
+            neighborsDiv.innerHTML = `
+                <div style="margin-bottom: 0.5rem;">
+                    <strong>← Sottodominante:</strong> 
+                    <span class="note-tag">${data.neighbors.counter_clockwise}</span>
+                </div>
+                <div>
+                    <strong>Dominante →:</strong> 
+                    <span class="note-tag">${data.neighbors.clockwise}</span>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error fetching neighbors:', error);
+    }
+}
+
+function displayDiatonicChords(chords) {
+    const container = document.getElementById('diatonic-chords-circle');
+    
+    const chordsHtml = chords.map(chord => `
+        <div class="chord-card">
+            <div class="chord-name">${chord.roman || chord.degree}</div>
+            <div class="chord-notes">${chord.chord}</div>
+            <div style="font-size: 0.75rem; color: var(--gray); margin-top: 0.25rem;">
+                ${chord.notes.join(' - ')}
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = chordsHtml;
+}
+
+function displayCommonProgressions(progressions) {
+    const container = document.getElementById('common-progressions');
+    
+    const progressionsHtml = progressions.map(prog => `
+        <div class="progression-card" onclick="playProgression('${prog.chords.join(',')}')">
+            <div class="progression-name">${prog.name}</div>
+            <div class="progression-chords">${prog.description}</div>
+            <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">
+                ${prog.chords.join(' - ')}
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = progressionsHtml;
+}
+
+function playProgression(chordNames) {
+    // Simple progression playback - plays each chord for 1 second
+    const chords = chordNames.split(',');
+    const root = currentSelectedKey;
+    
+    // Map roman numerals to actual chords (simplified)
+    const romanMap = {
+        'I': 'maj', 'i': 'min',
+        'II': 'maj', 'ii': 'min',
+        'III': 'maj', 'iii': 'min',
+        'IV': 'maj', 'iv': 'min',
+        'V': 'maj', 'v': 'min',
+        'VI': 'maj', 'vi': 'min',
+        'VII': 'dim', 'vii': 'dim'
+    };
+    
+    // This is a simplified version - in a real app you'd map properly
+    initAudio();
+    const waveform = waveformSelect ? waveformSelect.value : 'sine';
+    
+    // Play a simple chord for demo
+    playNote(root + '4', 1, waveform);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initCircleOfFifths);
 </script>
 {% endblock %}
 

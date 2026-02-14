@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'music-theory-secret-key-2024'
 
 # Import API routes
-from web_app.api import scales, chords, progressions, analysis, analyzer, orchestrator
+from web_app.api import scales, chords, progressions, analysis, analyzer, orchestrator, circle
 
 # Register blueprints
 app.register_blueprint(scales.bp)
@@ -28,6 +28,7 @@ app.register_blueprint(progressions.bp)
 app.register_blueprint(analysis.bp)
 app.register_blueprint(analyzer.bp)
 app.register_blueprint(orchestrator.bp)
+app.register_blueprint(circle.bp)
 
 
 @app.route('/')

@@ -37,6 +37,7 @@
             <select id="display-mode" class="form-select">
                 <option value="scale">Scale</option>
                 <option value="chord">Chord</option>
+                <option value="scale_chord">Scale + Chord</option>
                 <option value="all">All Notes</option>
             </select>
         </div>
@@ -94,6 +95,25 @@
             </select>
         </div>
         
+        <!-- Chord Root for Scale + Chord mode -->
+        <div id="chord-root-options" class="form-group" style="display: none;">
+            <label class="form-label">Chord Root Note</label>
+            <select id="chord-root-note" class="form-select">
+                <option value="C">C</option>
+                <option value="C#">C# / Db</option>
+                <option value="D">D</option>
+                <option value="D#">D# / Eb</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="F#">F# / Gb</option>
+                <option value="G" selected>G</option>
+                <option value="G#">G# / Ab</option>
+                <option value="A">A</option>
+                <option value="A#">A# / Bb</option>
+                <option value="B">B</option>
+            </select>
+        </div>
+        
         <div class="form-group">
             <label class="form-label">Number of Frets</label>
             <select id="num-frets" class="form-select">
@@ -137,6 +157,10 @@
             <div class="legend-item">
                 <span class="legend-color chord-note"></span>
                 <span>Chord Tone</span>
+            </div>
+            <div class="legend-item" id="common-legend-item" style="display: none;">
+                <span class="legend-color common-note"></span>
+                <span>Common (Scale + Chord)</span>
             </div>
         </div>
         
@@ -220,6 +244,11 @@
     
     .legend-color.chord-note {
         background: #10b981;
+        border: 2px solid white;
+    }
+    
+    .legend-color.common-note {
+        background: #fbbf24;
         border: 2px solid white;
     }
     
@@ -352,17 +381,23 @@
     const displayModeEl = document.getElementById('display-mode');
     const scaleOptionsEl = document.getElementById('scale-options');
     const chordOptionsEl = document.getElementById('chord-options');
+    const chordRootOptionsEl = document.getElementById('chord-root-options');
+    const commonLegendItemEl = document.getElementById('common-legend-item');
     const displayBtnEl = document.getElementById('display-btn');
     const tuningSelectEl = document.getElementById('tuning');
     const rootNoteEl = document.getElementById('root-note');
     const scaleTypeEl = document.getElementById('scale-type');
     const chordQualityEl = document.getElementById('chord-quality');
+    const chordRootNoteEl = document.getElementById('chord-root-note');
     const numFretsEl = document.getElementById('num-frets');
     
     displayModeEl.addEventListener('change', () => {
         const mode = displayModeEl.value;
-        scaleOptionsEl.style.display = mode === 'scale' ? 'block' : 'none';
-        chordOptionsEl.style.display = mode === 'chord' ? 'block' : 'none';
+        // Show/hide options based on mode
+        scaleOptionsEl.style.display = (mode === 'scale' || mode === 'scale_chord') ? 'block' : 'none';
+        chordOptionsEl.style.display = (mode === 'chord' || mode === 'scale_chord') ? 'block' : 'none';
+        chordRootOptionsEl.style.display = mode === 'scale_chord' ? 'block' : 'none';
+        commonLegendItemEl.style.display = mode === 'scale_chord' ? 'flex' : 'none';
     });
     
     tuningSelectEl.addEventListener('change', () => {
@@ -446,6 +481,92 @@
             activeNotes = chordIntervals.map(i => chromaticNotes[(rootIndex + i) % 12]);
             activeNotes.forEach(n => activeNoteType[n] = 'chord');
             activeNoteType[root] = 'root';
+            
+        } else if (mode === 'scale_chord') {
+            // NEW: Scale + Chord combined mode
+            const scaleType = scaleTypeEl.value;
+            const chordQuality = chordQualityEl.value;
+            const chordRoot = chordRootNoteEl.value;
+            
+            // Get scale intervals
+            const scaleIntervals = {
+                major: [0, 2, 4, 5, 7, 9, 11],
+                minor_natural: [0, 2, 3, 5, 7, 8, 10],
+                minor_harmonic: [0, 2, 3, 5, 7, 8, 11],
+                minor_melodic: [0, 2, 3, 5, 7, 9, 11],
+                dorian: [0, 2, 3, 5, 7, 9, 10],
+                phrygian: [0, 1, 3, 5, 7, 8, 10],
+                lydian: [0, 2, 4, 6, 7, 9, 11],
+                mixolydian: [0, 2, 4, 5, 7, 9, 10],
+                locrian: [0, 1, 3, 5, 6, 8, 10],
+                pentatonic_major: [0, 2, 4, 7, 9],
+                pentatonic_minor: [0, 3, 5, 7, 10],
+                blues_minor: [0, 3, 5, 6, 7, 10],
+                blues_major: [0, 2, 3, 4, 7, 9]
+            };
+            
+            // Get chord intervals
+            const chordIntervals = {
+                maj: [0, 4, 7],
+                min: [0, 3, 7],
+                dim: [0, 3, 6],
+                aug: [0, 4, 8],
+                dom7: [0, 4, 7, 10],
+                maj7: [0, 4, 7, 11],
+                min7: [0, 3, 7, 10],
+                dim7: [0, 3, 6, 9],
+                min7b5: [0, 3, 6, 10],
+                '9': [0, 4, 7, 10, 14],
+                maj9: [0, 4, 7, 11, 14],
+                min9: [0, 3, 7, 10, 14],
+                '11': [0, 4, 7, 10, 14, 17],
+                '13': [0, 4, 7, 10, 14, 21]
+            };
+            
+            const scaleRootIdx = chromaticNotes.indexOf(root);
+            const chordRootIdx = chromaticNotes.indexOf(chordRoot);
+            
+            const scaleInterv = scaleIntervals[scaleType] || scaleIntervals.major;
+            const chordInterv = chordIntervals[chordQuality] || chordIntervals.maj;
+            
+            const scaleNotes = scaleInterv.map(i => chromaticNotes[(scaleRootIdx + i) % 12]);
+            const chordNotes = chordInterv.map(i => chromaticNotes[(chordRootIdx + i) % 12]);
+            
+            // Find common notes
+            const commonNotes = scaleNotes.filter(n => chordNotes.includes(n));
+            
+            // Mark scale-only notes
+            scaleNotes.forEach(n => {
+                if (!commonNotes.includes(n)) {
+                    activeNotes.push(n);
+                    activeNoteType[n] = 'scale';
+                }
+            });
+            
+            // Mark chord-only notes
+            chordNotes.forEach(n => {
+                if (!commonNotes.includes(n)) {
+                    activeNotes.push(n);
+                    activeNoteType[n] = 'chord';
+                }
+            });
+            
+            // Mark common notes
+            commonNotes.forEach(n => {
+                if (!activeNotes.includes(n)) {
+                    activeNotes.push(n);
+                }
+                activeNoteType[n] = 'common';
+            });
+            
+            // Mark roots
+            activeNoteType[root] = 'root';
+            activeNoteType[chordRoot] = 'root';
+            if (!activeNotes.includes(root)) activeNotes.push(root);
+            if (!activeNotes.includes(chordRoot)) activeNotes.push(chordRoot);
+            
+            // Call the combined highlight method
+            fretboard.highlightScaleAndChord(root, scaleType, chordRoot, chordQuality);
             
         } else {
             // Show all notes

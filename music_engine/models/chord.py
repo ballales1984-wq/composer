@@ -7,6 +7,7 @@ with their root note, quality, and component notes.
 
 from typing import List, Optional, Union, Dict, Tuple
 from .note import Note
+from music_engine.exceptions import InvalidChordError, InvalidQualityError, InvalidNoteError
 
 # Constants (copied to avoid circular imports)
 CHORD_INTERVALS = {
@@ -119,9 +120,16 @@ class Chord:
             custom_intervals: Optional custom intervals list (overrides quality)
 
         Raises:
-            ValueError: If quality is not recognized (unless custom_intervals provided)
+            InvalidChordError: If chord cannot be created with given parameters
+            InvalidQualityError: If quality is not recognized
+            InvalidNoteError: If root or bass note is invalid
         """
-        self._root = Note(root) if not isinstance(root, Note) else root
+        # Validate and create root note
+        try:
+            self._root = Note(root) if not isinstance(root, Note) else root
+        except Exception as e:
+            raise InvalidNoteError(f"Invalid root note: {root}", details={'root': str(root), 'error': str(e)})
+        
         self._quality = quality.lower()
         
         # Apply quality aliases
@@ -131,19 +139,30 @@ class Chord:
         # Support for custom intervals (thread-safe alternative to modifying global dict)
         if custom_intervals is not None:
             if not custom_intervals or custom_intervals[0] != 0:
-                raise ValueError("Custom intervals must start with 0 (root)")
+                raise InvalidChordError("Custom intervals must start with 0 (root)", 
+                                        details={'custom_intervals': custom_intervals})
             # Validate intervals
             for i, interval in enumerate(custom_intervals):
                 if interval < 0 or interval > 24:  # Allow up to 2 octaves
-                    raise ValueError(f"Invalid interval at position {i}: {interval}")
+                    raise InvalidChordError(f"Invalid interval at position {i}: {interval}",
+                                           details={'interval': interval, 'position': i})
             self._intervals = custom_intervals
             self._quality = quality if quality.startswith('custom_') else f'custom_{quality}'
         else:
             if self._quality not in CHORD_INTERVALS:
-                raise ValueError(f"Unknown chord quality: {quality}")
+                raise InvalidQualityError(f"Unknown chord quality: {quality}",
+                                         details={'quality': quality, 'valid_qualities': list(CHORD_INTERVALS.keys())})
             self._intervals = CHORD_INTERVALS[self._quality]
 
-        self._bass = Note(bass) if bass is not None and not isinstance(bass, Note) else bass
+        # Validate and create bass note
+        if bass is not None:
+            try:
+                self._bass = Note(bass) if not isinstance(bass, Note) else bass
+            except Exception as e:
+                raise InvalidNoteError(f"Invalid bass note: {bass}", details={'bass': str(bass), 'error': str(e)})
+        else:
+            self._bass = None
+            
         self._notes = self._generate_notes()
 
     @property
@@ -254,10 +273,11 @@ class Chord:
             New Chord object with the specified inversion
 
         Raises:
-            ValueError: If inversion is invalid for this chord
+            InvalidChordError: If inversion is invalid for this chord
         """
         if inversion < 0:
-            raise ValueError("Inversion must be non-negative")
+            raise InvalidChordError("Inversion must be non-negative",
+                                   details={'inversion': inversion})
 
         if inversion == 0:
             return Chord(self._root, self._quality)
@@ -266,7 +286,8 @@ class Chord:
         chord_notes = self._notes.copy()
 
         if inversion >= len(chord_notes):
-            raise ValueError(f"Inversion {inversion} is invalid for {len(chord_notes)}-note chord")
+            raise InvalidChordError(f"Inversion {inversion} is invalid for {len(chord_notes)}-note chord",
+                                   details={'inversion': inversion, 'max_inversion': len(chord_notes) - 1})
 
         # Rotate notes so the bass note is first
         rotated_notes = chord_notes[inversion:] + chord_notes[:inversion]
