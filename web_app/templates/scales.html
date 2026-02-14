@@ -76,6 +76,36 @@
         <button id="get-scale" class="btn btn-primary" style="width: 100%;">
             Get Scale Info
         </button>
+        
+        <div class="playback-controls" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+            <button id="play-scale" class="btn btn-success" style="flex: 1;">
+                ▶ Play Scale
+            </button>
+            <button id="play-arpeggio" class="btn btn-secondary" style="flex: 1;">
+                ♪ Play Arpeggio
+            </button>
+        </div>
+        
+        <div class="playback-settings" style="margin-top: 1rem;">
+            <div class="form-group">
+                <label class="form-label">Note Duration</label>
+                <select id="note-duration" class="form-select">
+                    <option value="0.25">Fast (250ms)</option>
+                    <option value="0.5" selected>Normal (500ms)</option>
+                    <option value="0.75">Slow (750ms)</option>
+                    <option value="1">Very Slow (1s)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Waveform</label>
+                <select id="waveform" class="form-select">
+                    <option value="sine" selected>Sine</option>
+                    <option value="square">Square</option>
+                    <option value="sawtooth">Sawtooth</option>
+                    <option value="triangle">Triangle</option>
+                </select>
+            </div>
+        </div>
     </div>
     
     <div class="card">
@@ -408,6 +438,14 @@ const scaleType = document.getElementById('scale-type');
 const octaves = document.getElementById('octaves');
 const getScaleBtn = document.getElementById('get-scale');
 const highlightCheckbox = document.getElementById('highlight-scale');
+const playScaleBtn = document.getElementById('play-scale');
+const playArpeggioBtn = document.getElementById('play-arpeggio');
+const noteDurationSelect = document.getElementById('note-duration');
+const waveformSelect = document.getElementById('waveform');
+
+// Current scale data
+let currentScaleData = null;
+let isPlaying = false;
 
 // Audio context for playing notes
 let audioContext = null;
@@ -425,7 +463,131 @@ function initAudio() {
     }
 }
 
-function playNote(note, octave) {
+function getFrequency(noteName) {
+    // Parse note name like "C4", "F#5", "Bb3"
+    const match = noteName.match(/^([A-G][#b]?)(-?\d+)?$/);
+    if (!match) return 440;
+    
+    let note = match[1];
+    const octave = match[2] ? parseInt(match[2]) : 4;
+    
+    // Handle enharmonic equivalents
+    const noteMap = {
+        'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#'
+    };
+    if (noteMap[note]) note = noteMap[note];
+    
+    const baseFreq = noteFrequencies[note];
+    if (!baseFreq) return 440;
+    
+    return baseFreq * Math.pow(2, octave - 4);
+}
+
+function playNote(noteName, duration, waveform = 'sine') {
+    initAudio();
+    
+    const frequency = getFrequency(noteName);
+    
+    // Create oscillator
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = waveform;
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    
+    // ADSR Envelope
+    const attack = 0.02;
+    const decay = 0.05;
+    const sustain = 0.7;
+    const release = 0.1;
+    
+    const now = audioContext.currentTime;
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(0.3, now + attack);
+    gainNode.gain.linearRampToValueAtTime(0.3 * sustain, now + attack + decay);
+    gainNode.gain.setValueAtTime(0.3 * sustain, now + duration - release);
+    gainNode.gain.linearRampToValueAtTime(0, now + duration);
+    
+    oscillator.start(now);
+    oscillator.stop(now + duration);
+}
+
+// Play scale sequentially
+async function playScale() {
+    if (!currentScaleData || isPlaying) return;
+    
+    isPlaying = true;
+    playScaleBtn.disabled = true;
+    playScaleBtn.textContent = '⏸ Playing...';
+    
+    const duration = parseFloat(noteDurationSelect.value);
+    const waveform = waveformSelect.value;
+    
+    // Get all notes from the scale
+    const notes = currentScaleData.scale.notes;
+    
+    for (const note of notes) {
+        playNote(note, duration, waveform);
+        await new Promise(resolve => setTimeout(resolve, duration * 1000));
+    }
+    
+    // Play root note again at the end
+    playNote(notes[0], duration * 1.5, waveform);
+    
+    isPlaying = false;
+    playScaleBtn.disabled = false;
+    playScaleBtn.textContent = '▶ Play Scale';
+}
+
+// Play arpeggio (chord tones)
+async function playArpeggio() {
+    if (!currentScaleData || isPlaying) return;
+    
+    isPlaying = true;
+    playArpeggioBtn.disabled = true;
+    playArpeggioBtn.textContent = '⏸ Playing...';
+    
+    const duration = parseFloat(noteDurationSelect.value) * 0.8;
+    const waveform = waveformSelect.value;
+    
+    // Get diatonic chords and play first chord as arpeggio
+    try {
+        const response = await fetch(`/api/scales/chords?root=${rootNote.value}&type=${scaleType.value}`);
+        const data = await response.json();
+        
+        if (data.success && data.chords.length > 0) {
+            const firstChord = data.chords[0];
+            const chordNotes = firstChord.notes;
+            
+            // Play arpeggio (each note sequentially)
+            for (const note of chordNotes) {
+                playNote(note, duration, waveform);
+                await new Promise(resolve => setTimeout(resolve, duration * 800));
+            }
+            
+            // Then play all notes together (chord)
+            for (const note of chordNotes) {
+                playNote(note, duration * 1.5, waveform);
+            }
+        }
+    } catch (error) {
+        console.error('Error playing arpeggio:', error);
+    }
+    
+    isPlaying = false;
+    playArpeggioBtn.disabled = false;
+    playArpeggioBtn.textContent = '♪ Play Arpeggio';
+}
+
+// Event listeners for playback buttons
+playScaleBtn.addEventListener('click', playScale);
+playArpeggioBtn.addEventListener('click', playArpeggio);
+
+// Single note playback (for piano keyboard)
+function playNoteOld(note, octave) {
     initAudio();
     
     const frequency = noteFrequencies[note] * Math.pow(2, octave - 4);
@@ -454,13 +616,15 @@ document.querySelectorAll('.key').forEach(key => {
     key.addEventListener('click', function() {
         const note = this.dataset.note;
         const octave = parseInt(this.dataset.octave);
+        const noteName = note + octave;
         
         // Visual feedback
         this.classList.add('playing');
         setTimeout(() => this.classList.remove('playing'), 150);
         
-        // Play sound
-        playNote(note, octave);
+        // Play sound using the waveform selected
+        const waveform = waveformSelect.value;
+        playNote(noteName, parseFloat(noteDurationSelect.value), waveform);
     });
 });
 
@@ -514,6 +678,9 @@ async function fetchScale() {
         const data = await response.json();
         
         if (data.success) {
+            // Store current scale data for playback
+            currentScaleData = data;
+            
             displayScale(data.scale);
             fetchDiatonicChords(root, type);
             
