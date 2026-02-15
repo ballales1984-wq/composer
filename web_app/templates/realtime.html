@@ -6,6 +6,25 @@
 <div class="page-header">
     <h1>🎹 Real-time Analyzer</h1>
     <p>Play notes on the virtual keyboard or connect your MIDI controller</p>
+    <div class="keyboard-guide">
+        <div class="guide-section">
+            <h4>🎵 PC Keyboard Layout (2 Octaves)</h4>
+            <div class="guide-keys">
+                <div class="guide-row">
+                    <span class="guide-label">Lower Octave (C3-B3):</span>
+                    <span class="key-hint">Z S X D C V G B H N J M</span>
+                </div>
+                <div class="guide-row">
+                    <span class="guide-label">Middle Octave (C4-B4):</span>
+                    <span class="key-hint">A W S E D F T G Y H U J K</span>
+                </div>
+                <div class="guide-row">
+                    <span class="guide-label">Upper Octave (C5-C5):</span>
+                    <span class="key-hint highlight">Hold SHIFT + above keys</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="grid grid-2">
@@ -82,6 +101,53 @@
     
     .page-header p {
         color: var(--gray);
+    }
+    
+    .keyboard-guide {
+        margin-top: 1.5rem;
+        background: var(--dark);
+        border-radius: 12px;
+        padding: 1rem;
+        display: inline-block;
+    }
+    
+    .guide-section h4 {
+        margin: 0 0 0.75rem 0;
+        font-size: 1rem;
+        color: var(--primary);
+    }
+    
+    .guide-keys {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .guide-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .guide-label {
+        font-size: 0.85rem;
+        color: var(--gray);
+        min-width: 150px;
+        text-align: right;
+    }
+    
+    .key-hint {
+        background: var(--card-bg);
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+    
+    .key-hint.highlight {
+        background: var(--primary);
+        color: white;
     }
     
     .midi-status {
@@ -477,17 +543,38 @@ function displayResults(data) {
     }
 }
 
-// Keyboard shortcuts
+// Keyboard shortcuts - Full 2 octave range support
+// Lower octave (C3-B3): z,x,c,v,b,n,m,,
+// Middle octave (C4-B4): a,s,d,f,g,h,j,k,l
+// Upper octave (C5-C5): shift + keys
+
+let currentOctaveOffset = 0; // 0 = middle (C4), -1 = lower (C3), +1 = upper (C5)
+
 document.addEventListener('keydown', (e) => {
+    // Base mapping for middle octave (C4=60)
     const keyMap = {
+        // Lower row - lower octave (C3-B3)
+        'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 
+        'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59,
+        // Middle row - middle octave (C4-B4)
         'a': 60, 'w': 61, 's': 62, 'e': 63, 'd': 64, 
         'f': 65, 't': 66, 'g': 67, 'y': 68, 'h': 69, 
         'u': 70, 'j': 71, 'k': 72
     };
     
-    if (keyMap[e.key.toLowerCase()] && !e.repeat) {
+    // Calculate octave offset with Shift key
+    let octaveOffset = 0;
+    if (e.shiftKey) {
+        octaveOffset = 12; // Upper octave
+    }
+    
+    const key = e.key.toLowerCase();
+    if (keyMap[key] !== undefined && !e.repeat) {
         e.preventDefault();
-        noteOn(keyMap[e.key.toLowerCase()]);
+        const midiNote = keyMap[key] + octaveOffset;
+        // Clamp to valid range (C3-C5)
+        const clampedMidi = Math.max(48, Math.min(72, midiNote));
+        noteOn(clampedMidi);
     }
     
     // Space for sustain
@@ -499,14 +586,28 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('keyup', (e) => {
+    // Base mapping for middle octave (C4=60)
     const keyMap = {
+        // Lower row - lower octave (C3-B3)
+        'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 
+        'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59,
+        // Middle row - middle octave (C4-B4)
         'a': 60, 'w': 61, 's': 62, 'e': 63, 'd': 64, 
         'f': 65, 't': 66, 'g': 67, 'y': 68, 'h': 69, 
         'u': 70, 'j': 71, 'k': 72
     };
     
-    if (keyMap[e.key.toLowerCase()]) {
-        noteOff(keyMap[e.key.toLowerCase()]);
+    // Calculate octave offset with Shift key
+    let octaveOffset = 0;
+    if (e.shiftKey) {
+        octaveOffset = 12;
+    }
+    
+    const key = e.key.toLowerCase();
+    if (keyMap[key] !== undefined) {
+        const midiNote = keyMap[key] + octaveOffset;
+        const clampedMidi = Math.max(48, Math.min(72, midiNote));
+        noteOff(clampedMidi);
     }
     
     if (e.code === 'Space') {
