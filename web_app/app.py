@@ -1,76 +1,15 @@
-Port binding
-Every Render web service must bind to a port on host 0.0.0.0 to serve HTTP requests. Render forwards inbound requests to your web service at this port (it is not directly reachable via the public internet).
-
-We recommend binding your HTTP server to the port defined by the PORT environment variable. Here's a basic Express example:
-
-Copy to clipboard
-const express = require('express')
-const app = express()
-const port = process.env.PORT || 4000 
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
-Adapted ever-so-slightly from here
-
-The default value of PORT is 10000 for all Render web services. You can override this value by setting the environment variable for your service in the Render Dashboard.
-
-If you bind your HTTP server to a different port, Render is usually able to detect and use it.
-
-If Render fails to detect a bound port, your web service's deploy fails and displays an error in your logs.
-
-The following ports are reserved by Render and cannot be used:
-
-18012
-18013
-19099
-Binding to multiple ports
-Render forwards inbound traffic to only one HTTP port per web service. However, your web service can bind to additional ports to receive traffic over your private network.
-
-If your service does bind to multiple ports, always bind your public HTTP server to the value of the PORT environment variable.
-
-Connect to your web service
-Connecting from the public internet
-Your web service is reachable via the public internet at its onrender.com subdomain (along with any custom domains you add).
-
-If you don't want your service to be reachable via the public internet, create a private service instead of a web service.
-
-Render's load balancer terminates SSL for inbound HTTPS requests, then forwards those requests to your web service over HTTP. If an inbound request uses HTTP, Render first redirects it to HTTPS and then terminates SSL for it.
-
-Connecting from other Render services
-See Private Network.
-
-Additional features
-Render web services also support the following capabilities:
-
-Zero-downtime deploys
-Free, fully-managed TLS certificates
-Custom domains (including wildcards)
-Manual or automatic scaling
-Persistent disks
-Edge caching for static assets
-WebSocket connections
-Service previews
-Instant rollbacks
-Maintenance mode
-HTTP/2
-DDoS protection
-Brotli compression
-Support for Blueprints, Render's Infrastructure-as-Code modelimport os
+import os
 import sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Add web_app directory to path for API imports
+web_app_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, web_app_dir)
 
 from flask import Flask, render_template, jsonify, send_from_directory
 from flask_cors import CORS
 import music_engine
 from music_engine.core import scales, chords, harmony
 from music_engine.models import Scale, Chord, Progression
-from music_engine.integrations.music21_adapter import Music21Adapter
-from music_engine.integrations.mingus_adapter import MingusAdapter
 
 app = Flask(__name__, 
     template_folder='templates',
@@ -82,13 +21,13 @@ app.config['MUSIC_ENGINE_DIR'] = os.path.dirname(os.path.dirname(os.path.abspath
 app.config['PRESETS_DIR'] = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'presets')
 
 # Import blueprints
-from api.scales import scales_bp
-from api.chords import chords_bp
-from api.progressions import progressions_bp
-from api.analysis import analysis_bp
-from api.circle import circle_bp
-from api.midi import midi_bp
-from api.orchestrator import orchestrator_bp
+from api.scales import bp as scales_bp
+from api.chords import bp as chords_bp
+from api.progressions import bp as progressions_bp
+from api.analysis import bp as analysis_bp
+from api.circle import bp as circle_bp
+from api.midi import bp as midi_bp
+from api.orchestrator import bp as orchestrator_bp
 
 # Register blueprints
 app.register_blueprint(scales_bp, url_prefix='/api')
