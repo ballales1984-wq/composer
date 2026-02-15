@@ -203,6 +203,151 @@ class GuitarFretboard {
         this.render();
     }
     
+    // NEW: Highlight an entire chord temporarily using MIDI, showing the exact frets.
+    // This method finds all positions of chord notes on the fretboard and highlights them.
+    /**
+     * Highlight an entire chord temporarily using MIDI, showing the exact frets.
+     * @param {string} chordRoot - Root note of the chord (e.g., "C")
+     * @param {string} chordQuality - Chord type (e.g., "maj", "min", "dim")
+     * @param {number} duration - How long to highlight in ms (default 500)
+     */
+    highlightChordMidi(chordRoot, chordQuality, duration = 500) {
+        // Define ALL chord intervals
+        const chordIntervals = {
+            maj: [0, 4, 7],
+            min: [0, 3, 7],
+            dim: [0, 3, 6],
+            aug: [0, 4, 8],
+            dom7: [0, 4, 7, 10],
+            maj7: [0, 4, 7, 11],
+            min7: [0, 3, 7, 10],
+            dim7: [0, 3, 6, 9],
+            min7b5: [0, 3, 6, 10],
+            '9': [0, 4, 7, 10, 14],
+            maj9: [0, 4, 7, 11, 14],
+            min9: [0, 3, 7, 10, 14],
+            '11': [0, 4, 7, 10, 14, 17],
+            '13': [0, 4, 7, 10, 14, 21]
+        };
+
+        const rootIndex = this.chromaticNotes.indexOf(chordRoot);
+        const intervals = chordIntervals[chordQuality] || chordIntervals.maj;
+
+        // Compute chord notes
+        const chordNotes = intervals.map(i => this.chromaticNotes[(rootIndex + i) % 12]);
+        
+        console.log('Chord:', chordRoot, chordQuality, 'Notes:', chordNotes);
+
+        // Store original active notes to restore later
+        const originalActiveNotes = new Set(this.activeNotes);
+        const originalNoteType = { ...this.noteType };
+
+        // Clear and set chord notes
+        this.activeNotes = new Set(chordNotes);
+        this.noteType = {};
+        
+        // Set all chord notes as playingChord type
+        chordNotes.forEach(n => {
+            this.noteType[n] = 'playingChord';
+        });
+
+        // Mark the root note as root
+        this.noteType[chordRoot] = 'root';
+
+        console.log('Active notes:', Array.from(this.activeNotes));
+
+        // Re-render with highlighted chord
+        this.render();
+
+        // After duration, restore original notes
+        setTimeout(() => {
+            this.activeNotes = originalActiveNotes;
+            this.noteType = originalNoteType;
+            this.render();
+        }, duration);
+    }
+    
+    // NEW: Animate a chord being played note by note using MIDI
+    /**
+     * Animate a chord being played note by note using MIDI
+     * @param {string} chordRoot - Root note of the chord
+     * @param {string} chordQuality - Chord type (maj, min, dim, ecc.)
+     * @param {number} noteDuration - Duration of each note in ms (default 300)
+     */
+    highlightChordMidiAnimated(chordRoot, chordQuality, noteDuration = 300) {
+        const chordIntervals = {
+            maj: [0, 4, 7],
+            min: [0, 3, 7],
+            dim: [0, 3, 6],
+            aug: [0, 4, 8],
+            dom7: [0, 4, 7, 10],
+            maj7: [0, 4, 7, 11],
+            min7: [0, 3, 7, 10],
+            dim7: [0, 3, 6, 9],
+            min7b5: [0, 3, 6, 10],
+            '9': [0, 4, 7, 10, 14],
+            maj9: [0, 4, 7, 11, 14],
+            min9: [0, 3, 7, 10, 14]
+        };
+
+        const rootIndex = this.chromaticNotes.indexOf(chordRoot);
+        const intervals = chordIntervals[chordQuality] || chordIntervals.maj;
+        const chordNotes = intervals.map(i => this.chromaticNotes[(rootIndex + i) % 12]);
+
+        // Find all MIDI positions of chord notes on the fretboard
+        let notePositions = [];
+        for (let stringIdx = 0; stringIdx < 6; stringIdx++) {
+            for (let fret = 1; fret <= this.options.numFrets; fret++) {
+                const info = this.getNoteAtPosition(stringIdx, fret);
+                if (chordNotes.includes(info.note)) {
+                    notePositions.push({
+                        note: info.note,
+                        midi: info.midi,
+                        stringIdx,
+                        fret
+                    });
+                }
+            }
+        }
+
+        // Sort positions by string from bottom to top (optional - can change order as needed)
+        notePositions.sort((a, b) => a.stringIdx - b.stringIdx);
+
+        // Save original state
+        const originalActiveNotes = new Set(this.activeNotes);
+        const originalNoteType = { ...this.noteType };
+
+        // Recursive function to highlight one note at a time
+        const playNext = (index) => {
+            if (index >= notePositions.length) {
+                // End of animation, restore original notes
+                this.activeNotes = originalActiveNotes;
+                this.noteType = originalNoteType;
+                this.render();
+                return;
+            }
+
+            const current = notePositions[index];
+
+            // Update state for this note
+            this.activeNotes = new Set([current.note]);
+            this.noteType = {};
+            this.noteType[current.note] = 'playingChord';
+
+            // Keep root highlighted
+            this.noteType[chordRoot] = 'root';
+            this.activeNotes.add(chordRoot);
+
+            this.render();
+
+            // Move to next note after noteDuration ms
+            setTimeout(() => playNext(index + 1), noteDuration);
+        };
+
+        // Start animation from first note
+        playNext(0);
+    }
+    
     // Get info about current display for legend
     getDisplayInfo() {
         return {
@@ -375,7 +520,7 @@ class GuitarFretboard {
             }
         }
         
-        // Notes - render at correct positions (skip fret 0 as it's shown as string names)
+        // Notes - render at correct positions
         // Check if we have a temporary highlight (playing animation)
         const hasTempHighlight = this.tempHighlightMidi !== null && this.tempHighlightMidi !== undefined;
         
@@ -389,32 +534,25 @@ class GuitarFretboard {
                 const octave = noteInfo.octave;
                 const midiNote = noteInfo.midi;
                 
-                // Check if this note should be rendered
+                // Determine if this note should be rendered
                 let shouldRender = false;
                 let type = 'scale';
                 
                 if (hasTempHighlight) {
-                    // If this is the specific highlighted note (by MIDI), show it in cyan
+                    // Check if this is the highlighted note (by MIDI)
                     if (midiNote === this.tempHighlightMidi) {
+                        // This is the playing note - render in cyan
                         const x = stringLabelWidth + (fret - 0.5) * fretWidth;
                         svg += `<circle cx="${x}" cy="${y}" r="${noteRadius+4}" fill="#00ffff" filter="url(#shadow)" opacity="1.0"/>`;
                         const displayNote = fret > 12 ? `${note}${octave}` : note;
                         svg += `<text x="${x}" y="${y+4}" text-anchor="middle" fill="black" font-size="10" font-weight="bold">${displayNote}</text>`;
                         svg += `<circle cx="${x}" cy="${y}" r="${noteRadius+12}" fill="transparent" data-string="${stringIdx}" data-fret="${fret}" class="note-click-area"/>`;
+                        continue; // Move to next note
                     }
-                    // Also render normal active notes (scale/chord) - they stay visible!
+                    // Check if this is an active note (scale/chord) - should still be visible!
                     else if (this.activeNotes.has(note)) {
-                        const x = stringLabelWidth + (fret - 0.5) * fretWidth;
-                        const noteType = this.noteType[note] || 'scale';
-                        let color;
-                        if (noteType === 'root') color = colorRoot;
-                        else if (noteType === 'chord') color = colorChord;
-                        else if (noteType === 'common') color = '#fbbf24';
-                        else color = colorScale;
-                        svg += `<circle cx="${x}" cy="${y}" r="${noteRadius}" fill="${color}" filter="url(#shadow)" opacity="0.9"/>`;
-                        const displayNote = fret > 12 ? `${note}${octave}` : note;
-                        svg += `<text x="${x}" y="${y+4}" text-anchor="middle" fill="white" font-size="10" font-weight="bold">${displayNote}</text>`;
-                        svg += `<circle cx="${x}" cy="${y}" r="${noteRadius + 8}" fill="transparent" data-string="${stringIdx}" data-fret="${fret}" class="note-click-area"/>`;
+                        shouldRender = true;
+                        type = this.noteType[note] || 'scale';
                     }
                 } else {
                     // Normal rendering: check if this note is in activeNotes
@@ -423,33 +561,19 @@ class GuitarFretboard {
                 }
                 
                 if (shouldRender) {
-                    const x = stringLabelWidth + (fret === 0 ? 20 : (fret - 0.5) * fretWidth);
+                    const x = stringLabelWidth + (fret - 0.5) * fretWidth;
                     
                     let color;
                     if (type === 'root') color = colorRoot;
                     else if (type === 'chord') color = colorChord;
-                    else if (type === 'common') color = '#fbbf24';  // Gold for common notes
-                    else if (type === 'playing') color = '#00ffff';  // Cyan for playing note
+                    else if (type === 'common') color = '#fbbf24';
+                    else if (type === 'playingChord') color = '#00ff88'; // neon green for chord highlight
                     else color = colorScale;
                     
-                    // Note circle with shadow - using larger radius for easier clicking
-                    // Add extra glow for playing notes
-                    if (type === 'playing') {
-                        svg += `<circle cx="${x}" cy="${y}" r="${noteRadius + 4}" fill="${color}" 
-                                opacity="1.0"/>`;
-                    }
-                    svg += `<circle cx="${x}" cy="${y}" r="${noteRadius}" fill="${color}" 
-                            filter="url(#shadow)" opacity="0.9"/>`;
-                    
-                    // Note text with octave for frets > 12, otherwise just note name
+                    svg += `<circle cx="${x}" cy="${y}" r="${noteRadius}" fill="${color}" filter="url(#shadow)" opacity="0.9"/>`;
                     const displayNote = fret > 12 ? `${note}${octave}` : note;
-                    const textColor = (type === 'playing') ? 'black' : 'white';
-                    svg += `<text x="${x}" y="${y+4}" text-anchor="middle" 
-                            fill="${textColor}" font-size="${fret > 12 ? '8' : '10'}" font-weight="bold">${displayNote}</text>`;
-                    
-                    // Invisible larger clickable area for easier clicking
-                    svg += `<circle cx="${x}" cy="${y}" r="${noteRadius + 8}" fill="transparent" 
-                            data-string="${stringIdx}" data-fret="${fret}" class="note-click-area"/>`;
+                    svg += `<text x="${x}" y="${y+4}" text-anchor="middle" fill="white" font-size="10" font-weight="bold">${displayNote}</text>`;
+                    svg += `<circle cx="${x}" cy="${y}" r="${noteRadius + 8}" fill="transparent" data-string="${stringIdx}" data-fret="${fret}" class="note-click-area"/>`;
                 }
             }
         }

@@ -154,6 +154,10 @@
             ▶ Play Scale
         </button>
         
+        <button id="play-chord-btn" class="btn btn-warning btn-block" style="margin-top: 0.75rem;">
+            🎵 Highlight Chord (MIDI)
+        </button>
+        
         <button id="stop-scale-btn" class="btn btn-danger btn-block" style="margin-top: 0.5rem; display: none;">
             ⏹ Stop
         </button>
@@ -607,6 +611,83 @@ const chordRootNoteEl = document.getElementById('chord-root-note');
     
     playScaleBtnEl.addEventListener('click', playScale);
     stopScaleBtnEl.addEventListener('click', stopScale);
+    
+// NEW: Play Chord MIDI button - with audio!
+    const playChordBtnEl = document.getElementById('play-chord-btn');
+    
+    // Function to play chord with correct MIDI notes on fretboard
+    function playChordFromFretboard(root, chordQuality) {
+        const chordIntervals = {
+            maj: [0, 4, 7],
+            min: [0, 3, 7],
+            dim: [0, 3, 6],
+            aug: [0, 4, 8],
+            dom7: [0, 4, 7, 10],
+            maj7: [0, 4, 7, 11],
+            min7: [0, 3, 7, 10],
+            dim7: [0, 3, 6, 9],
+            min7b5: [0, 3, 6, 10],
+            '9': [0, 4, 7, 10, 14],
+            maj9: [0, 4, 7, 11, 14],
+            min9: [0, 3, 7, 10, 14],
+            '11': [0, 4, 7, 10, 14, 17],
+            '13': [0, 4, 7, 10, 14, 21]
+        };
+        
+        const chromaticNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const rootIndex = chromaticNotes.indexOf(root);
+        const intervals = chordIntervals[chordQuality] || chordIntervals.maj;
+        
+        // Find all positions of chord notes on fretboard
+        let chordMidiNotes = [];
+        for (let stringIdx = 0; stringIdx < 6; stringIdx++) {
+            for (let fret = 1; fret <= 15; fret++) {
+                const info = fretboard.getNoteAtPosition(stringIdx, fret);
+                if (intervals.some(i => chromaticNotes[(rootIndex + i) % 12] === info.note)) {
+                    chordMidiNotes.push(info.midi);
+                }
+            }
+        }
+        
+        // Play chord - all notes together
+        initAudio();
+        const now = audioContext.currentTime;
+        
+        // Play each note of the chord
+        chordMidiNotes.slice(0, 6).forEach((midiNote, idx) => {
+            const frequency = midiToFrequency(midiNote);
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = currentWaveform;
+            oscillator.frequency.setValueAtTime(frequency, now);
+            
+            // Stagger slightly for strum effect
+            const delay = idx * 0.03;
+            gainNode.gain.setValueAtTime(0, now + delay);
+            gainNode.gain.linearRampToValueAtTime(0.15, now + delay + 0.02);
+            gainNode.gain.setValueAtTime(0.15, now + delay + 0.5);
+            gainNode.gain.linearRampToValueAtTime(0, now + delay + currentDuration);
+            
+            oscillator.start(now + delay);
+            oscillator.stop(now + delay + currentDuration);
+        });
+    }
+    
+    playChordBtnEl.addEventListener('click', function() {
+        const root = rootNoteEl.value;
+        const chordQuality = chordQualityEl.value;
+        
+        // Play the chord audio
+        playChordFromFretboard(root, chordQuality);
+        
+        // Use the new highlightChordMidi method
+        fretboard.highlightChordMidi(root, chordQuality, 2000); // Highlight for 2 seconds
+    });
     
     function stopScale() {
         isPlayingScale = false;
