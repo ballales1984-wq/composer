@@ -76,10 +76,23 @@ Implementare l'analisi in tempo reale che permette agli utenti di suonare tramit
 
 ---
 
+## Step 6: Bug Fix - Visualizzazione Accordi ✅
+
+### 6.1 Corretto display del nome dell'accordo
+- Il nome dell'accordo viene ora visualizzato correttamente con spazio tra root e qualità (es. "C Major" invece di "CMajor")
+
+### 6.2 Corretto display delle note
+- Corretto il bug che duplicava l'ottava nel nome della nota (es. "C4C4" invece di "C4")
+
+### 6.3 Migliorata gestione dei casi non rilevati
+- Aggiunta gestione migliore per i casi in cui l'accordo non viene rilevato
+
+---
+
 ## File modificati/creati
 
 1. `web_app/api/analyzer.py` - Aggiunti endpoints real-time
-2. `web_app/templates/realtime.html` - Nuovo template
+2. `web_app/templates/realtime.html` - Nuovo template + fix display
 3. `web_app/app.py` - Aggiunta route per realtime
 4. `music_engine/models/note.py` - Aggiunto from_midi, midi, frequency
 5. `web_app/templates/index.html` - Aggiunto link alla pagina realtime
@@ -96,4 +109,5 @@ Implementare l'analisi in tempo reale che permette agli utenti di suonare tramit
 ---
 
 *Implementato: 2026-02-14*
+*Ultimo fix: 2026-02-15*
 

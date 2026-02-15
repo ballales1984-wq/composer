@@ -417,8 +417,8 @@ async function performAnalysis() {
 
 // Display results
 function displayResults(data) {
-    // Notes info
-    const notesInfo = data.notes.map(n => `${n.name}${n.octave}`).join(', ');
+    // Notes info - n.name already includes octave (e.g., "C4")
+    const notesInfo = data.notes.map(n => n.name).join(', ');
     document.getElementById('analysis-result').innerHTML = `
         <div class="analysis-section">
             <div class="analysis-label">Notes Played</div>
@@ -433,13 +433,23 @@ function displayResults(data) {
     // Chord detection
     const chord = data.detected_chord;
     if (chord && chord.detected) {
-        document.getElementById('chord-name').textContent = chord.chord;
+        // Format chord name (add space between root and quality)
+        const chordName = chord.chord.replace(/([A-G][#b]?)([A-Z])/, '$1 $2');
+        document.getElementById('chord-name').textContent = chordName;
         document.getElementById('chord-notes').textContent = chord.notes.join(' - ');
-        document.getElementById('chord-quality').textContent = chord.quality_name + (chord.inversion > 0 ? ` (Inversion ${chord.inversion})` : '');
+        const inversionText = chord.inversion > 0 ? ` (Inversion ${chord.inversion})` : '';
+        document.getElementById('chord-quality').textContent = chord.quality_name + inversionText;
     } else {
-        document.getElementById('chord-name').textContent = chord ? '?' : '-';
-        document.getElementById('chord-notes').textContent = chord ? chord.note_names.join(' - ') : '';
-        document.getElementById('chord-quality').textContent = chord ? chord.reason : '';
+        // Handle case when chord is not detected
+        if (chord && chord.note_names) {
+            document.getElementById('chord-name').textContent = '?';
+            document.getElementById('chord-notes').textContent = chord.note_names.join(' - ');
+            document.getElementById('chord-quality').textContent = chord.reason || 'Unknown chord';
+        } else {
+            document.getElementById('chord-name').textContent = '-';
+            document.getElementById('chord-notes').textContent = '';
+            document.getElementById('chord-quality').textContent = chord ? chord.reason : '';
+        }
     }
     
     // Scale suggestions
