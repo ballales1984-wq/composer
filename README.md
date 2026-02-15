@@ -12,10 +12,11 @@ A comprehensive Python library and web application for music theory analysis, co
 - **Chord Builder**: Create and explore chord structures with detailed interval information
 - **Progression Analyzer**: Analyze and generate chord progressions
 - **Learn Music Theory**: Educational content inspired by Open Music Theory
-- **Fretboard Visualization**: Interactive guitar fretboard display
+- **Fretboard Visualization**: Interactive guitar fretboard with MIDI chord highlighting and audio playback
 - **Harmony Analyzer**: Real-time harmonic analysis with virtual keyboard
 - **MIDI Support**: Generate and export MIDI files
 - **Integration Adapters**: Connect with music21 and mingus libraries
+- **Audio Playback**: Play scales and chords directly in the browser with Web Audio API
 
 ## Installation
 
