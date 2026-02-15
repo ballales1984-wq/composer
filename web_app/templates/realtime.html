@@ -263,6 +263,7 @@
     }
 </style>
 
+<script src="/static/js/audio_manager.js"></script>
 <script>
 // MIDI to note name mapping
 const MIDI_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -336,6 +337,13 @@ function noteOn(midi) {
     updateKeyDisplay(midi, true);
     updateActiveNotes();
     scheduleAnalysis();
+    
+    // Play sound using AudioManager
+    const noteName = MIDI_NOTES[midi % 12];
+    const octave = Math.floor(midi / 12) - 1;
+    if (audioManager) {
+        audioManager.playNote(noteName, octave, 0.8, 'sine');
+    }
 }
 
 // Note off
