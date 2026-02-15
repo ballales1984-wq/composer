@@ -231,7 +231,19 @@ class GuitarFretboard {
         }
         
         const noteIndex = (openIndex + fret) % 12;
-        return this.chromaticNotes[noteIndex];
+        const noteName = this.chromaticNotes[noteIndex];
+        
+        // Standard guitar tuning MIDI notes (low E = 40, high e = 64)
+        // String 0 (high e): E4 = 64, String 5 (low E): E2 = 40
+        const stringBaseMidi = [64, 59, 55, 50, 45, 40]; // E4, B3, G3, D3, A2, E2
+        
+        // Calculate MIDI note: base MIDI + fret
+        const midiNote = stringBaseMidi[stringIndex] + fret;
+        
+        // Calculate octave from MIDI (MIDI 60 = C4)
+        const octave = Math.floor(midiNote / 12) - 1;
+        
+        return { note: noteName, octave: octave, midi: midiNote };
     }
     
     render() {
@@ -242,6 +254,9 @@ class GuitarFretboard {
         const numFret = numFrets;
         const fretWidth = (width - stringLabelWidth - 40) / numFret;
         const stringHeight = (height - 60) / 6;
+        
+        // Note circle radius - made larger for easier clicking
+        const noteRadius = 18;
         
         let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" 
                    style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">`;
@@ -333,8 +348,11 @@ class GuitarFretboard {
             
             // Start from fret 1 (skip open strings which are shown as labels)
             for (let fret = 1; fret <= numFrets; fret++) {
-                const note = this.getNoteAtPosition(stringIdx, fret);
+                const noteInfo = this.getNoteAtPosition(stringIdx, fret);
+                const note = noteInfo.note;
+                const octave = noteInfo.octave;
                 
+                // Check if this note (just the name, not octave) is in activeNotes
                 if (this.activeNotes.has(note)) {
                     const x = stringLabelWidth + (fret === 0 ? 20 : (fret - 0.5) * fretWidth);
                     const type = this.noteType[note] || 'scale';
@@ -345,13 +363,18 @@ class GuitarFretboard {
                     else if (type === 'common') color = '#fbbf24';  // Gold for common notes
                     else color = colorScale;
                     
-                    // Note circle with shadow
-                    svg += `<circle cx="${x}" cy="${y}" r="14" fill="${color}" 
+                    // Note circle with shadow - using larger radius for easier clicking
+                    svg += `<circle cx="${x}" cy="${y}" r="${noteRadius}" fill="${color}" 
                             filter="url(#shadow)" opacity="0.9"/>`;
                     
-                    // Note text
+                    // Note text with octave for frets > 12, otherwise just note name
+                    const displayNote = fret > 12 ? `${note}${octave}` : note;
                     svg += `<text x="${x}" y="${y+4}" text-anchor="middle" 
-                            fill="white" font-size="10" font-weight="bold">${note}</text>`;
+                            fill="white" font-size="${fret > 12 ? '8' : '10'}" font-weight="bold">${displayNote}</text>`;
+                    
+                    // Invisible larger clickable area for easier clicking
+                    svg += `<circle cx="${x}" cy="${y}" r="${noteRadius + 8}" fill="transparent" 
+                            data-string="${stringIdx}" data-fret="${fret}" class="note-click-area"/>`;
                 }
             }
         }
@@ -362,16 +385,12 @@ class GuitarFretboard {
         this.container.innerHTML = svg;
         this.container.style.cursor = 'pointer';
         
-        // Add note click events
-        this.container.querySelectorAll('circle').forEach(circle => {
-            circle.addEventListener('click', (e) => {
+        // Add note click events - use the invisible click areas
+        this.container.querySelectorAll('.note-click-area').forEach(area => {
+            area.addEventListener('click', (e) => {
                 if (this.options.onNoteClick) {
-                    const cx = parseFloat(circle.getAttribute('cx'));
-                    const cy = parseFloat(circle.getAttribute('cy'));
-                    
-                    // Calculate string and fret from position
-                    const stringIdx = Math.round((cy - 40) / stringHeight);
-                    const fret = Math.round((cx - stringLabelWidth) / fretWidth);
+                    const stringIdx = parseInt(area.getAttribute('data-string'));
+                    const fret = parseInt(area.getAttribute('data-fret'));
                     
                     if (stringIdx >= 0 && stringIdx < 6 && fret >= 0 && fret <= numFrets) {
                         const note = this.getNoteAtPosition(stringIdx, fret);
@@ -379,6 +398,16 @@ class GuitarFretboard {
                     }
                 }
             });
+            
+            // Also add hover effect
+            area.addEventListener('mouseenter', () => {
+                area.style.cursor = 'pointer';
+            });
+        });
+        
+        // Also handle click on visible circles as fallback
+        this.container.querySelectorAll('circle:not(.note-click-area)').forEach(circle => {
+            circle.style.pointerEvents = 'none'; // Let clicks pass through to click areas
         });
     }
 }

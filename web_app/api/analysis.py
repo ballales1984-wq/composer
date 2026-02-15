@@ -34,18 +34,26 @@ def get_libraries():
     return jsonify(libraries)
 
 
-@bp.route('/key', methods=['GET'])
+@bp.route('/key', methods=['GET', 'POST'])
 def analyze_key():
     """
     Analyze the key of a sequence of notes.
     
-    Query params:
+    GET Query params:
         notes: List of note names (e.g., ?notes=C&notes=E&notes=G)
+    
+    POST JSON body:
+        {"notes": ["C", "E", "G"]}
     
     Returns:
         JSON with key, mode, and confidence score
     """
-    notes = request.args.getlist('notes')
+    # Handle both GET and POST methods
+    if request.method == 'POST':
+        data = request.get_json()
+        notes = data.get('notes', []) if data else []
+    else:
+        notes = request.args.getlist('notes')
     
     if not notes:
         return jsonify({

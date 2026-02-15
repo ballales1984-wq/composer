@@ -76,6 +76,17 @@ class Progression:
         return self._key.name if self._key else None
 
     @property
+    def name(self) -> str:
+        """
+        Get the progression name based on chord names.
+        
+        Returns:
+            String representation of the progression
+        """
+        chord_names = [chord.name for chord in self._chords]
+        return " → ".join(chord_names)
+
+    @property
     def all_notes(self) -> Set[Note]:
         """
         Get all unique notes used in the progression.

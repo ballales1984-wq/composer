@@ -123,7 +123,7 @@
             </select>
         </div>
         
-        <div class="form-group">
+<div class="form-group">
             <label class="form-label">Tuning</label>
             <select id="tuning" class="form-select">
                 <option value="standard" selected>Standard (EADGBe)</option>
@@ -133,6 +133,17 @@
                 <option value="half_step">Half Step Down</option>
                 <option value="full_step">Full Step Down</option>
             </select>
+        </div>
+        
+        <!-- Audio Settings - Fixed to triangle waveform, 1 second duration -->
+        <div class="form-group">
+            <label class="form-label">🎵 Sound: Triangle (Mellow)</label>
+            <input type="hidden" id="waveform" value="triangle">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">⏱ Duration: 1 second</label>
+            <input type="hidden" id="note-duration" value="1">
         </div>
         
         <button id="display-btn" class="btn btn-primary btn-block">
@@ -298,11 +309,11 @@
 
 <script src="{{ url_for('static', filename='js/fretboard.js') }}"></script>
 <script>
-    // Note frequencies for audio playback
+// Note frequencies for audio playback (A4 = 440Hz)
     const noteFrequencies = {
-        'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
-        'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
-        'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+        'C': 261.63, 'C#': 277.18, 'Db': 277.18, 'D': 293.66, 'D#': 311.13, 'Eb': 311.13,
+        'E': 329.63, 'F': 349.23, 'F#': 369.99, 'Gb': 369.99, 'G': 392.00,
+        'G#': 415.30, 'Ab': 415.30, 'A': 440.00, 'A#': 466.16, 'Bb': 466.16, 'B': 493.88
     };
     
     // Tunings display info (high string to low string)
@@ -315,8 +326,10 @@
         'full_step': 'Full Step: D A F C G D'
     };
     
-    // Audio context
+    // Audio context and settings - Fixed to triangle waveform, 1 second duration
     let audioContext = null;
+    let currentWaveform = 'triangle';
+    let currentDuration = 1;
     
     function initAudio() {
         if (!audioContext) {
@@ -324,14 +337,27 @@
         }
     }
     
-    function playNote(note, stringIdx, fret) {
+    // Get MIDI note number from note name and octave
+    function getMidiNote(note, octave) {
+        const noteMap = {
+            'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
+            'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8,
+            'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
+        };
+        return 12 + (octave * 12) + (noteMap[note] || 0);
+    }
+    
+    // Get frequency from MIDI note number
+    function midiToFrequency(midi) {
+        return 440 * Math.pow(2, (midi - 69) / 12);
+    }
+    
+    // Play note with MIDI (most accurate for guitar fretboard)
+    function playNoteWithMidi(midiNote) {
         initAudio();
         
-        // Calculate octave based on string and fret
-        const baseOctave = [4, 3, 3, 3, 2, 2]; // e B G D A E (high to low)
-        const octave = baseOctave[stringIdx] + Math.floor(fret / 3);
-        
-        const frequency = noteFrequencies[note] * Math.pow(2, octave - 4);
+        // Get frequency from MIDI note
+        const frequency = midiToFrequency(midiNote);
         
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
@@ -339,15 +365,140 @@
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
         
-        oscillator.type = 'sine';
+        oscillator.type = currentWaveform;
         oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
         
-        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        // ADSR envelope for better sound
+        const attack = 0.02;
+        const decay = 0.05;
+        const sustain = 0.7;
+        const release = 0.1;
+        const duration = currentDuration;
         
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.5);
+        const now = audioContext.currentTime;
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.3, now + attack);
+        gainNode.gain.linearRampToValueAtTime(0.3 * sustain, now + attack + decay);
+        gainNode.gain.setValueAtTime(0.3 * sustain, now + duration - release);
+        gainNode.gain.linearRampToValueAtTime(0, now + duration);
+        
+        oscillator.start(now);
+        oscillator.stop(now + duration);
+        
+        // Calculate note name and octave from MIDI for display
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const noteName = noteNames[midiNote % 12];
+        const octave = Math.floor(midiNote / 12) - 1;
+        console.log(`Playing: ${noteName}${octave} = ${frequency.toFixed(2)} Hz (MIDI: ${midiNote})`);
+    }
+    
+    // NEW: Play note with explicit octave (for fretboard multi-octave support)
+    function playNoteWithOctave(note, octave) {
+        initAudio();
+        
+        // Get MIDI note and frequency
+        const midiNote = getMidiNote(note, octave);
+        const frequency = midiToFrequency(midiNote);
+        
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.type = currentWaveform;
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        
+        // ADSR envelope for better sound
+        const attack = 0.02;
+        const decay = 0.05;
+        const sustain = 0.7;
+        const release = 0.1;
+        const duration = currentDuration;
+        
+        const now = audioContext.currentTime;
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.3, now + attack);
+        gainNode.gain.linearRampToValueAtTime(0.3 * sustain, now + attack + decay);
+        gainNode.gain.setValueAtTime(0.3 * sustain, now + duration - release);
+        gainNode.gain.linearRampToValueAtTime(0, now + duration);
+        
+        oscillator.start(now);
+        oscillator.stop(now + duration);
+        
+        console.log(`Playing: ${note}${octave} = ${frequency.toFixed(2)} Hz (MIDI: ${midiNote})`);
+    }
+    
+    // Better playNote with proper octave calculation
+    function playNote(note, stringIdx, fret) {
+        initAudio();
+        
+        // Standard tuning base octaves (high e = 4, low E = 2)
+        // stringIdx: 0 = high e, 5 = low E
+        const baseMidiNotes = [64, 59, 55, 50, 45, 40]; // E4, B3, G3, D3, A2, E2
+        
+        // Calculate MIDI note: base + fret
+        const midiNote = baseMidiNotes[stringIdx] + fret;
+        const frequency = midiToFrequency(midiNote);
+        
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.type = currentWaveform;
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        
+        // ADSR envelope for better sound
+        const attack = 0.02;
+        const decay = 0.05;
+        const sustain = 0.7;
+        const release = 0.1;
+        const duration = currentDuration;
+        
+        const now = audioContext.currentTime;
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.3, now + attack);
+        gainNode.gain.linearRampToValueAtTime(0.3 * sustain, now + attack + decay);
+        gainNode.gain.setValueAtTime(0.3 * sustain, now + duration - release);
+        gainNode.gain.linearRampToValueAtTime(0, now + duration);
+        
+        oscillator.start(now);
+        oscillator.stop(now + duration);
+    }
+    
+    // Play chord (multiple notes)
+    function playChord(notes) {
+        initAudio();
+        notes.forEach((note, idx) => {
+            setTimeout(() => {
+                // Calculate string and fret from note position
+                const baseMidiNotes = [64, 59, 55, 50, 45, 40];
+                const stringIdx = idx % 6;
+                const fret = Math.floor(idx / 6);
+                const midiNote = baseMidiNotes[stringIdx] + fret;
+                const frequency = midiToFrequency(midiNote);
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.type = currentWaveform;
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                
+                const now = audioContext.currentTime;
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.2, now + 0.02);
+                gainNode.gain.linearRampToValueAtTime(0.1, now + 0.3);
+                gainNode.gain.linearRampToValueAtTime(0, now + currentDuration);
+                
+                oscillator.start(now);
+                oscillator.stop(now + currentDuration);
+            }, idx * 50);
+        });
     }
     
     // Initialize fretboard
@@ -367,9 +518,20 @@
             colorChord: '#10b981',
             width: 900,
             height: 280,
-            onNoteClick: function(note, stringIdx, fret) {
-                playNote(note, stringIdx, fret);
-                console.log(`Note: ${note}, String: ${stringIdx + 1}, Fret: ${fret}`);
+            onNoteClick: function(noteInfo, stringIdx, fret) {
+                // noteInfo can be either a string (old format) or object {note, octave, midi} (new format)
+                let midiNote;
+                if (typeof noteInfo === 'object' && noteInfo !== null && noteInfo.midi !== undefined) {
+                    midiNote = noteInfo.midi;
+                } else if (typeof noteInfo === 'object' && noteInfo !== null) {
+                    // Fallback: calculate MIDI from note + octave
+                    const note = noteInfo.note;
+                    const octave = noteInfo.octave;
+                    midiNote = getMidiNote(note, octave);
+                } else {
+                    midiNote = getMidiNote(noteInfo, 4);
+                }
+                playNoteWithMidi(midiNote);
             }
         });
         
@@ -388,8 +550,19 @@
     const rootNoteEl = document.getElementById('root-note');
     const scaleTypeEl = document.getElementById('scale-type');
     const chordQualityEl = document.getElementById('chord-quality');
-    const chordRootNoteEl = document.getElementById('chord-root-note');
+const chordRootNoteEl = document.getElementById('chord-root-note');
     const numFretsEl = document.getElementById('num-frets');
+    const waveformEl = document.getElementById('waveform');
+    const noteDurationEl = document.getElementById('note-duration');
+    
+    // Audio settings event listeners
+    waveformEl.addEventListener('change', () => {
+        currentWaveform = waveformEl.value;
+    });
+    
+    noteDurationEl.addEventListener('change', () => {
+        currentDuration = parseFloat(noteDurationEl.value);
+    });
     
     displayModeEl.addEventListener('change', () => {
         const mode = displayModeEl.value;

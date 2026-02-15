@@ -12,8 +12,20 @@ from music_engine.models import Progression, Chord
 bp = Blueprint('progressions', __name__, url_prefix='/api/progressions')
 
 
-@bp.route('', methods=['POST'])
-def create_progression():
+@bp.route('', methods=['GET', 'POST'])
+def handle_progression():
+    """Handle GET (list progressions) and POST (create progression) requests."""
+    if request.method == 'GET':
+        # Return list of available progressions
+        progressions = [
+            {'id': 'i-iv-v-i', 'name': 'I-IV-V-I', 'chords': ['C', 'F', 'G', 'C']},
+            {'id': 'i-vi-iv-v', 'name': 'I-VI-IV-V', 'chords': ['C', 'Am', 'F', 'G']},
+            {'id': 'ii-v-i', 'name': 'ii-V-I', 'chords': ['Dm', 'G', 'C']},
+            {'id': 'i-iv-vi-v', 'name': 'I-IV-vi-V', 'chords': ['C', 'F', 'Am', 'G']},
+        ]
+        return jsonify({'success': True, 'progressions': progressions})
+    
+    # POST - create progression
     data = request.get_json()
     chord_strings = data.get('chords', [])
     
