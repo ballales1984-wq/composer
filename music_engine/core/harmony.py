@@ -141,11 +141,13 @@ class HarmonyEngine:
         Returns:
             Dictionary with compatibility analysis
         """
-        chord_semitones = set(chord.semitones)
+        # Get chord intervals (semitones modulo 12)
+        chord_semitones = set(s % 12 for s in chord.semitones)
+        # Get scale intervals
         scale_semitones = set(scale.semitones)
         
-        # Check if chord root is in scale
-        root_in_scale = chord.root.semitone in scale_semitones
+        # Check if chord root is in scale (compare modulo 12)
+        root_in_scale = (chord.root.semitone % 12) in scale_semitones
         
         # Check if all chord tones are in scale
         all_tones_in_scale = chord_semitones.issubset(scale_semitones)
@@ -169,7 +171,7 @@ class HarmonyEngine:
         if not root_in_scale:
             relationship = 'none'
         elif all_tones_in_scale:
-            if chord.root.semitone == scale.root.semitone:
+            if chord.root.semitone % 12 == scale.root.semitone % 12:
                 relationship = 'diatonic'
             else:
                 relationship = 'borrowed'
@@ -212,13 +214,16 @@ class HarmonyEngine:
         elif 'min' in chord_quality:
             base_quality = 'min'
         
+        # Get root note name without octave
+        root_name = self._get_root_name(chord)
+        
         # Try scales based on chord quality
         compatible_types = self.CHORD_SCALE_COMPATIBILITY.get(base_quality, 
                                                                list(self.SCALE_FAMILIES.keys()))
         
         for scale_type in compatible_types:
             try:
-                scale = Scale(chord.root, scale_type)
+                scale = Scale(root_name, scale_type)
                 compatibility = self.tonal_compatibility(chord, scale)
                 
                 if compatibility['score'] >= 70:  # Only include reasonably compatible
@@ -317,11 +322,14 @@ class HarmonyEngine:
         """
         results = []
         
+        # Get root note name without octave
+        root_name = self._get_root_name(chord)
+        
         # Get all available scale types
         for scale_type in self.SCALE_FAMILIES.keys():
             try:
                 # Try with same root
-                scale = Scale(chord.root, scale_type)
+                scale = Scale(root_name, scale_type)
                 modal_comp = self.modal_compatibility(chord, scale)
                 
                 results.append({
@@ -335,7 +343,9 @@ class HarmonyEngine:
                 for root_offset in [3, 5, 7, 8, 9]:  # Common modal relationships
                     try:
                         new_root = chord.root.transpose(root_offset)
-                        scale = Scale(new_root, scale_type)
+                        # Get just the note name without octave
+                        new_root_name = self._get_note_name_without_octave(new_root)
+                        scale = Scale(new_root_name, scale_type)
                         modal_comp = self.modal_compatibility(chord, scale)
                         
                         results.append({
@@ -542,7 +552,8 @@ class HarmonyEngine:
                 'root': chord.root.name,
                 'quality': chord.quality,
                 'notes': chord.note_names,
-                'intervals': [Interval(s).name for s in chord.semitones],
+                # Use modulo 12 to get intervals from semitones
+                'intervals': [Interval(s % 12).name for s in chord.semitones],
                 'compatible_scales': compatible,
                 'fretboard_positions': positions,
             }
@@ -666,6 +677,42 @@ class HarmonyEngine:
                 continue
         
         return chords
+    
+    # ==================== Helper Methods ====================
+    
+    def _get_root_name(self, chord: Chord) -> str:
+        """
+        Get the root note name without octave from a chord.
+        
+        Args:
+            chord: The chord to get root from
+            
+        Returns:
+            Root note name without octave (e.g., 'C' not 'C4')
+        """
+        # chord.root.name returns something like 'C4', we need just 'C'
+        return self._get_note_name_without_octave(chord.root)
+    
+    def _get_note_name_without_octave(self, note) -> str:
+        """
+        Get note name without octave.
+        
+        Args:
+            note: Note object or note name string
+            
+        Returns:
+            Note name without octave
+        """
+        if hasattr(note, 'name'):
+            # It's a Note object
+            name = note.name
+        else:
+            # It's a string
+            name = str(note)
+        
+        # Remove octave number at the end (e.g., 'C4' -> 'C', 'Db3' -> 'Db')
+        import re
+        return re.sub(r'\d+$', '', name)
 
 
 # Convenience function

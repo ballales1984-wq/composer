@@ -31,6 +31,7 @@ from api.scales import bp as scales_bp
 from api.chords import bp as chords_bp
 from api.progressions import bp as progressions_bp
 from api.analysis import bp as analysis_bp
+from api.analyzer import bp as analyzer_bp
 from api.circle import bp as circle_bp
 from api.midi import bp as midi_bp
 from api.orchestrator import bp as orchestrator_bp
@@ -40,6 +41,7 @@ app.register_blueprint(scales_bp, url_prefix='/api/scales')
 app.register_blueprint(chords_bp, url_prefix='/api/chords')
 app.register_blueprint(progressions_bp, url_prefix='/api/progressions')
 app.register_blueprint(analysis_bp, url_prefix='/api')
+app.register_blueprint(analyzer_bp, url_prefix='/api/analyzer')
 app.register_blueprint(circle_bp, url_prefix='/api/circle')
 app.register_blueprint(midi_bp, url_prefix='/api')
 app.register_blueprint(orchestrator_bp, url_prefix='/api')
