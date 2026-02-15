@@ -1,9 +1,15 @@
 import os
 import sys
 
-# Add web_app directory to path for API imports
-web_app_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, web_app_dir)
+# Add project root directory to path for music_engine imports
+# This allows imports from both music_engine and web_app modules
+project_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, project_root)
+
+# Also add parent directory if music_engine is at the same level as web_app
+parent_dir = os.path.dirname(project_root)
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 
 from flask import Flask, render_template, jsonify, send_from_directory
 from flask_cors import CORS
@@ -30,11 +36,11 @@ from api.midi import bp as midi_bp
 from api.orchestrator import bp as orchestrator_bp
 
 # Register blueprints
-app.register_blueprint(scales_bp, url_prefix='/api')
-app.register_blueprint(chords_bp, url_prefix='/api')
-app.register_blueprint(progressions_bp, url_prefix='/api')
+app.register_blueprint(scales_bp, url_prefix='/api/scales')
+app.register_blueprint(chords_bp, url_prefix='/api/chords')
+app.register_blueprint(progressions_bp, url_prefix='/api/progressions')
 app.register_blueprint(analysis_bp, url_prefix='/api')
-app.register_blueprint(circle_bp, url_prefix='/api')
+app.register_blueprint(circle_bp, url_prefix='/api/circle')
 app.register_blueprint(midi_bp, url_prefix='/api')
 app.register_blueprint(orchestrator_bp, url_prefix='/api')
 

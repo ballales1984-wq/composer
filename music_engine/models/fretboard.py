@@ -43,6 +43,9 @@ class FretboardPosition:
     def note(self) -> Note:
         """Get the note at this position with correct octave."""
         # Get the tuning for this string (string numbers are 1-6, array is 0-5)
+        # Standard tuning: [('E', 2), ('A', 2), ('D', 3), ('G', 3), ('B', 3), ('E', 4)]
+        # String 1 (high E) -> index 5 -> ('E', 4)
+        # String 6 (low E) -> index 0 -> ('E', 2)
         note_name, base_octave = self.tuning[6 - self.string]
 
         # Create the open string note with correct octave
@@ -53,12 +56,17 @@ class FretboardPosition:
         additional_octave = self.fret // 12
         new_octave = base_octave + additional_octave
 
-        # Calculate new semitone within the octave
+        # Calculate new semitone within the octave (chromatic index 0-11)
         additional_semitones = self.fret % 12
-        new_semitone = (open_note.semitone + additional_semitones) % 12
+        new_semitone = (open_note.chroma + additional_semitones) % 12
 
-        # Create note with correct octave
+        # Create note with correct octave using chroma (not semitone/midi)
         return Note.from_semitone(new_semitone, new_octave)
+
+    @property
+    def midi(self) -> int:
+        """Get the MIDI note number for this position."""
+        return self.note.midi
 
     def __str__(self) -> str:
         return f"String {self.string}, Fret {self.fret}"
@@ -342,10 +350,14 @@ class GuitarFretboard:
         max_fret = max_fret or self.num_frets
         positions = []
 
+        # Use chroma (chromatic index 0-11) for comparison instead of semitone/midi
+        target_chroma = note.chroma
+
         for string in range(1, 7):
             for fret in range(max_fret + 1):
                 pos = self.get_position(string, fret)
-                if pos.note == note:
+                # Compare chroma (chromatic index), not semitone/MIDI
+                if pos.note.chroma == target_chroma:
                     positions.append(pos)
 
         return positions
