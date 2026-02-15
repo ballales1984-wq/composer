@@ -149,6 +149,14 @@
         <button id="display-btn" class="btn btn-primary btn-block">
             Display Fretboard
         </button>
+        
+        <button id="play-scale-btn" class="btn btn-success btn-block" style="margin-top: 0.75rem;">
+            ▶ Play Scale
+        </button>
+        
+        <button id="stop-scale-btn" class="btn btn-danger btn-block" style="margin-top: 0.5rem; display: none;">
+            ⏹ Stop
+        </button>
     </div>
     
     <div class="card">
@@ -590,6 +598,102 @@ const chordRootNoteEl = document.getElementById('chord-root-note');
     });
     
     displayBtnEl.addEventListener('click', displayFretboard);
+    
+    // Play Scale functionality
+    const playScaleBtnEl = document.getElementById('play-scale-btn');
+    const stopScaleBtnEl = document.getElementById('stop-scale-btn');
+    let isPlayingScale = false;
+    let scalePlayTimeout = null;
+    
+    playScaleBtnEl.addEventListener('click', playScale);
+    stopScaleBtnEl.addEventListener('click', stopScale);
+    
+    function stopScale() {
+        isPlayingScale = false;
+        if (scalePlayTimeout) {
+            clearTimeout(scalePlayTimeout);
+            scalePlayTimeout = null;
+        }
+        playScaleBtnEl.style.display = 'block';
+        stopScaleBtnEl.style.display = 'none';
+    }
+    
+    function playScale() {
+        if (isPlayingScale) return;
+        
+        const mode = displayModeEl.value;
+        if (mode !== 'scale') {
+            alert('Please select Scale mode to play');
+            return;
+        }
+        
+        isPlayingScale = true;
+        playScaleBtnEl.style.display = 'none';
+        stopScaleBtnEl.style.display = 'block';
+        
+        const root = rootNoteEl.value;
+        const scaleType = scaleTypeEl.value;
+        
+        // Get scale intervals
+        const intervals = {
+            major: [0, 2, 4, 5, 7, 9, 11],
+            minor_natural: [0, 2, 3, 5, 7, 8, 10],
+            minor_harmonic: [0, 2, 3, 5, 7, 8, 11],
+            minor_melodic: [0, 2, 3, 5, 7, 9, 11],
+            dorian: [0, 2, 3, 5, 7, 9, 10],
+            phrygian: [0, 1, 3, 5, 7, 8, 10],
+            lydian: [0, 2, 4, 6, 7, 9, 11],
+            mixolydian: [0, 2, 4, 5, 7, 9, 10],
+            locrian: [0, 1, 3, 5, 6, 8, 10],
+            pentatonic_major: [0, 2, 4, 7, 9],
+            pentatonic_minor: [0, 3, 5, 7, 10],
+            blues_minor: [0, 3, 5, 6, 7, 10],
+            blues_major: [0, 2, 3, 4, 7, 9]
+        };
+        
+        const chromaticNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const rootIndex = chromaticNotes.indexOf(root);
+        const scaleIntervals = intervals[scaleType] || intervals.major;
+        
+        // Get scale notes with octaves for playing (play 2 octaves)
+        const scaleNotes = [];
+        
+        // First octave
+        for (let i = 0; i < scaleIntervals.length; i++) {
+            const midiNote = 60 + scaleIntervals[i]; // Start from C4 (MIDI 60)
+            scaleNotes.push(midiNote);
+        }
+        
+        // Second octave
+        for (let i = 0; i < scaleIntervals.length; i++) {
+            const midiNote = 72 + scaleIntervals[i]; // Start from C5 (MIDI 72)
+            scaleNotes.push(midiNote);
+        }
+        
+        // Play scale with animation
+        let noteIndex = 0;
+        const noteDuration = currentDuration * 1000; // Convert to ms
+        
+        function playNextNote() {
+            if (!isPlayingScale || noteIndex >= scaleNotes.length) {
+                stopScale();
+                return;
+            }
+            
+            const midiNote = scaleNotes[noteIndex];
+            playNoteWithMidi(midiNote);
+            
+            // Highlight the note on fretboard with MIDI for precise position
+            const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const noteName = noteNames[midiNote % 12];
+            fretboard.highlightNoteTemporary(noteName, 300, midiNote);
+            
+            noteIndex++;
+            scalePlayTimeout = setTimeout(playNextNote, noteDuration);
+        }
+        
+        playNextNote();
+    }
     
     function displayFretboard() {
         const root = rootNoteEl.value;
