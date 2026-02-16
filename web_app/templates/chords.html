@@ -998,6 +998,7 @@ const minorKeys = [
 ];
 
 let currentSelectedKey = 'C';
+let currentKeyType = 'major';  // 'major' or 'minor'
 
 function initCircleOfFifths() {
     const svg = document.getElementById('circle-of-fifths-chords');
@@ -1091,6 +1092,7 @@ function initCircleOfFifths() {
 
 async function selectCircleKey(root, type = 'major') {
     currentSelectedKey = root;
+    currentKeyType = type;
     
     // Update display
     document.getElementById('selected-circle-key').textContent = root;
@@ -1207,27 +1209,48 @@ function displayCommonProgressions(progressions) {
 }
 
 function playProgression(chordNames) {
-    // Simple progression playback - plays each chord for 1 second
+    // Play chord progression - each chord for 1 second, then move to next
     const chords = chordNames.split(',');
-    const root = currentSelectedKey;
+    const root = currentSelectedKey || 'C';
+    const keyType = currentKeyType || 'major';
     
-    // Map roman numerals to actual chords (simplified)
-    const romanMap = {
-        'I': 'maj', 'i': 'min',
-        'II': 'maj', 'ii': 'min',
-        'III': 'maj', 'iii': 'min',
-        'IV': 'maj', 'iv': 'min',
-        'V': 'maj', 'v': 'min',
-        'VI': 'maj', 'vi': 'min',
-        'VII': 'dim', 'vii': 'dim'
-    };
+    // Map roman numerals to actual chords based on key type
+    const majorQuality = { 'I': 'maj', 'II': 'min', 'III': 'min', 'IV': 'maj', 'V': 'maj', 'VI': 'min', 'VII': 'dim' };
+    const minorQuality = { 'i': 'min', 'ii': 'dim', 'III': 'maj', 'iv': 'min', 'v': 'min', 'VI': 'maj', 'VII': 'maj' };
+    const quality = keyType === 'minor' ? minorQuality : majorQuality;
     
-    // This is a simplified version - in a real app you'd map properly
-    initAudio();
+    // Get waveform preference
     const waveform = waveformSelect ? waveformSelect.value : 'sine';
+    const duration = 1.0; // seconds per chord
     
-    // Play a simple chord for demo
-    playNote(root + '4', 1, waveform);
+    // Function to get chord notes for a roman numeral
+    async function playChordForNumeral(roman) {
+        const q = quality[roman.trim()] || 'maj';
+        
+        // Fetch chord notes from API
+        try {
+            const response = await fetch(`/api/chords?root=${root}&quality=${q}`);
+            const data = await response.json();
+            
+            if (data.success && data.chord && data.chord.notes) {
+                // Play all notes of the chord together
+                for (const note of data.chord.notes) {
+                    playNote(note + '4', duration * 0.8, waveform);
+                }
+            }
+        } catch (e) {
+            console.error('Error playing chord:', e);
+        }
+    }
+    
+    // Play each chord in sequence
+    let delay = 0;
+    chords.forEach((roman, index) => {
+        setTimeout(() => {
+            playChordForNumeral(roman.trim());
+        }, delay);
+        delay += duration * 1000;
+    });
 }
 
 // Initialize on page load

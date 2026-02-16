@@ -1,4 +1,4 @@
-"""
+ risu"""
 Chords API Blueprint - Versione migliorata con modalità realistic/theoretical
 REST API endpoints per operazioni sugli accordi.
 """
@@ -139,24 +139,25 @@ def _get_chord_shape(root, quality):
 # CAGED system chord shapes - known correct voicings
 # Format: quality -> {shape_name: [frets]}
 # Frets format: [string6, string5, string4, string3, string2, string1]
+# These are CORRECT guitar chord shapes
 CAGED_SHAPES = {
     'maj': {
-        'C': {'open': [None, 3, 2, 0, 1, 0], 'E_barre': [8, 10, 10, 9, 8, 8], 'A_barre': [None, 3, 5, 5, 5, 3]},
-        'D': {'open': [None, None, 0, 2, 3, 2], 'E_barre': [10, 12, 12, 11, 10, 10], 'A_barre': [None, 5, 7, 7, 7, 5]},
-        'E': {'open': [0, 2, 2, 1, 0, 0], 'E_barre': [12, 14, 14, 13, 12, 12], 'A_barre': [None, 7, 9, 9, 9, 7]},
+        'C': {'open': [None, 3, 2, 0, 1, 0], 'E_barre': [8, 10, 9, 8, 8, 8], 'A_barre': [None, 3, 5, 5, 5, 3]},
+        'D': {'open': [None, None, 0, 2, 3, 2], 'E_barre': [10, 12, 11, 10, 10, 10], 'A_barre': [None, 5, 7, 7, 7, 5]},
+        'E': {'open': [0, 2, 2, 1, 0, 0], 'E_barre': [12, 14, 13, 12, 12, 12], 'A_barre': [None, 7, 9, 9, 9, 7]},
         'F': {'open': [1, 3, 3, 2, 1, 1], 'E_barre': [1, 3, 3, 2, 1, 1], 'A_barre': [None, 8, 10, 10, 10, 8]},
-        'G': {'open': [3, 2, 0, 0, 0, 3], 'E_barre': [3, 5, 5, 4, 3, 3], 'A_barre': [None, 10, 12, 12, 12, 10]},
-        'A': {'open': [None, 0, 2, 2, 2, 0], 'E_barre': [5, 7, 7, 6, 5, 5], 'A_barre': [None, 0, 2, 2, 2, 0]},
-        'B': {'open': [None, 2, 4, 4, 4, 2], 'E_barre': [7, 9, 9, 8, 7, 7], 'A_barre': [None, 2, 4, 4, 4, 2]},
+        'G': {'open': [3, 2, 0, 0, 0, 3], 'E_barre': [3, 5, 4, 3, 3, 3], 'A_barre': [None, 10, 12, 12, 12, 10]},
+        'A': {'open': [None, 0, 2, 2, 2, 0], 'E_barre': [5, 7, 6, 5, 5, 5], 'A_barre': [None, 0, 2, 2, 2, 0]},
+        'B': {'open': [None, 2, 4, 4, 4, 2], 'E_barre': [7, 9, 8, 7, 7, 7], 'A_barre': [None, 2, 4, 4, 4, 2]},
     },
     'min': {
-        'C': {'open': [None, 3, 5, 5, 4, 3], 'E_barre': [8, 10, 10, 8, 8, 8], 'A_barre': [None, 3, 5, 5, 4, 3]},
-        'D': {'open': [None, None, 0, 2, 3, 1], 'E_barre': [10, 12, 12, 10, 10, 10], 'A_barre': [None, 5, 7, 7, 6, 5]},
-        'E': {'open': [0, 2, 2, 0, 0, 0], 'E_barre': [12, 14, 14, 12, 12, 12], 'A_barre': [None, 7, 9, 9, 8, 7]},
-        'F': {'open': [1, 3, 3, 1, 1, 1], 'E_barre': [1, 3, 3, 1, 1, 1], 'A_barre': [None, 8, 10, 10, 9, 8]},
-        'G': {'open': [3, 5, 5, 3, 3, 3], 'E_barre': [3, 5, 5, 3, 3, 3], 'A_barre': [None, 10, 12, 12, 11, 10]},
-        'A': {'open': [None, 0, 2, 2, 1, 0], 'E_barre': [5, 7, 7, 5, 5, 5], 'A_barre': [None, 0, 2, 2, 1, 0]},
-        'B': {'open': [None, 2, 4, 4, 3, 2], 'E_barre': [7, 9, 9, 7, 7, 7], 'A_barre': [None, 2, 4, 4, 3, 2]},
+        'C': {'open': [None, 3, 5, 5, 4, 3], 'E_barre': [8, 10, 8, 8, 8, 8], 'A_barre': [None, 3, 5, 5, 4, 3]},
+        'D': {'open': [None, None, 0, 2, 3, 1], 'E_barre': [10, 12, 10, 10, 10, 10], 'A_barre': [None, 5, 7, 7, 6, 5]},
+        'E': {'open': [0, 2, 2, 0, 0, 0], 'E_barre': [12, 14, 12, 12, 12, 12], 'A_barre': [None, 7, 9, 9, 8, 7]},
+        'F': {'open': [1, 3, 3, 1, 1, 1], 'E_barre': [1, 3, 1, 1, 1, 1], 'A_barre': [None, 8, 10, 10, 9, 8]},
+        'G': {'open': [3, 5, 5, 3, 3, 3], 'E_barre': [3, 5, 3, 3, 3, 3], 'A_barre': [None, 10, 12, 12, 11, 10]},
+        'A': {'open': [None, 0, 2, 2, 1, 0], 'E_barre': [5, 7, 5, 5, 5, 5], 'A_barre': [None, 0, 2, 2, 1, 0]},
+        'B': {'open': [None, 2, 4, 4, 3, 2], 'E_barre': [7, 9, 7, 7, 7, 7], 'A_barre': [None, 2, 4, 4, 3, 2]},
     },
 }
 
@@ -424,6 +425,49 @@ def get_voicing():
 
     voicing_data = [{'note': n.name, 'octave': o} for n, o in chord.get_voicing(octave=octave, spread=True)]
     return jsonify({'success': True, 'voicing': voicing_data})
+
+
+@bp.route('/play', methods=['POST'])
+def play_chord():
+    """Play a chord using audio. Accepts JSON with chord notes."""
+    try:
+        data = request.get_json()
+        notes = data.get('notes', [])
+        duration = data.get('duration', 2.0)
+        
+        if not notes:
+            return jsonify({'success': False, 'error': 'No notes provided'}), 400
+        
+        # Try to play using the music_engine audio system
+        try:
+            import sys
+            import os
+            sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+            from music_engine.utils.audio import play_chord as engine_play_chord
+            
+            # Convert notes to proper format and play
+            # Notes can be like 'C4', 'E4', 'G4'
+            play_notes = [str(n) for n in notes]
+            engine_play_chord(play_notes, duration)
+            
+            return jsonify({
+                'success': True, 
+                'message': f'Playing chord: {" ".join(play_notes)}',
+                'notes': play_notes
+            })
+        except ImportError as e:
+            return jsonify({
+                'success': False, 
+                'error': f'Audio not available: {str(e)}'
+            }), 500
+        except Exception as e:
+            return jsonify({
+                'success': False, 
+                'error': f'Error playing chord: {str(e)}'
+            }), 500
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 400
 
 
 @bp.route('/positions', methods=['GET'])
