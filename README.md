@@ -1,7 +1,7 @@
 # Music Theory Engine
 
-[![Tests](https://github.com/blackboxai/music-theory-engine/actions/workflows/test.yml/badge.svg)](https://github.com/blackboxai/music-theory-engine/actions/workflows/test.yml)
-[![Coverage](https://codecov.io/gh/blackboxai/music-theory-engine/branch/main/graph/badge.svg)](https://codecov.io/gh/blackboxai/music-theory-engine)
+[![Tests](https://github.com/ballales1984-wq/composer/actions/workflows/test.yml/badge.svg)](https://github.com/ballales1984-wq/composer/actions/workflows/test.yml)
+[![Coverage](https://codecov.io/gh/ballales1984-wq/composer/branch/main/graph/badge.svg)](https://codecov.io/gh/ballales1984-wq/composer)
 [![Python Version](https://img.shields.io/pypi/pyversions/music-theory-engine.svg)](https://pypi.org/project/music-theory-engine/)
 
 A comprehensive Python library and web application for music theory analysis, composition, and education.
@@ -22,8 +22,8 @@ A comprehensive Python library and web application for music theory analysis, co
 
 ```bash
 # Clone the repository
-git clone https://github.com/blackboxai/music-theory-engine.git
-cd music-theory-engine
+git clone https://github.com/ballales1984-wq/composer.git
+cd composer
 
 # Install dependencies
 pip install -r music_engine/requirements.txt
