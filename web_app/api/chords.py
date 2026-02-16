@@ -157,6 +157,33 @@ CAGED_SHAPES = {
         'A': {'open': [None, 0, 2, 2, 1, 0], 'A_barre': [None, 0, 2, 2, 1, 0]},
         'B': {'open': [None, 2, 4, 4, 3, 2], 'A_barre': [None, 2, 4, 4, 3, 2]},
     },
+    '7': {
+        # Dominant 7th chords - transposable shapes
+        'E': {'open': [0, 2, 0, 1, 0, 0], 'A_barre': [None, 0, 2, 0, 1, 0]},  # E7
+        'A': {'open': [None, 0, 2, 0, 1, 0], 'A_barre': [None, 0, 2, 0, 1, 0]},  # A7
+        'B': {'open': [None, 2, 1, 2, 0, 2], 'A_barre': [None, 2, 3, 2, 3, 2]},  # B7
+        'C': {'open': [None, 3, 2, 3, 1, 0], 'A_barre': [None, 3, 5, 3, 5, 3]},  # C7
+        'D': {'open': [None, None, 0, 2, 1, 2], 'A_barre': [None, 5, 7, 5, 7, 5]},  # D7
+        'F': {'open': [1, 3, 1, 2, 1, 1], 'A_barre': [None, 8, 10, 8, 10, 8]},  # F7
+        'G': {'open': [3, 2, 0, 0, 0, 1], 'A_barre': [None, 10, 12, 10, 12, 10]},  # G7
+    },
+    'maj7': {
+        # Major 7th chords
+        'E': {'open': [0, 2, 2, 1, 0, 0], 'A_barre': [None, 7, 9, 8, 9, 7]},  # Emaj7
+        'A': {'open': [None, 0, 2, 1, 2, 0], 'A_barre': [None, 0, 2, 1, 2, 0]},  # Amaj7
+        'C': {'open': [None, 3, 2, 0, 0, 0], 'A_barre': [None, 3, 5, 4, 5, 3]},  # Cmaj7
+        'D': {'open': [None, None, 0, 2, 2, 0], 'A_barre': [None, 5, 7, 6, 7, 5]},  # Dmaj7
+        'F': {'open': [1, 3, 3, 2, 1, 0], 'A_barre': [None, 8, 10, 9, 10, 8]},  # Fmaj7
+        'G': {'open': [3, 2, 0, 0, 0, 2], 'A_barre': [None, 10, 12, 11, 12, 10]},  # Gmaj7
+    },
+    'min7': {
+        # Minor 7th chords
+        'E': {'open': [0, 2, 0, 0, 0, 0], 'A_barre': [None, 7, 9, 7, 10, 7]},  # Em7
+        'A': {'open': [None, 0, 2, 0, 1, 0], 'A_barre': [None, 0, 2, 0, 1, 0]},  # Am7
+        'C': {'open': [None, 3, 5, 3, 4, 3], 'A_barre': [None, 3, 5, 3, 4, 3]},  # Cm7
+        'D': {'open': [None, None, 0, 2, 1, 1], 'A_barre': [None, 5, 7, 5, 6, 5]},  # Dm7
+        'G': {'open': [3, 5, 3, 3, 3, 3], 'A_barre': [None, 10, 12, 10, 11, 10]},  # Gm7
+    },
 }
 
 def _get_caged_shape(root, quality, shape_type, max_fret=12):
@@ -181,7 +208,16 @@ def _get_caged_shape(root, quality, shape_type, max_fret=12):
         root_upper = enharmonic_map[root_upper]
     
     # Map common notations
-    quality_map = {'maj': 'maj', 'min': 'min', 'm': 'min'}
+    quality_map = {
+        'maj': 'maj', 
+        'min': 'min', 
+        'm': 'min',
+        '7': '7',
+        'dom7': '7',
+        'maj7': 'maj7',
+        'min7': 'min7',
+        'm7': 'min7',
+    }
     q = quality_map.get(quality, quality)
     
     if q in CAGED_SHAPES and root_upper in CAGED_SHAPES[q]:
@@ -495,4 +531,5 @@ def get_chord_positions():
         'note_positions': positions,
         'voicings': voicings,
     })
+
 
