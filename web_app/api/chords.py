@@ -136,6 +136,67 @@ def _get_chord_shape(root, quality):
     return None
 
 
+# CAGED system chord shapes - known correct voicings
+# Format: quality -> {shape_name: [frets]}
+# Frets format: [string6, string5, string4, string3, string2, string1]
+CAGED_SHAPES = {
+    'maj': {
+        'C': {'open': [None, 3, 2, 0, 1, 0], 'E_barre': [8, 10, 10, 9, 8, 8], 'A_barre': [None, 3, 5, 5, 5, 3]},
+        'D': {'open': [None, None, 0, 2, 3, 2], 'E_barre': [10, 12, 12, 11, 10, 10], 'A_barre': [None, 5, 7, 7, 7, 5]},
+        'E': {'open': [0, 2, 2, 1, 0, 0], 'E_barre': [12, 14, 14, 13, 12, 12], 'A_barre': [None, 7, 9, 9, 9, 7]},
+        'F': {'open': [1, 3, 3, 2, 1, 1], 'E_barre': [1, 3, 3, 2, 1, 1], 'A_barre': [None, 8, 10, 10, 10, 8]},
+        'G': {'open': [3, 2, 0, 0, 0, 3], 'E_barre': [3, 5, 5, 4, 3, 3], 'A_barre': [None, 10, 12, 12, 12, 10]},
+        'A': {'open': [None, 0, 2, 2, 2, 0], 'E_barre': [5, 7, 7, 6, 5, 5], 'A_barre': [None, 0, 2, 2, 2, 0]},
+        'B': {'open': [None, 2, 4, 4, 4, 2], 'E_barre': [7, 9, 9, 8, 7, 7], 'A_barre': [None, 2, 4, 4, 4, 2]},
+    },
+    'min': {
+        'C': {'open': [None, 3, 5, 5, 4, 3], 'E_barre': [8, 10, 10, 8, 8, 8], 'A_barre': [None, 3, 5, 5, 4, 3]},
+        'D': {'open': [None, None, 0, 2, 3, 1], 'E_barre': [10, 12, 12, 10, 10, 10], 'A_barre': [None, 5, 7, 7, 6, 5]},
+        'E': {'open': [0, 2, 2, 0, 0, 0], 'E_barre': [12, 14, 14, 12, 12, 12], 'A_barre': [None, 7, 9, 9, 8, 7]},
+        'F': {'open': [1, 3, 3, 1, 1, 1], 'E_barre': [1, 3, 3, 1, 1, 1], 'A_barre': [None, 8, 10, 10, 9, 8]},
+        'G': {'open': [3, 5, 5, 3, 3, 3], 'E_barre': [3, 5, 5, 3, 3, 3], 'A_barre': [None, 10, 12, 12, 11, 10]},
+        'A': {'open': [None, 0, 2, 2, 1, 0], 'E_barre': [5, 7, 7, 5, 5, 5], 'A_barre': [None, 0, 2, 2, 1, 0]},
+        'B': {'open': [None, 2, 4, 4, 3, 2], 'E_barre': [7, 9, 9, 7, 7, 7], 'A_barre': [None, 2, 4, 4, 3, 2]},
+    },
+}
+
+def _get_caged_shape(root, quality, shape_type, max_fret=12):
+    """Get CAGED shape for chord if valid."""
+    root_upper = root.upper()
+    
+    # Handle enharmonics
+    enharmonic_map = {
+        'C#': 'D#', 'DB': 'C#',
+        'D#': 'D#', 'EB': 'D#',
+        'F#': 'F#', 'GB': 'F#',
+        'G#': 'G#', 'AB': 'G#',
+        'A#': 'A#', 'BB': 'A#',
+    }
+    
+    # For B, use C shape shifted by 2 frets
+    is_b_transposed = False
+    if root_upper == 'B':
+        root_upper = 'C'
+        is_b_transposed = True
+    elif root_upper in enharmonic_map:
+        root_upper = enharmonic_map[root_upper]
+    
+    # Map common notations
+    quality_map = {'maj': 'maj', 'min': 'min', 'm': 'min'}
+    q = quality_map.get(quality, quality)
+    
+    if q in CAGED_SHAPES and root_upper in CAGED_SHAPES[q]:
+        if shape_type in CAGED_SHAPES[q][root_upper]:
+            frets = CAGED_SHAPES[q][root_upper][shape_type]
+            # For transposed B, shift all frets by 2
+            if is_b_transposed and frets:
+                frets = [f + 2 if f is not None else None for f in frets]
+            # Check if all frets are within range
+            if all(f is None or f <= max_fret for f in frets):
+                return frets
+    return None
+
+
 def _generate_realistic_voicings(chord, max_fret=12):
     """Generate voicings using REAL guitar chord shapes (CAGED-based)."""
     root = chord.root.name
@@ -159,37 +220,33 @@ def _generate_realistic_voicings(chord, max_fret=12):
             'base_fret': 1,
         })
     
-    # Generate barres using correct fret positions
-    # E-shape barres (root on string 6)
-    # E major shape pattern: [0, 2, 2, 1, 0, 0] relative to root
-    e_fret = NOTE_TO_FRET_E_SHAPE.get(root_upper)
-    if e_fret and e_fret <= max_fret:
-        # E-shape major pattern relative to root
-        e_frets = [e_fret, e_fret + 2, e_fret + 2, e_fret + 1, e_fret, e_fret]
+    # Generate CAGED barre chords using correct shapes
+    # Use hardcoded CAGED shapes that are known to be correct
+    e_frets = _get_caged_shape(root, quality, 'E_barre', max_fret)
+    if e_frets:
         voicings.append({
             'position': -1,
-            'name': f'Barre E-Shape (fret {e_fret})',
+            'name': f'Barre E-Shape (fret {e_frets[0]})',
             'frets': e_frets,
             'notes': [f for f in e_frets if f is not None],
             'fingers': _suggest_fingers(e_frets),
             'is_barre': True,
-            'base_fret': e_fret,
+            'base_fret': e_frets[0],
         })
     
-    # A-shape barres (root on string 5)
-    # A major shape pattern: [None, 0, 2, 2, 2, 0] relative to root
-    a_fret = NOTE_TO_FRET_A_SHAPE.get(root_upper)
-    if a_fret and a_fret <= max_fret:
-        # A-shape major pattern relative to root
-        a_frets = [None, a_fret, a_fret + 2, a_fret + 2, a_fret + 2, a_fret]
+    # A-shape barre
+    a_frets = _get_caged_shape(root, quality, 'A_barre', max_fret)
+    if a_frets:
+        # Find the first non-None fret for base_fret
+        base_fret = next((f for f in a_frets if f is not None), 1)
         voicings.append({
             'position': -1,
-            'name': f'Barre A-Shape (fret {a_fret})',
+            'name': f'Barre A-Shape (fret {base_fret})',
             'frets': a_frets,
             'notes': [f for f in a_frets if f is not None],
             'fingers': _suggest_fingers(a_frets),
             'is_barre': True,
-            'base_fret': a_fret,
+            'base_fret': base_fret,
         })
     
     # Add triad voicings (movable shapes)
