@@ -161,10 +161,11 @@ def _generate_realistic_voicings(chord, max_fret=12):
     
     # Generate barres using correct fret positions
     # E-shape barres (root on string 6)
+    # E major shape pattern: [0, 2, 2, 1, 0, 0] relative to root
     e_fret = NOTE_TO_FRET_E_SHAPE.get(root_upper)
     if e_fret and e_fret <= max_fret:
-        # E-shape major pattern: [None, X+2, X+2, X+1, X, X]
-        e_frets = [None, e_fret + 2, e_fret + 2, e_fret + 1, e_fret, e_fret]
+        # E-shape major pattern relative to root
+        e_frets = [e_fret, e_fret + 2, e_fret + 2, e_fret + 1, e_fret, e_fret]
         voicings.append({
             'position': -1,
             'name': f'Barre E-Shape (fret {e_fret})',
@@ -176,9 +177,10 @@ def _generate_realistic_voicings(chord, max_fret=12):
         })
     
     # A-shape barres (root on string 5)
+    # A major shape pattern: [None, 0, 2, 2, 2, 0] relative to root
     a_fret = NOTE_TO_FRET_A_SHAPE.get(root_upper)
     if a_fret and a_fret <= max_fret:
-        # A-shape major pattern: [None, X, X+2, X+2, X+2, X]
+        # A-shape major pattern relative to root
         a_frets = [None, a_fret, a_fret + 2, a_fret + 2, a_fret + 2, a_fret]
         voicings.append({
             'position': -1,
@@ -300,10 +302,10 @@ def _generate_theoretical_voicings(chord, engine, max_fret=12):
 
 def _generate_practical_voicings(chord, engine, max_fret=12, mode='realistic'):
     """Generate voicings based on mode: 'realistic' or 'theoretical'."""
-    if mode == 'realistic':
-        return _generate_realistic_voicings(chord, max_fret)
-    else:
+    if mode == 'theoretical':
         return _generate_theoretical_voicings(chord, engine, max_fret)
+    else:
+        return _generate_realistic_voicings(chord, max_fret)
 
 
 # --- Endpoints ---
@@ -369,10 +371,15 @@ def get_voicing():
 
 @bp.route('/positions', methods=['GET'])
 def get_chord_positions():
+    import logging
+    logger = logging.getLogger(__name__)
+    
     root = sanitize_root(request.args.get('root'))
     quality = request.args.get('quality', 'maj')
     max_fret = int(request.args.get('max_fret', 12))
     mode = request.args.get('mode', 'realistic')
+    
+    logger.info(f"[DEBUG] /positions called with root={root}, quality={quality}, mode={mode}")
     
     if mode not in ['realistic', 'theoretical']:
         mode = 'realistic'
