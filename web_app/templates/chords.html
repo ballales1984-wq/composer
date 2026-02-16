@@ -374,6 +374,40 @@
     .voicing-note {
         font-weight: 600;
     }
+
+    /* Chord diagrams grid (multiple positions / inversions) */
+    .chord-diagram-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .chord-diagram-card {
+        background: var(--dark);
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .chord-diagram-title {
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .chord-diagram-subtitle {
+        color: var(--gray);
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .chord-diagram-canvas {
+        display: flex;
+        justify-content: center;
+        padding: 0.25rem 0;
+        min-height: 190px;
+    }
     
     /* Circle of Fifths Styles */
     .circle-of-fifths-container {
@@ -682,74 +716,17 @@ async function fetchVoicing(root, quality) {
     mostraAccordo(root, quality);
 }
 
-// Funzione per mostrare il diagramma dell'accordo con VexChord
-async function mostraAccordo(root, quality) {
-    const container = document.getElementById('chord-diagrams-result');
-    if (!container) return;
-    
-    try {
-        const res = await fetch(`/api/chords/positions?root=${root}&quality=${quality}`);
-        const data = await res.json();
-        
-        if (!data.success) {
-            container.innerHTML = '<p>Select a chord to see chord diagrams</p>';
-            return;
-        }
-        
-        const voicing = data.voicings && data.voicings[0] ? data.voicings[0] : null;
-        if (!voicing) {
-            container.innerHTML = '<p>No chord diagram available</p>';
-            return;
-        }
-        
-        const frets = voicing.frets;
-        // Convert frets array to VexChord format (reverse order: E A D G B E)
-        // VexChord expects: [string6, string5, string4, string3, string2, string1]
-        const vexFrets = frets.slice().reverse().map(f => {
-            if (f === null || f === -1) return 'x';
-            if (f === 0) return 'o';
-            return f;
-        });
-        
-        const qualityMap = {
-            'maj': '', 'min': 'm', 'dom7': '7', 
-            'maj7': 'maj7', 'min7': 'm7', 'dim': 'dim',
-            'aug': 'aug', 'sus2': 'sus2', 'sus4': 'sus4',
-            'dim7': 'dim7', 'min7b5': 'm7b5'
-        };
-        const q = qualityMap[quality] || quality;
-        const chordName = root + q;
-        
-        // Clear container first
-        container.innerHTML = '<div id="vexchord-diagram" style="display:flex;justify-content:center;padding:20px;min-height:200px;"></div>';
-        
-        // Wait for VexChord to be available
-        if (typeof Vexchord !== 'undefined' && Vexchord.Chord) {
-            try {
-                // VexChord 0.6.4 API: new Vexchord.Chord(selector, options)
-                const chord = new Vexchord.Chord('#vexchord-diagram', {
-                    chord: vexFrets,
-                    position: 1,
-                    title: chordName,
-                    tuning: ['E', 'A', 'D', 'G', 'B', 'E']
-                });
-            } catch (error) {
-                console.error('VexChord error:', error);
-                // Fallback to custom SVG diagram
-                renderCustomChordDiagram(container, frets, chordName, voicing.fingers);
-            }
-        } else {
-            // Fallback: use custom SVG diagram
-            renderCustomChordDiagram(container, frets, chordName, voicing.fingers);
-        }
-    } catch (error) {
-        console.error('Error showing chord diagram:', error);
-        container.innerHTML = '<p>Error loading chord diagram</p>';
-    }
+function toVexChordFrets(frets) {
+    // Convert frets array to VexChord format (reverse order: E A D G B E)
+    // VexChord expects: [string6, string5, string4, string3, string2, string1]
+    return frets.slice().reverse().map(f => {
+        if (f === null || f === -1) return 'x';
+        if (f === 0) return 'o';
+        return f;
+    });
 }
 
-// Fallback function to render custom SVG chord diagram
-function renderCustomChordDiagram(container, frets, chordName, fingers) {
+function buildCustomChordDiagramSvg(frets, chordName, fingers) {
     const numStrings = 6;
     const numFrets = 5;
     const width = 150;
@@ -757,19 +734,19 @@ function renderCustomChordDiagram(container, frets, chordName, fingers) {
     const stringSpacing = 20;
     const fretSpacing = 25;
     const padding = 20;
-    
+
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" 
                style="font-family: Arial, sans-serif; background: white; border-radius: 8px;">`;
-    
+
     // Title
     svg += `<text x="${width/2}" y="18" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a202c">${chordName}</text>`;
-    
+
     const yStart = 35;
     const xStart = padding;
-    
+
     // Draw nut
     svg += `<rect x="${xStart - 2}" y="${yStart}" width="${(numStrings-1)*stringSpacing + 4}" height="3" fill="#1a202c" rx="1"/>`;
-    
+
     // Draw frets
     for (let i = 0; i <= numFrets; i++) {
         const y = yStart + 3 + i * fretSpacing;
@@ -778,23 +755,23 @@ function renderCustomChordDiagram(container, frets, chordName, fingers) {
         svg += `<line x1="${xStart}" y1="${y}" x2="${xStart + (numStrings-1)*stringSpacing}" y2="${y}" 
                 stroke="${color}" stroke-width="${lineWidth}"/>`;
     }
-    
+
     // Draw strings
     for (let i = 0; i < numStrings; i++) {
         const x = xStart + i * stringSpacing;
         svg += `<line x1="${x}" y1="${yStart}" x2="${x}" y2="${yStart + numFrets*fretSpacing}" 
                 stroke="#4a5568" stroke-width="1.5"/>`;
     }
-    
+
     // Draw finger positions (reverse order: E A D G B E)
     const reversedFrets = frets.slice().reverse();
     const reversedFingers = fingers ? fingers.slice().reverse() : [];
-    
+
     for (let i = 0; i < numStrings; i++) {
         const x = xStart + i * stringSpacing;
         const fret = reversedFrets[i];
         const finger = reversedFingers[i] || 0;
-        
+
         if (fret === null || fret === -1) {
             // Muted string
             svg += `<text x="${x}" y="${yStart - 5}" text-anchor="middle" font-size="16" font-weight="bold" fill="#718096">×</text>`;
@@ -810,7 +787,7 @@ function renderCustomChordDiagram(container, frets, chordName, fingers) {
             }
         }
     }
-    
+
     // String labels
     const labels = ['E', 'A', 'D', 'G', 'B', 'E'];
     for (let i = 0; i < numStrings; i++) {
@@ -818,8 +795,142 @@ function renderCustomChordDiagram(container, frets, chordName, fingers) {
         svg += `<text x="${x}" y="${yStart + numFrets*fretSpacing + 18}" text-anchor="middle" 
                 font-size="11" fill="#718096">${labels[i]}</text>`;
     }
-    
+
     svg += '</svg>';
+    return svg;
+}
+
+function renderDiagramInto(el, frets, title, fingers) {
+    if (!el) return;
+
+    // Prefer VexChord if available, fallback to SVG.
+    if (typeof Vexchord !== 'undefined' && Vexchord.Chord) {
+        try {
+            // Ensure the target is empty and has a unique selector via id
+            if (!el.id) {
+                el.id = `vexchord-${Math.random().toString(36).slice(2)}`;
+            }
+            el.innerHTML = '';
+            // VexChord 0.6.4 API: new Vexchord.Chord(selector, options)
+            // eslint-disable-next-line no-unused-vars
+            const chord = new Vexchord.Chord(`#${el.id}`, {
+                chord: toVexChordFrets(frets),
+                position: 1,
+                title,
+                tuning: ['E', 'A', 'D', 'G', 'B', 'E']
+            });
+            return;
+        } catch (error) {
+            console.error('VexChord error (fallback to SVG):', error);
+        }
+    }
+
+    const svg = buildCustomChordDiagramSvg(frets, title, fingers);
+    el.innerHTML = `<div style="display:flex;justify-content:center;">${svg}</div>`;
+}
+
+function renderInversionDiagramsFromVoicings(voicings, chordName) {
+    const inversionsContainer = document.getElementById('inversions-result');
+    if (!inversionsContainer) return;
+    if (!Array.isArray(voicings) || voicings.length === 0) return;
+
+    // Map voicings by inversion position (0..3)
+    const invMap = new Map();
+    for (const v of voicings) {
+        if (typeof v?.position === 'number' && v.position >= 0 && v.position <= 3 && v.frets) {
+            invMap.set(v.position, v);
+        }
+    }
+
+    // Add a diagram under each inversion card if present.
+    const cards = inversionsContainer.querySelectorAll('.inversion-card');
+    cards.forEach((card, idx) => {
+        const v = invMap.get(idx);
+        if (!v) return;
+        if (card.querySelector('.inversion-diagram')) return;
+
+        const host = document.createElement('div');
+        host.className = 'inversion-diagram';
+        host.style.marginTop = '10px';
+        card.appendChild(host);
+
+        const title = idx === 0 ? `${chordName} (Root)` : `${chordName} (Inv ${idx})`;
+        renderDiagramInto(host, v.frets, title, v.fingers);
+    });
+}
+
+// Funzione per mostrare i diagrammi dell'accordo (posizioni + rivolti)
+async function mostraAccordo(root, quality) {
+    const container = document.getElementById('chord-diagrams-result');
+    if (!container) return;
+    
+    try {
+        const res = await fetch(`/api/chords/positions?root=${root}&quality=${quality}`);
+        const data = await res.json();
+        
+        if (!data.success) {
+            container.innerHTML = '<p>Select a chord to see chord diagrams</p>';
+            return;
+        }
+        
+        const voicings = Array.isArray(data.voicings) ? data.voicings : [];
+        if (voicings.length === 0) {
+            container.innerHTML = '<p>No chord diagram available</p>';
+            return;
+        }
+        
+        const qualityMap = {
+            'maj': '', 'min': 'm', 'dom7': '7', 
+            'maj7': 'maj7', 'min7': 'm7', 'dim': 'dim',
+            'aug': 'aug', 'sus2': 'sus2', 'sus4': 'sus4',
+            'dim7': 'dim7', 'min7b5': 'm7b5'
+        };
+        const q = qualityMap[quality] || quality;
+        const chordName = root + q;
+        
+        // Render grid of positions/voicings
+        container.innerHTML = `
+          <div class="chord-diagrams-header">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+              <div>
+                <h3 style="margin:0;">${chordName} — Posizioni & Rivolti</h3>
+                <p style="margin:6px 0 0;color:var(--gray);font-size:0.95rem;">
+                  Mostro fino a ${voicings.length} posizioni pratiche (incluse inversioni e forme barre).
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="chord-diagram-grid" id="chord-diagram-grid"></div>
+        `;
+
+        const grid = document.getElementById('chord-diagram-grid');
+        const cardsHtml = voicings.map((v, idx) => `
+          <div class="chord-diagram-card">
+            <div class="chord-diagram-title">${v.name || `Voicing ${idx+1}`}</div>
+            <div class="chord-diagram-subtitle">Frets: ${(v.frets || []).map(f => (f === null ? 'x' : f)).join(' - ')}</div>
+            <div class="chord-diagram-canvas" id="chord-diagram-${idx}"></div>
+          </div>
+        `).join('');
+        grid.innerHTML = cardsHtml;
+
+        // Draw each diagram
+        voicings.forEach((v, idx) => {
+            const host = document.getElementById(`chord-diagram-${idx}`);
+            const title = `${chordName} — ${v.name || `Voicing ${idx+1}`}`;
+            renderDiagramInto(host, v.frets, title, v.fingers);
+        });
+
+        // Also enrich the inversions section with diagrams (same page)
+        renderInversionDiagramsFromVoicings(voicings, chordName);
+    } catch (error) {
+        console.error('Error showing chord diagram:', error);
+        container.innerHTML = '<p>Error loading chord diagram</p>';
+    }
+}
+
+// (Deprecated) kept for backward compatibility; now we render into specific hosts.
+function renderCustomChordDiagram(container, frets, chordName, fingers) {
+    const svg = buildCustomChordDiagramSvg(frets, chordName, fingers);
     container.innerHTML = `<div style="display:flex;justify-content:center;padding:20px;">${svg}</div>`;
 }
 
