@@ -36,6 +36,7 @@
 - ✅ Deploy automatico su Render
 - ✅ Trigger su push a main
 - ✅ Manual dispatch disponibile
+- ✅ **Service ID Render**: `srv-d68r0306fj8s73c83pq0`
 
 ### 📋 **README Aggiornato**
 
