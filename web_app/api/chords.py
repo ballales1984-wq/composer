@@ -1,5 +1,5 @@
 """
-Chords API Blueprint - Versione migliorata
+Chords API Blueprint - Versione migliorata con modalità realistic/theoretical
 REST API endpoints per operazioni sugli accordi.
 """
 import sys
@@ -47,12 +47,10 @@ def _suggest_fingers(frets):
 
 
 def _build_voicing(chord, inversion, note_positions):
-    """Costruisce un singolo voicing combinando le note sugli 6 strings."""
+    """Costruisce un singolo voicing combinando le note sugli 6 strings (theoretical mode)."""
     chord_notes = chord.notes
     rotated_notes = chord_notes[inversion:] + chord_notes[:inversion] if inversion else chord_notes
 
-    # Format: [string_6, string_5, string_4, string_3, string_2, string_1]
-    # Index 0 = low E (string 6), Index 5 = high E (string 1)
     frets = [None] * 6
     used_strings = set()
 
@@ -61,8 +59,7 @@ def _build_voicing(chord, inversion, note_positions):
         if note_name not in note_positions:
             continue
         for pos in note_positions[note_name]:
-            string_num = pos['string']  # 1-6 (1=high E, 6=low E)
-            # Convert to array index: string 1 -> index 5, string 6 -> index 0
+            string_num = pos['string']
             string_idx = 6 - string_num
             if string_idx not in used_strings:
                 frets[string_idx] = pos['fret']
@@ -84,59 +81,54 @@ def _build_voicing(chord, inversion, note_positions):
     }
 
 
-# Standard chord shapes for common chords (from low E to high E: string 6 to 1)
-# Format: [string_6, string_5, string_4, string_3, string_2, string_1]
-# null = muted, 0 = open
+# Standard chord shapes
 STANDARD_CHORD_SHAPES = {
-    # Major chords
-    'C_maj': [None, 3, 2, 0, 1, 0],  # X32010
-    'D_maj': [None, None, 0, 2, 3, 2],  # XX0232
-    'E_maj': [0, 2, 2, 1, 0, 0],  # 022100
-    'F_maj': [1, 3, 3, 2, 1, 1],  # 133211
-    'G_maj': [3, 2, 0, 0, 0, 3],  # 320003
-    'A_maj': [None, 0, 2, 2, 2, 0],  # X02220
-    'B_maj': [None, 2, 4, 4, 4, 2],  # X24442
-    
-    # Minor chords
-    'C_min': [None, 3, 5, 5, 4, 3],  # X35543
-    'D_min': [None, None, 0, 2, 3, 1],  # XX0231
-    'E_min': [0, 2, 2, 0, 0, 0],  # 022000
-    'F_min': [1, 3, 3, 1, 1, 1],  # 133111
-    'G_min': [3, 5, 5, 3, 3, 3],  # 355533
-    'A_min': [None, 0, 2, 2, 1, 0],  # X02210
-    'B_min': [None, 2, 4, 4, 3, 2],  # X24432
-    
-    # Dominant 7th
-    'C_dom7': [None, 3, 2, 3, 1, 0],  # X3231
-    'D_dom7': [None, None, 0, 2, 1, 2],  # XX0212
-    'E_dom7': [0, 2, 0, 1, 0, 0],  # 020100
-    'G_dom7': [3, 1, 0, 0, 0, 1],  # 310001
-    'A_dom7': [None, 0, 2, 0, 2, 0],  # X02020
-    'B_dom7': [None, 2, 1, 2, 0, 2],  # X21202
-    
-    # Major 7th
-    'C_maj7': [None, 3, 2, 0, 0, 0],  # X32000
-    'A_maj7': [None, 0, 2, 1, 2, 0],  # X02120
-    
-    # Minor 7th
-    'C_min7': [None, 3, 5, 3, 4, 3],  # X35343
-    'A_min7': [None, 0, 2, 0, 1, 0],  # X02010
+    'C_maj': [None, 3, 2, 0, 1, 0],
+    'D_maj': [None, None, 0, 2, 3, 2],
+    'E_maj': [0, 2, 2, 1, 0, 0],
+    'F_maj': [1, 3, 3, 2, 1, 1],
+    'G_maj': [3, 2, 0, 0, 0, 3],
+    'A_maj': [None, 0, 2, 2, 2, 0],
+    'B_maj': [None, 2, 4, 4, 4, 2],
+    'C_min': [None, 3, 5, 5, 4, 3],
+    'D_min': [None, None, 0, 2, 3, 1],
+    'E_min': [0, 2, 2, 0, 0, 0],
+    'F_min': [1, 3, 3, 1, 1, 1],
+    'G_min': [3, 5, 5, 3, 3, 3],
+    'A_min': [None, 0, 2, 2, 1, 0],
+    'B_min': [None, 2, 4, 4, 3, 2],
+    'C_dom7': [None, 3, 2, 3, 1, 0],
+    'D_dom7': [None, None, 0, 2, 1, 2],
+    'E_dom7': [0, 2, 0, 1, 0, 0],
+    'G_dom7': [3, 1, 0, 0, 0, 1],
+    'A_dom7': [None, 0, 2, 0, 2, 0],
+    'B_dom7': [None, 2, 1, 2, 0, 2],
+    'C_maj7': [None, 3, 2, 0, 0, 0],
+    'A_maj7': [None, 0, 2, 1, 2, 0],
+    'C_min7': [None, 3, 5, 3, 4, 3],
+    'A_min7': [None, 0, 2, 0, 1, 0],
+}
+
+
+# Note to fret mapping for barre chords
+# E-shape: root is on string 6 (low E), form is like E major shape
+# A-shape: root is on string 5 (A string), form is like A major shape
+NOTE_TO_FRET_E_SHAPE = {
+    'C': 8, 'C#': 9, 'D': 10, 'D#': 11, 'E': 12, 'F': 1, 'F#': 2, 'G': 3, 'G#': 4, 'A': 5, 'A#': 6, 'B': 7
+}
+NOTE_TO_FRET_A_SHAPE = {
+    'C': 3, 'C#': 4, 'D': 5, 'D#': 6, 'E': 7, 'F': 8, 'F#': 9, 'G': 10, 'G#': 11, 'A': 12, 'A#': 1, 'B': 2
 }
 
 
 def _get_chord_shape(root, quality):
     """Get standard chord shape for a chord."""
-    # Normalize quality
     q = quality.lower().replace('maj', 'maj').replace('min', 'min').replace('dom', 'dom').replace('dim', 'dim').replace('aug', 'aug')
-    
-    # Build the key
     key = root + '_' + q
     
-    # Try to find exact match first
     if key in STANDARD_CHORD_SHAPES:
         return STANDARD_CHORD_SHAPES[key].copy()
     
-    # Try variations
     for q_var in [q, q.replace('7', '_dom7'), q.replace('maj7', '_maj7'), q.replace('min7', '_min7')]:
         if root + '_' + q_var in STANDARD_CHORD_SHAPES:
             return STANDARD_CHORD_SHAPES[root + '_' + q_var].copy()
@@ -144,20 +136,112 @@ def _get_chord_shape(root, quality):
     return None
 
 
-def _generate_practical_voicings(chord, engine, max_fret=12):
-    """Genera voicings pratici combinando le posizioni delle note."""
-    # Extract just the note name without octave (e.g., 'C4' -> 'C')
+def _generate_realistic_voicings(chord, max_fret=12):
+    """Generate voicings using REAL guitar chord shapes (CAGED-based)."""
     root = chord.root.name
     if root[-1].isdigit():
         root = root[:-1]
     quality = chord.quality
     
-    # First, try to get standard chord shape
+    voicings = []
+    root_upper = root.upper()
+    
+    # Get open chord if available
     standard_shape = _get_chord_shape(root, quality)
+    if standard_shape:
+        voicings.append({
+            'position': 0,
+            'name': 'Open Position',
+            'frets': standard_shape,
+            'notes': [f for f in standard_shape if f is not None],
+            'fingers': _suggest_fingers(standard_shape),
+            'is_barre': False,
+            'base_fret': 1,
+        })
+    
+    # Generate barres using correct fret positions
+    # E-shape barres (root on string 6)
+    e_fret = NOTE_TO_FRET_E_SHAPE.get(root_upper)
+    if e_fret and e_fret <= max_fret:
+        # E-shape major pattern: [None, X+2, X+2, X+1, X, X]
+        e_frets = [None, e_fret + 2, e_fret + 2, e_fret + 1, e_fret, e_fret]
+        voicings.append({
+            'position': -1,
+            'name': f'Barre E-Shape (fret {e_fret})',
+            'frets': e_frets,
+            'notes': [f for f in e_frets if f is not None],
+            'fingers': _suggest_fingers(e_frets),
+            'is_barre': True,
+            'base_fret': e_fret,
+        })
+    
+    # A-shape barres (root on string 5)
+    a_fret = NOTE_TO_FRET_A_SHAPE.get(root_upper)
+    if a_fret and a_fret <= max_fret:
+        # A-shape major pattern: [None, X, X+2, X+2, X+2, X]
+        a_frets = [None, a_fret, a_fret + 2, a_fret + 2, a_fret + 2, a_fret]
+        voicings.append({
+            'position': -1,
+            'name': f'Barre A-Shape (fret {a_fret})',
+            'frets': a_frets,
+            'notes': [f for f in a_frets if f is not None],
+            'fingers': _suggest_fingers(a_frets),
+            'is_barre': True,
+            'base_fret': a_fret,
+        })
+    
+    # Add triad voicings (movable shapes)
+    if quality in ['maj', 'min', 'dim', 'aug']:
+        triad_voicings = [
+            {'name': 'Triad (D-shape)', 'frets': [None, None, 0, 2, 3, 2]},
+            {'name': 'Triad (A-shape)', 'frets': [None, 0, 2, 2, 1, 0]},
+            {'name': 'Triad (E-shape)', 'frets': [0, 2, 2, 1, 0, 0]},
+            {'name': 'Triad (1st inv)', 'frets': [None, 0, 0, 2, 3, 2]},
+            {'name': 'Triad (2nd inv)', 'frets': [0, 0, 2, 2, 1, 0]},
+        ]
+        for tv in triad_voicings:
+            voicings.append({
+                'position': 0,
+                'name': tv['name'],
+                'frets': tv['frets'],
+                'notes': [f for f in tv['frets'] if f is not None],
+                'fingers': _suggest_fingers(tv['frets']),
+                'is_barre': False,
+                'base_fret': 1,
+            })
+    
+    # Add seventh chord voicings
+    if '7' in quality or quality in ['maj7', 'min7', 'dom7']:
+        seventh_voicings = [
+            {'name': '7th (1st string)', 'frets': [None, 3, 2, 3, 1, 0]},
+            {'name': '7th (2nd string)', 'frets': [None, 3, 1, 3, 2, 0]},
+            {'name': '7th (barre)', 'frets': [None, 5, 7, 5, 7, 5]},
+        ]
+        for sv in seventh_voicings:
+            voicings.append({
+                'position': 0,
+                'name': sv['name'],
+                'frets': sv['frets'],
+                'notes': [f for f in sv['frets'] if f is not None],
+                'fingers': _suggest_fingers(sv['frets']),
+                'is_barre': 'barre' in sv['name'].lower(),
+                'base_fret': 5 if 'barre' in sv['name'].lower() else 1,
+            })
+    
+    return voicings[:8]
+
+
+def _generate_theoretical_voicings(chord, engine, max_fret=12):
+    """Generate voicings using THEORETICAL algorithm (all possible combinations)."""
+    root = chord.root.name
+    if root[-1].isdigit():
+        root = root[:-1]
+    quality = chord.quality
     
     voicings = []
     
-    # Add standard shape if available
+    standard_shape = _get_chord_shape(root, quality)
+    
     if standard_shape:
         voicings.append({
             'position': 0,
@@ -165,28 +249,29 @@ def _generate_practical_voicings(chord, engine, max_fret=12):
             'frets': standard_shape,
             'notes': [f for f in standard_shape if f is not None],
             'fingers': _suggest_fingers(standard_shape),
+            'is_barre': False,
+            'base_fret': 1,
         })
     
-    # Also generate algorithmic voicings as backup
     note_positions = {}
     for note in chord.notes:
         pos_list = engine.fretboard.find_note_positions(note, max_fret=max_fret)
         note_positions[note.name] = [{'string': p.string, 'fret': p.fret, 'midi': p.midi} for p in pos_list]
 
-    # Root position
     root_voicing = _build_voicing(chord, 0, note_positions)
     if root_voicing and root_voicing not in voicings:
-        # Only add if significantly different from standard
+        root_voicing['is_barre'] = False
+        root_voicing['base_fret'] = 1
         voicings.append(root_voicing)
 
-    # Inversions
     inversions = chord.get_all_inversions()
     for i, _ in enumerate(inversions[1:], 1):
         inv_voicing = _build_voicing(chord, i, note_positions)
         if inv_voicing and inv_voicing not in voicings:
+            inv_voicing['is_barre'] = False
+            inv_voicing['base_fret'] = 1
             voicings.append(inv_voicing)
 
-    # Barre chord shapes - common movable shapes
     barre_shapes = [
         {'name': 'Barre E-Shape', 'base_fret': 5, 'root_string': 5},
         {'name': 'Barre A-Shape', 'base_fret': 5, 'root_string': 4},
@@ -194,10 +279,8 @@ def _generate_practical_voicings(chord, engine, max_fret=12):
     
     for shape in barre_shapes:
         frets = [None] * 6
-        # Simplified barre shape
         base_fret = shape['base_fret']
         if base_fret <= max_fret:
-            # Root on the specified string
             for i in range(shape['root_string'], 6):
                 if frets[i] is None:
                     frets[i] = base_fret + (5 - i)
@@ -208,9 +291,19 @@ def _generate_practical_voicings(chord, engine, max_fret=12):
                 'frets': frets,
                 'notes': [f for f in frets if f is not None],
                 'fingers': _suggest_fingers(frets),
+                'is_barre': True,
+                'base_fret': base_fret,
             })
 
-    return voicings[:8]  # massimo 8 voicings
+    return voicings[:8]
+
+
+def _generate_practical_voicings(chord, engine, max_fret=12, mode='realistic'):
+    """Generate voicings based on mode: 'realistic' or 'theoretical'."""
+    if mode == 'realistic':
+        return _generate_realistic_voicings(chord, max_fret)
+    else:
+        return _generate_theoretical_voicings(chord, engine, max_fret)
 
 
 # --- Endpoints ---
@@ -279,15 +372,19 @@ def get_chord_positions():
     root = sanitize_root(request.args.get('root'))
     quality = request.args.get('quality', 'maj')
     max_fret = int(request.args.get('max_fret', 12))
+    mode = request.args.get('mode', 'realistic')
+    
+    if mode not in ['realistic', 'theoretical']:
+        mode = 'realistic'
+    
     chord, error = get_chord_object(root, quality)
     if error:
         return jsonify({'success': False, 'error': error}), 400
 
     from music_engine.core.harmony import HarmonyEngine
     engine = HarmonyEngine()
-    voicings = _generate_practical_voicings(chord, engine, max_fret)
+    voicings = _generate_practical_voicings(chord, engine, max_fret, mode)
 
-    # Posizioni di ogni nota
     positions = {}
     for note in chord.notes:
         note_positions = engine.fretboard.find_note_positions(note, max_fret=max_fret)
@@ -295,6 +392,7 @@ def get_chord_positions():
 
     return jsonify({
         'success': True,
+        'mode': mode,
         'chord': {
             'name': chord.name,
             'root': chord.root.name,
