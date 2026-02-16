@@ -40,7 +40,7 @@ from api.orchestrator import bp as orchestrator_bp
 app.register_blueprint(scales_bp, url_prefix='/api/scales')
 app.register_blueprint(chords_bp, url_prefix='/api/chords')
 app.register_blueprint(progressions_bp, url_prefix='/api/progressions')
-app.register_blueprint(analysis_bp, url_prefix='/api')
+app.register_blueprint(analysis_bp, url_prefix='/api/analysis')
 app.register_blueprint(analyzer_bp, url_prefix='/api/analyzer')
 app.register_blueprint(circle_bp, url_prefix='/api/circle')
 app.register_blueprint(midi_bp, url_prefix='/api')
