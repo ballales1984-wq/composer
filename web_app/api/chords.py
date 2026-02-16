@@ -80,49 +80,131 @@ def _build_voicing(chord, inversion, note_positions):
     }
 
 
-def _generate_movable_shapes(chord, note_positions):
-    """Genera forme comuni di barre chord."""
-    shapes = []
-    barre_shapes = [
-        {'name': 'Barre (Root 5th)', 'root_string': 5, 'root_fret': 5},
-        {'name': 'Barre (Root 5th)', 'root_string': 5, 'root_fret': 7},
-    ]
-    for shape in barre_shapes:
-        frets = [None] * 6
-        frets[shape['root_string']] = shape['root_fret']
-        shapes.append({
-            'position': -1,
-            'name': shape['name'],
-            'frets': frets,
-            'fingers': _suggest_fingers(frets),
-        })
-    return shapes
+# Standard chord shapes for common chords (from low E to high E: string 6 to 1)
+# Format: [string_6, string_5, string_4, string_3, string_2, string_1]
+# null = muted, 0 = open
+STANDARD_CHORD_SHAPES = {
+    # Major chords
+    'C_maj': [None, 3, 2, 0, 1, 0],  # X32010
+    'D_maj': [None, None, 0, 2, 3, 2],  # XX0232
+    'E_maj': [0, 2, 2, 1, 0, 0],  # 022100
+    'F_maj': [1, 3, 3, 2, 1, 1],  # 133211
+    'G_maj': [3, 2, 0, 0, 0, 3],  # 320003
+    'A_maj': [None, 0, 2, 2, 2, 0],  # X02220
+    'B_maj': [None, 2, 4, 4, 4, 2],  # X24442
+    
+    # Minor chords
+    'C_min': [None, 3, 5, 5, 4, 3],  # X35543
+    'D_min': [None, None, 0, 2, 3, 1],  # XX0231
+    'E_min': [0, 2, 2, 0, 0, 0],  # 022000
+    'F_min': [1, 3, 3, 1, 1, 1],  # 133111
+    'G_min': [3, 5, 5, 3, 3, 3],  # 355533
+    'A_min': [None, 0, 2, 2, 1, 0],  # X02210
+    'B_min': [None, 2, 4, 4, 3, 2],  # X24432
+    
+    # Dominant 7th
+    'C_dom7': [None, 3, 2, 3, 1, 0],  # X3231
+    'D_dom7': [None, None, 0, 2, 1, 2],  # XX0212
+    'E_dom7': [0, 2, 0, 1, 0, 0],  # 020100
+    'G_dom7': [3, 1, 0, 0, 0, 1],  # 310001
+    'A_dom7': [None, 0, 2, 0, 2, 0],  # X02020
+    'B_dom7': [None, 2, 1, 2, 0, 2],  # X21202
+    
+    # Major 7th
+    'C_maj7': [None, 3, 2, 0, 0, 0],  # X32000
+    'A_maj7': [None, 0, 2, 1, 2, 0],  # X02120
+    
+    # Minor 7th
+    'C_min7': [None, 3, 5, 3, 4, 3],  # X35343
+    'A_min7': [None, 0, 2, 0, 1, 0],  # X02010
+}
+
+
+def _get_chord_shape(root, quality):
+    """Get standard chord shape for a chord."""
+    # Normalize quality
+    q = quality.lower().replace('maj', 'maj').replace('min', 'min').replace('dom', 'dom').replace('dim', 'dim').replace('aug', 'aug')
+    
+    # Build the key
+    key = root + '_' + q
+    
+    # Try to find exact match first
+    if key in STANDARD_CHORD_SHAPES:
+        return STANDARD_CHORD_SHAPES[key].copy()
+    
+    # Try variations
+    for q_var in [q, q.replace('7', '_dom7'), q.replace('maj7', '_maj7'), q.replace('min7', '_min7')]:
+        if root + '_' + q_var in STANDARD_CHORD_SHAPES:
+            return STANDARD_CHORD_SHAPES[root + '_' + q_var].copy()
+    
+    return None
 
 
 def _generate_practical_voicings(chord, engine, max_fret=12):
     """Genera voicings pratici combinando le posizioni delle note."""
+    # Extract just the note name without octave (e.g., 'C4' -> 'C')
+    root = chord.root.name
+    if root[-1].isdigit():
+        root = root[:-1]
+    quality = chord.quality
+    
+    # First, try to get standard chord shape
+    standard_shape = _get_chord_shape(root, quality)
+    
+    voicings = []
+    
+    # Add standard shape if available
+    if standard_shape:
+        voicings.append({
+            'position': 0,
+            'name': 'Standard Shape',
+            'frets': standard_shape,
+            'notes': [f for f in standard_shape if f is not None],
+            'fingers': _suggest_fingers(standard_shape),
+        })
+    
+    # Also generate algorithmic voicings as backup
     note_positions = {}
     for note in chord.notes:
         pos_list = engine.fretboard.find_note_positions(note, max_fret=max_fret)
         note_positions[note.name] = [{'string': p.string, 'fret': p.fret, 'midi': p.midi} for p in pos_list]
 
-    voicings = []
-
-    # Voicing root position
+    # Root position
     root_voicing = _build_voicing(chord, 0, note_positions)
-    if root_voicing:
+    if root_voicing and root_voicing not in voicings:
+        # Only add if significantly different from standard
         voicings.append(root_voicing)
 
-    # Voicing inversioni
+    # Inversions
     inversions = chord.get_all_inversions()
     for i, _ in enumerate(inversions[1:], 1):
         inv_voicing = _build_voicing(chord, i, note_positions)
-        if inv_voicing:
+        if inv_voicing and inv_voicing not in voicings:
             voicings.append(inv_voicing)
 
-    # Barre chord shapes
-    movable_shapes = _generate_movable_shapes(chord, note_positions)
-    voicings.extend(movable_shapes)
+    # Barre chord shapes - common movable shapes
+    barre_shapes = [
+        {'name': 'Barre E-Shape', 'base_fret': 5, 'root_string': 5},
+        {'name': 'Barre A-Shape', 'base_fret': 5, 'root_string': 4},
+    ]
+    
+    for shape in barre_shapes:
+        frets = [None] * 6
+        # Simplified barre shape
+        base_fret = shape['base_fret']
+        if base_fret <= max_fret:
+            # Root on the specified string
+            for i in range(shape['root_string'], 6):
+                if frets[i] is None:
+                    frets[i] = base_fret + (5 - i)
+            
+            voicings.append({
+                'position': -1,
+                'name': shape['name'],
+                'frets': frets,
+                'notes': [f for f in frets if f is not None],
+                'fingers': _suggest_fingers(frets),
+            })
 
     return voicings[:8]  # massimo 8 voicings
 

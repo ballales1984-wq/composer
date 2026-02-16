@@ -53,6 +53,13 @@ def suggest():
         coordinator = Coordinator()
         result = coordinator.process(input_str, {'genre': genre, 'key': key})
         
+        # Convert Scale objects to dictionaries for JSON serialization
+        if 'compatible_scales' in result:
+            result['compatible_scales'] = _serialize_compatible_scales(result['compatible_scales'])
+        
+        if 'improvisation_scale' in result and result['improvisation_scale']:
+            result['improvisation_scale'] = _serialize_scale(result['improvisation_scale'])
+        
         return jsonify({
             'success': True,
             'result': result,
@@ -63,6 +70,39 @@ def suggest():
             'success': False,
             'error': str(e)
         }), 500
+
+
+def _serialize_scale(scale):
+    """Convert a Scale object to a dictionary."""
+    if hasattr(scale, 'name'):
+        return {
+            'name': scale.name,
+            'notes': [n.name if hasattr(n, 'name') else str(n) for n in scale.notes],
+            'type': getattr(scale, 'scale_type', 'unknown'),
+            'root': scale.root.name if hasattr(scale, 'root') else str(scale)
+        }
+    return str(scale)
+
+
+def _serialize_compatible_scales(scales_list):
+    """Convert compatible scales to JSON-serializable format."""
+    serialized = []
+    for item in scales_list:
+        if isinstance(item, dict):
+            scale = item.get('scale')
+            if scale:
+                serialized.append({
+                    'scale': _serialize_scale(scale),
+                    'scale_type': item.get('scale_type', ''),
+                    'scale_name': item.get('scale_name', ''),
+                    'compatibility': item.get('compatibility', {}),
+                    'priority': item.get('priority', 0)
+                })
+            else:
+                serialized.append(item)
+        else:
+            serialized.append(str(item))
+    return serialized
 
 
 @bp.route('/expand', methods=['POST'])
