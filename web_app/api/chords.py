@@ -51,6 +51,8 @@ def _build_voicing(chord, inversion, note_positions):
     chord_notes = chord.notes
     rotated_notes = chord_notes[inversion:] + chord_notes[:inversion] if inversion else chord_notes
 
+    # Format: [string_6, string_5, string_4, string_3, string_2, string_1]
+    # Index 0 = low E (string 6), Index 5 = high E (string 1)
     frets = [None] * 6
     used_strings = set()
 
@@ -59,7 +61,9 @@ def _build_voicing(chord, inversion, note_positions):
         if note_name not in note_positions:
             continue
         for pos in note_positions[note_name]:
-            string_idx = pos['string']
+            string_num = pos['string']  # 1-6 (1=high E, 6=low E)
+            # Convert to array index: string 1 -> index 5, string 6 -> index 0
+            string_idx = 6 - string_num
             if string_idx not in used_strings:
                 frets[string_idx] = pos['fret']
                 used_strings.add(string_idx)
