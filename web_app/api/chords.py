@@ -147,6 +147,12 @@ CAGED_SHAPES = {
         'G': {'open': [3, 2, 0, 0, 0, 3], 'A_barre': [None, 10, 12, 12, 12, 10]},
         'A': {'open': [None, 0, 2, 2, 2, 0], 'A_barre': [None, 0, 2, 2, 2, 0]},
         'B': {'open': [None, 2, 4, 4, 4, 2], 'A_barre': [None, 2, 4, 4, 4, 2]},
+        # Add sharp/flat major chords - use realistic lower-fret barre
+        'C#': {'open': [None, 4, 3, 1, 1, 1], 'A_barre': [None, 4, 6, 6, 6, 4]},
+        'D#': {'open': [None, None, 1, 3, 4, 3], 'A_barre': [None, 6, 8, 8, 8, 6]},
+        'F#': {'open': [2, 4, 4, 3, 2, 2], 'A_barre': [None, 9, 11, 11, 11, 9]},
+        'G#': {'open': [4, 3, 1, 1, 1, 4], 'A_barre': [None, 4, 6, 6, 6, 4]},  # G# at 4th fret
+        'A#': {'open': [None, 1, 3, 3, 3, 1], 'A_barre': [None, 1, 3, 3, 3, 1]},  # Bb at 1st fret
     },
     'min': {
         'C': {'open': [None, 3, 5, 5, 4, 3], 'A_barre': [None, 3, 5, 5, 4, 3]},
@@ -158,53 +164,95 @@ CAGED_SHAPES = {
         'B': {'open': [None, 2, 4, 4, 3, 2], 'A_barre': [None, 2, 4, 4, 3, 2]},
     },
     '7': {
-        # Dominant 7th chords - transposable shapes
-        'E': {'open': [0, 2, 0, 1, 0, 0], 'A_barre': [None, 0, 2, 0, 1, 0]},  # E7
-        'A': {'open': [None, 0, 2, 0, 1, 0], 'A_barre': [None, 0, 2, 0, 1, 0]},  # A7
-        'B': {'open': [None, 2, 1, 2, 0, 2], 'A_barre': [None, 2, 3, 2, 3, 2]},  # B7
-        'C': {'open': [None, 3, 2, 3, 1, 0], 'A_barre': [None, 3, 5, 3, 5, 3]},  # C7
-        'D': {'open': [None, None, 0, 2, 1, 2], 'A_barre': [None, 5, 7, 5, 7, 5]},  # D7
-        'F': {'open': [1, 3, 1, 2, 1, 1], 'A_barre': [None, 8, 10, 8, 10, 8]},  # F7
-        'G': {'open': [3, 2, 0, 0, 0, 1], 'A_barre': [None, 10, 12, 10, 12, 10]},  # G7
+        # Dominant 7th chords - using E-shape barre (lower fret positions)
+        'C': {'open': [None, 3, 2, 3, 1, 0], 'A_barre': [None, 3, 5, 3, 5, 3]},
+        'D': {'open': [None, None, 0, 2, 1, 2], 'A_barre': [None, None, 0, 2, 1, 2]},  # D-shape
+        'E': {'open': [0, 2, 0, 1, 0, 0], 'A_barre': [0, 2, 0, 1, 0, 0]},  # E7 open
+        'F': {'open': [1, 3, 1, 2, 1, 1], 'A_barre': [1, 3, 1, 2, 1, 1]},  # F7 E-shape
+        'G': {'open': [3, 2, 0, 0, 0, 1], 'A_barre': [3, 2, 0, 0, 0, 1]},  # G7 open
+        'A': {'open': [None, 0, 2, 0, 1, 0], 'A_barre': [None, 0, 2, 0, 1, 0]},  # A7 open
+        'B': {'open': [None, 2, 1, 2, 0, 2], 'A_barre': [None, 2, 1, 2, 0, 2]},  # B7
+        # Add sharps/flats with low-fret barre shapes
+        'C#': {'open': [None, 4, 3, 4, 2, 1], 'A_barre': [None, 4, 6, 4, 6, 4]},
+        'D#': {'open': [None, None, 1, 3, 2, 3], 'A_barre': [None, None, 1, 3, 2, 3]},
+        'F#': {'open': [2, 4, 2, 3, 2, 2], 'A_barre': [2, 4, 2, 3, 2, 2]},
+        'G#': {'open': [4, 3, 1, 1, 1, 2], 'A_barre': [4, 3, 1, 1, 1, 2]},
+        'A#': {'open': [None, 1, 3, 1, 2, 1], 'A_barre': [None, 1, 3, 1, 2, 1]},
     },
     'maj7': {
         # Major 7th chords
-        'E': {'open': [0, 2, 2, 1, 0, 0], 'A_barre': [None, 7, 9, 8, 9, 7]},  # Emaj7
-        'A': {'open': [None, 0, 2, 1, 2, 0], 'A_barre': [None, 0, 2, 1, 2, 0]},  # Amaj7
-        'C': {'open': [None, 3, 2, 0, 0, 0], 'A_barre': [None, 3, 5, 4, 5, 3]},  # Cmaj7
-        'D': {'open': [None, None, 0, 2, 2, 0], 'A_barre': [None, 5, 7, 6, 7, 5]},  # Dmaj7
-        'F': {'open': [1, 3, 3, 2, 1, 0], 'A_barre': [None, 8, 10, 9, 10, 8]},  # Fmaj7
-        'G': {'open': [3, 2, 0, 0, 0, 2], 'A_barre': [None, 10, 12, 11, 12, 10]},  # Gmaj7
+        'C': {'open': [None, 3, 2, 0, 0, 0], 'A_barre': [None, 3, 5, 4, 5, 3]},
+        'D': {'open': [None, None, 0, 2, 2, 0], 'A_barre': [None, 5, 7, 6, 7, 5]},
+        'E': {'open': [0, 2, 2, 1, 0, 0], 'A_barre': [None, 7, 9, 8, 9, 7]},
+        'F': {'open': [1, 3, 3, 2, 1, 0], 'A_barre': [None, 8, 10, 9, 10, 8]},
+        'G': {'open': [3, 2, 0, 0, 0, 2], 'A_barre': [None, 10, 12, 11, 12, 10]},
+        'A': {'open': [None, 0, 2, 1, 2, 0], 'A_barre': [None, 12, 14, 13, 14, 12]},
+        'B': {'open': [None, 3, 2, 3, 2, 2], 'A_barre': [None, 14, 16, 15, 16, 14]},
+        # Add sharps/flats
+        'C#': {'open': [None, 4, 3, 1, 1, 1], 'A_barre': [None, 4, 6, 5, 6, 4]},
+        'D#': {'open': [None, None, 1, 3, 2, 1], 'A_barre': [None, 6, 8, 7, 8, 6]},
+        'F#': {'open': [2, 4, 4, 3, 2, 2], 'A_barre': [None, 9, 11, 10, 11, 9]},
+        'G#': {'open': [4, 3, 1, 1, 1, 3], 'A_barre': [None, 11, 13, 12, 13, 11]},
+        'A#': {'open': [None, 1, 3, 2, 3, 1], 'A_barre': [None, 1, 3, 2, 3, 1]},
     },
     'min7': {
         # Minor 7th chords
-        'E': {'open': [0, 2, 0, 0, 0, 0], 'A_barre': [None, 7, 9, 7, 10, 7]},  # Em7
-        'A': {'open': [None, 0, 2, 0, 1, 0], 'A_barre': [None, 0, 2, 0, 1, 0]},  # Am7
-        'C': {'open': [None, 3, 5, 3, 4, 3], 'A_barre': [None, 3, 5, 3, 4, 3]},  # Cm7
-        'D': {'open': [None, None, 0, 2, 1, 1], 'A_barre': [None, 5, 7, 5, 6, 5]},  # Dm7
-        'G': {'open': [3, 5, 3, 3, 3, 3], 'A_barre': [None, 10, 12, 10, 11, 10]},  # Gm7
+        'C': {'open': [None, 3, 5, 3, 4, 3], 'A_barre': [None, 3, 5, 3, 4, 3]},
+        'D': {'open': [None, None, 0, 2, 1, 1], 'A_barre': [None, 5, 7, 5, 6, 5]},
+        'E': {'open': [0, 2, 0, 0, 0, 0], 'A_barre': [None, 7, 9, 7, 10, 7]},
+        'G': {'open': [3, 5, 3, 3, 3, 3], 'A_barre': [None, 10, 12, 10, 11, 10]},
+        'A': {'open': [None, 0, 2, 0, 1, 0], 'A_barre': [None, 12, 14, 12, 13, 12]},
+        # Add more
+        'C#': {'open': [None, 4, 6, 4, 5, 4], 'A_barre': [None, 4, 6, 4, 5, 4]},
+        'D#': {'open': [None, None, 1, 3, 2, 2], 'A_barre': [None, 6, 8, 6, 7, 6]},
+        'F#': {'open': [2, 4, 2, 2, 2, 2], 'A_barre': [None, 9, 11, 9, 10, 9]},
+        'G#': {'open': [4, 6, 4, 4, 4, 4], 'A_barre': [None, 11, 13, 11, 12, 11]},
+        'A#': {'open': [None, 1, 3, 1, 2, 1], 'A_barre': [None, 1, 3, 1, 2, 1]},
     },
 }
 
+# Map any root to the closest CAGED shape using the fret number
+ROOT_TO_BASE = {
+    'C': 0, 'C#': 1, 'DB': 1,
+    'D': 2, 'D#': 3, 'EB': 3,
+    'E': 4, 'F': 5, 'F#': 6, 'GB': 6,
+    'G': 7, 'G#': 8, 'AB': 8,
+    'A': 9, 'A#': 10, 'BB': 10,
+    'B': 11,
+}
+
+# Reference shapes for transposing (using E shape as base)
+# These are the barre chord root positions on the fretboard
+REFERENCE_BARRE_ROOTS = {
+    'E': 0,   # E at nut
+    'F': 1,   # F at 1st fret
+    'F#': 2,  # Gb/F# at 2nd fret
+    'G': 3,   # G at 3rd fret
+    'G#': 4,  # Ab/G# at 4th fret
+    'A': 5,   # A at 5th fret
+    'A#': 6,  # Bb/A# at 6th fret
+    'B': 7,   # B at 7th fret
+    'C': 8,   # C at 8th fret
+    'C#': 9,  # Db/C# at 9th fret
+    'D': 10,  # D at 10th fret
+    'D#': 11, # Eb/D# at 11th fret
+}
+
 def _get_caged_shape(root, quality, shape_type, max_fret=12):
-    """Get CAGED shape for chord if valid."""
+    """Get CAGED shape for chord - with transposing for all 12 roots."""
     root_upper = root.upper()
     
     # Handle enharmonics
     enharmonic_map = {
-        'C#': 'D#', 'DB': 'C#',
+        'C#': 'C#', 'DB': 'C#',
         'D#': 'D#', 'EB': 'D#',
         'F#': 'F#', 'GB': 'F#',
         'G#': 'G#', 'AB': 'G#',
         'A#': 'A#', 'BB': 'A#',
     }
     
-    # For B, use C shape shifted by 2 frets
-    is_b_transposed = False
-    if root_upper == 'B':
-        root_upper = 'C'
-        is_b_transposed = True
-    elif root_upper in enharmonic_map:
+    original_root = root_upper
+    if root_upper in enharmonic_map:
         root_upper = enharmonic_map[root_upper]
     
     # Map common notations
@@ -220,15 +268,31 @@ def _get_caged_shape(root, quality, shape_type, max_fret=12):
     }
     q = quality_map.get(quality, quality)
     
+    # First try: direct match in CAGED_SHAPES
     if q in CAGED_SHAPES and root_upper in CAGED_SHAPES[q]:
         if shape_type in CAGED_SHAPES[q][root_upper]:
             frets = CAGED_SHAPES[q][root_upper][shape_type]
-            # For transposed B, shift all frets by 2
-            if is_b_transposed and frets:
-                frets = [f + 2 if f is not None else None for f in frets]
-            # Check if all frets are within range
             if all(f is None or f <= max_fret for f in frets):
                 return frets
+    
+    # Second try: transpose from a reference root
+    # Use E-shape barre as reference (it's at the lowest fret for E)
+    if shape_type == 'A_barre':
+        # Get target fret position for this root
+        target_fret = REFERENCE_BARRE_ROOTS.get(root_upper, REFERENCE_BARRE_ROOTS.get(original_root, 0))
+        
+        # Try transposing from each available reference
+        for ref_root in ['E', 'A', 'C', 'D', 'F', 'G']:
+            if q in CAGED_SHAPES and ref_root in CAGED_SHAPES[q]:
+                if 'A_barre' in CAGED_SHAPES[q][ref_root]:
+                    ref_frets = CAGED_SHAPES[q][ref_root]['A_barre']
+                    ref_fret = REFERENCE_BARRE_ROOTS.get(ref_root, 0)
+                    fret_shift = target_fret - ref_fret
+                    if fret_shift >= 0:
+                        transposed = [f + fret_shift if f is not None else None for f in ref_frets]
+                        if all(f is None or f <= max_fret for f in transposed):
+                            return transposed
+    
     return None
 
 
@@ -291,12 +355,41 @@ def _generate_realistic_voicings(chord, max_fret=12):
                 'base_fret': 1,
             })
     
-    # Add seventh chord voicings
-    if '7' in quality or quality in ['maj7', 'min7', 'dom7']:
+    # Add seventh chord voicings using CAGED shapes
+    seventh_qualities = ['7', 'dom7', 'maj7', 'min7', 'm7']
+    if any(q in quality for q in seventh_qualities) or quality in seventh_qualities:
+        # First try CAGED shapes for 7th chords
+        seventh_frets = _get_caged_shape(root, quality, 'A_barre', max_fret)
+        if seventh_frets:
+            base_fret = next((f for f in seventh_frets if f is not None), 1)
+            voicings.append({
+                'position': -1,
+                'name': f'A-Barren (fret {base_fret})',
+                'frets': seventh_frets,
+                'notes': [f for f in seventh_frets if f is not None],
+                'fingers': _suggest_fingers(seventh_frets),
+                'is_barre': True,
+                'base_fret': base_fret,
+            })
+        
+        # Also try open shape if available
+        open_frets = _get_caged_shape(root, quality, 'open', max_fret)
+        if open_frets:
+            voicings.append({
+                'position': 0,
+                'name': 'Open Position',
+                'frets': open_frets,
+                'notes': [f for f in open_frets if f is not None],
+                'fingers': _suggest_fingers(open_frets),
+                'is_barre': False,
+                'base_fret': 1,
+            })
+        
+        # Add common movable 7th voicings as fallback
         seventh_voicings = [
-            {'name': '7th (1st string)', 'frets': [None, 3, 2, 3, 1, 0]},
-            {'name': '7th (2nd string)', 'frets': [None, 3, 1, 3, 2, 0]},
-            {'name': '7th (barre)', 'frets': [None, 5, 7, 5, 7, 5]},
+            {'name': '7th (E-shape)', 'frets': [0, 2, 0, 1, 0, 0]},
+            {'name': '7th (A-shape)', 'frets': [None, 0, 2, 0, 1, 0]},
+            {'name': '7th (D-shape)', 'frets': [None, None, 0, 2, 1, 2]},
         ]
         for sv in seventh_voicings:
             voicings.append({
@@ -305,8 +398,8 @@ def _generate_realistic_voicings(chord, max_fret=12):
                 'frets': sv['frets'],
                 'notes': [f for f in sv['frets'] if f is not None],
                 'fingers': _suggest_fingers(sv['frets']),
-                'is_barre': 'barre' in sv['name'].lower(),
-                'base_fret': 5 if 'barre' in sv['name'].lower() else 1,
+                'is_barre': False,
+                'base_fret': 1,
             })
     
     return voicings[:8]
@@ -531,5 +624,4 @@ def get_chord_positions():
         'note_positions': positions,
         'voicings': voicings,
     })
-
 
