@@ -137,27 +137,25 @@ def _get_chord_shape(root, quality):
 
 
 # CAGED system chord shapes - known correct voicings
-# Format: quality -> {shape_name: [frets]}
-# Frets format: [string6, string5, string4, string3, string2, string1]
-# These are CORRECT guitar chord shapes
+# Using only OPEN and A-shape barre (more reliable)
 CAGED_SHAPES = {
     'maj': {
-        'C': {'open': [None, 3, 2, 0, 1, 0], 'E_barre': [8, 10, 9, 8, 8, 8], 'A_barre': [None, 3, 5, 5, 5, 3]},
-        'D': {'open': [None, None, 0, 2, 3, 2], 'E_barre': [10, 12, 11, 10, 10, 10], 'A_barre': [None, 5, 7, 7, 7, 5]},
-        'E': {'open': [0, 2, 2, 1, 0, 0], 'E_barre': [12, 14, 13, 12, 12, 12], 'A_barre': [None, 7, 9, 9, 9, 7]},
-        'F': {'open': [1, 3, 3, 2, 1, 1], 'E_barre': [1, 3, 3, 2, 1, 1], 'A_barre': [None, 8, 10, 10, 10, 8]},
-        'G': {'open': [3, 2, 0, 0, 0, 3], 'E_barre': [3, 5, 4, 3, 3, 3], 'A_barre': [None, 10, 12, 12, 12, 10]},
-        'A': {'open': [None, 0, 2, 2, 2, 0], 'E_barre': [5, 7, 6, 5, 5, 5], 'A_barre': [None, 0, 2, 2, 2, 0]},
-        'B': {'open': [None, 2, 4, 4, 4, 2], 'E_barre': [7, 9, 8, 7, 7, 7], 'A_barre': [None, 2, 4, 4, 4, 2]},
+        'C': {'open': [None, 3, 2, 0, 1, 0], 'A_barre': [None, 3, 5, 5, 5, 3]},
+        'D': {'open': [None, None, 0, 2, 3, 2], 'A_barre': [None, 5, 7, 7, 7, 5]},
+        'E': {'open': [0, 2, 2, 1, 0, 0], 'A_barre': [None, 7, 9, 9, 9, 7]},
+        'F': {'open': [1, 3, 3, 2, 1, 1], 'A_barre': [None, 8, 10, 10, 10, 8]},
+        'G': {'open': [3, 2, 0, 0, 0, 3], 'A_barre': [None, 10, 12, 12, 12, 10]},
+        'A': {'open': [None, 0, 2, 2, 2, 0], 'A_barre': [None, 0, 2, 2, 2, 0]},
+        'B': {'open': [None, 2, 4, 4, 4, 2], 'A_barre': [None, 2, 4, 4, 4, 2]},
     },
     'min': {
-        'C': {'open': [None, 3, 5, 5, 4, 3], 'E_barre': [8, 10, 8, 8, 8, 8], 'A_barre': [None, 3, 5, 5, 4, 3]},
-        'D': {'open': [None, None, 0, 2, 3, 1], 'E_barre': [10, 12, 10, 10, 10, 10], 'A_barre': [None, 5, 7, 7, 6, 5]},
-        'E': {'open': [0, 2, 2, 0, 0, 0], 'E_barre': [12, 14, 12, 12, 12, 12], 'A_barre': [None, 7, 9, 9, 8, 7]},
-        'F': {'open': [1, 3, 3, 1, 1, 1], 'E_barre': [1, 3, 1, 1, 1, 1], 'A_barre': [None, 8, 10, 10, 9, 8]},
-        'G': {'open': [3, 5, 5, 3, 3, 3], 'E_barre': [3, 5, 3, 3, 3, 3], 'A_barre': [None, 10, 12, 12, 11, 10]},
-        'A': {'open': [None, 0, 2, 2, 1, 0], 'E_barre': [5, 7, 5, 5, 5, 5], 'A_barre': [None, 0, 2, 2, 1, 0]},
-        'B': {'open': [None, 2, 4, 4, 3, 2], 'E_barre': [7, 9, 7, 7, 7, 7], 'A_barre': [None, 2, 4, 4, 3, 2]},
+        'C': {'open': [None, 3, 5, 5, 4, 3], 'A_barre': [None, 3, 5, 5, 4, 3]},
+        'D': {'open': [None, None, 0, 2, 3, 1], 'A_barre': [None, 5, 7, 7, 6, 5]},
+        'E': {'open': [0, 2, 2, 0, 0, 0], 'A_barre': [None, 7, 9, 9, 8, 7]},
+        'F': {'open': [1, 3, 3, 1, 1, 1], 'A_barre': [None, 8, 10, 10, 9, 8]},
+        'G': {'open': [3, 5, 5, 3, 3, 3], 'A_barre': [None, 10, 12, 12, 11, 10]},
+        'A': {'open': [None, 0, 2, 2, 1, 0], 'A_barre': [None, 0, 2, 2, 1, 0]},
+        'B': {'open': [None, 2, 4, 4, 3, 2], 'A_barre': [None, 2, 4, 4, 3, 2]},
     },
 }
 
@@ -221,20 +219,7 @@ def _generate_realistic_voicings(chord, max_fret=12):
             'base_fret': 1,
         })
     
-    # Generate CAGED barre chords using correct shapes
-    # Use hardcoded CAGED shapes that are known to be correct
-    e_frets = _get_caged_shape(root, quality, 'E_barre', max_fret)
-    if e_frets:
-        voicings.append({
-            'position': -1,
-            'name': f'Barre E-Shape (fret {e_frets[0]})',
-            'frets': e_frets,
-            'notes': [f for f in e_frets if f is not None],
-            'fingers': _suggest_fingers(e_frets),
-            'is_barre': True,
-            'base_fret': e_frets[0],
-        })
-    
+    # Use only A-shape barre (E-shape was removed due to incorrect formulas)
     # A-shape barre
     a_frets = _get_caged_shape(root, quality, 'A_barre', max_fret)
     if a_frets:
