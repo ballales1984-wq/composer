@@ -1,4 +1,4 @@
- """
+"""
 Chords API Blueprint - Versione migliorata con modalità realistic/theoretical
 REST API endpoints per operazioni sugli accordi.
 """
