@@ -252,6 +252,18 @@
         <h2 class="card-title">Guitar Voicing</h2>
     </div>
     
+    <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label">Voicing Mode</label>
+        <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem;">
+            <label style="cursor:pointer">
+                <input type="radio" name="voicing-mode" value="realistic" checked> Realistic
+            </label>
+            <label style="cursor:pointer">
+                <input type="radio" name="voicing-mode" value="theoretical"> Theoretical
+            </label>
+        </div>
+    </div>
+    
     <div id="voicing-result">
         <p>Select a chord to see guitar voicings</p>
     </div>
@@ -693,6 +705,10 @@ async function fetchInversions(root, quality) {
 }
 
 async function fetchVoicing(root, quality) {
+    // Get selected voicing mode
+    const modeRadio = document.querySelector('input[name="voicing-mode"]:checked');
+    const mode = modeRadio ? modeRadio.value : 'realistic';
+    
     try {
         const response = await fetch(`/api/chords/voicing?root=${root}&quality=${quality}`);
         const data = await response.json();
@@ -712,8 +728,8 @@ async function fetchVoicing(root, quality) {
         console.error('Error fetching voicing:', error);
     }
     
-    // Render chord diagram with VexChord
-    mostraAccordo(root, quality);
+    // Render chord diagram with VexChord - pass mode parameter
+    mostraAccordo(root, quality, mode);
 }
 
 function toVexChordFrets(frets) {
@@ -860,12 +876,12 @@ function renderInversionDiagramsFromVoicings(voicings, chordName) {
 }
 
 // Funzione per mostrare i diagrammi dell'accordo (posizioni + rivolti)
-async function mostraAccordo(root, quality) {
+async function mostraAccordo(root, quality, mode = 'realistic') {
     const container = document.getElementById('chord-diagrams-result');
     if (!container) return;
     
     try {
-        const res = await fetch(`/api/chords/positions?root=${root}&quality=${quality}`);
+        const res = await fetch(`/api/chords/positions?root=${root}&quality=${quality}&mode=${mode}`);
         const data = await res.json();
         
         if (!data.success) {
