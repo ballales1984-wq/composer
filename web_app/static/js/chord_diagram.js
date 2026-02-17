@@ -123,8 +123,8 @@ class ChordBoxDiagram {
                     fill="${this.options.fingerTextColor}">${chordData.barre.finger || 1}</text>`;
         }
         
-        // Draw string labels at bottom
-        const stringLabels = ['E', 'B', 'G', 'D', 'A', 'E'];
+        // Draw string labels at bottom (6th string left → 1st string right: E A D G B e)
+        const stringLabels = ['E', 'A', 'D', 'G', 'B', 'E'];
         for (let i = 0; i < numStrings; i++) {
             const x = xStart + i * stringSpacing;
             svg += `<text x="${x}" y="${yStart + numFrets * fretSpacing + 15}" text-anchor="middle" 

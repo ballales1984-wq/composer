@@ -733,8 +733,7 @@ async function fetchVoicing(root, quality) {
 }
 
 function toVexChordFrets(frets) {
-    // Convert frets array to VexChord format (reverse order: E A D G B E)
-    // VexChord expects: [string6, string5, string4, string3, string2, string1]
+    // VexChord expects [string1..string6] (high→low); nostra tab è [string6..string1] → reverse
     return frets.slice().reverse().map(f => {
         if (f === null || f === -1) return 'x';
         if (f === 0) return 'o';
@@ -779,14 +778,11 @@ function buildCustomChordDiagramSvg(frets, chordName, fingers) {
                 stroke="#4a5568" stroke-width="1.5"/>`;
     }
 
-    // Draw finger positions (reverse order: E A D G B E)
-    const reversedFrets = frets.slice().reverse();
-    const reversedFingers = fingers ? fingers.slice().reverse() : [];
-
+    // frets in ordine tablatura: frets[0]=6ª corda (E), frets[5]=1ª corda (e) - sinistra=6ª, destra=1ª
     for (let i = 0; i < numStrings; i++) {
         const x = xStart + i * stringSpacing;
-        const fret = reversedFrets[i];
-        const finger = reversedFingers[i] || 0;
+        const fret = frets[i];
+        const finger = fingers && fingers[i] !== undefined ? fingers[i] : 0;
 
         if (fret === null || fret === -1) {
             // Muted string
