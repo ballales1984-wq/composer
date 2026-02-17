@@ -164,19 +164,19 @@ CAGED_SHAPES = {
         'B': {'open': [None, 2, 4, 4, 3, 2], 'A_barre': [None, 2, 4, 4, 3, 2]},
     },
     '7': {
-        # Dominant 7th chords - using E-shape barre (lower fret positions)
+        # Dominant 7th chords - using correct CAGED voicings
         'C': {'open': [None, 3, 2, 3, 1, 0], 'A_barre': [None, 3, 5, 3, 5, 3]},
-        'D': {'open': [None, None, 0, 2, 1, 2], 'A_barre': [None, None, 0, 2, 1, 2]},  # D-shape
-        'E': {'open': [0, 2, 0, 1, 0, 0], 'A_barre': [0, 2, 0, 1, 0, 0]},  # E7 open
-        'F': {'open': [1, 3, 1, 2, 1, 1], 'A_barre': [1, 3, 1, 2, 1, 1]},  # F7 E-shape
-        'G': {'open': [3, 2, 0, 0, 0, 1], 'A_barre': [3, 2, 0, 0, 0, 1]},  # G7 open
-        'A': {'open': [None, 0, 2, 0, 1, 0], 'A_barre': [None, 0, 2, 0, 1, 0]},  # A7 open
-        'B': {'open': [None, 2, 1, 2, 0, 2], 'A_barre': [None, 2, 1, 2, 0, 2]},  # B7
-        # Add sharps/flats with low-fret barre shapes
+        'D': {'open': [None, None, 0, 2, 1, 2], 'A_barre': [None, None, 0, 2, 1, 2]},
+        'E': {'open': [0, 2, 0, 1, 0, 0], 'A_barre': [None, 7, 9, 7, 9, 7]},
+        'F': {'open': [1, 3, 1, 2, 1, 1], 'A_barre': [None, 8, 10, 8, 10, 8]},
+        'G': {'open': [3, 2, 0, 0, 0, 1], 'A_barre': [None, 10, 12, 10, 12, 10]},
+        'A': {'open': [None, 0, 2, 0, 1, 0], 'A_barre': [None, 12, 14, 12, 14, 12]},
+        'B': {'open': [None, 2, 1, 2, 0, 2], 'A_barre': [None, 14, 16, 14, 16, 14]},
+        # Add sharps/flats with correct voicings
         'C#': {'open': [None, 4, 3, 4, 2, 1], 'A_barre': [None, 4, 6, 4, 6, 4]},
-        'D#': {'open': [None, None, 1, 3, 2, 3], 'A_barre': [None, None, 1, 3, 2, 3]},
-        'F#': {'open': [2, 4, 2, 3, 2, 2], 'A_barre': [2, 4, 2, 3, 2, 2]},
-        'G#': {'open': [4, 3, 1, 1, 1, 2], 'A_barre': [4, 3, 1, 1, 1, 2]},
+        'D#': {'open': [None, None, 1, 3, 2, 3], 'A_barre': [None, 6, 8, 6, 8, 6]},
+        'F#': {'open': [2, 4, 2, 3, 2, 2], 'A_barre': [None, 9, 11, 9, 11, 9]},
+        'G#': {'open': [4, 6, 4, 5, 4, 4], 'A_barre': [None, 4, 6, 4, 6, 4]},
         'A#': {'open': [None, 1, 3, 1, 2, 1], 'A_barre': [None, 1, 3, 1, 2, 1]},
     },
     'maj7': {
