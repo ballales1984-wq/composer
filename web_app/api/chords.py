@@ -336,17 +336,20 @@ def _generate_realistic_voicings(chord, max_fret=12):
         })
     
     # Add triad voicings (movable shapes)
+    # position 0=root, 1=1st inv, 2=2nd inv per allineare diagrammi alle inversioni
     if quality in ['maj', 'min', 'dim', 'aug']:
+        # Triad shapes: 2nd inv ha G al basso → 6a e 5a corda mute (altrimenti E/A al basso)
         triad_voicings = [
-            {'name': 'Triad (D-shape)', 'frets': [None, None, 0, 2, 3, 2]},
-            {'name': 'Triad (A-shape)', 'frets': [None, 0, 2, 2, 1, 0]},
-            {'name': 'Triad (E-shape)', 'frets': [0, 2, 2, 1, 0, 0]},
-            {'name': 'Triad (1st inv)', 'frets': [None, 0, 0, 2, 3, 2]},
-            {'name': 'Triad (2nd inv)', 'frets': [0, 0, 2, 2, 1, 0]},
+            {'name': 'Triad (D-shape)', 'frets': [None, None, 0, 2, 3, 2], 'position': 0},
+            {'name': 'Triad (A-shape)', 'frets': [None, 0, 2, 2, 1, 0], 'position': 0},
+            {'name': 'Triad (E-shape)', 'frets': [0, 2, 2, 1, 0, 0], 'position': 0},
+            {'name': 'Triad (1st inv)', 'frets': [None, 0, 0, 2, 3, 2], 'position': 1},
+            # 2nd inv: G al basso - 3a open=G, 2a fret1=C, 1a open=E; 6a,5a,4a mute
+            {'name': 'Triad (2nd inv)', 'frets': [None, None, None, 0, 1, 0], 'position': 2},
         ]
         for tv in triad_voicings:
             voicings.append({
-                'position': 0,
+                'position': tv['position'],
                 'name': tv['name'],
                 'frets': tv['frets'],
                 'notes': [f for f in tv['frets'] if f is not None],

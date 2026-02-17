@@ -635,7 +635,7 @@ async function fetchChord() {
         
         if (data.success) {
             displayChord(data.chord);
-            fetchInversions(root, quality);
+            await fetchInversions(root, quality);
             fetchVoicing(root, quality);
         } else {
             showError(data.error);
@@ -843,15 +843,21 @@ function renderInversionDiagramsFromVoicings(voicings, chordName) {
     if (!inversionsContainer) return;
     if (!Array.isArray(voicings) || voicings.length === 0) return;
 
-    // Map voicings by inversion position (0..3)
+    // Map voicings: posizione 0=root, 1=1st inv, 2=2nd inv, 3=3rd inv
+    // Root: prefer "Open Position", altrimenti primo con position 0
     const invMap = new Map();
+    let rootVoicing = null;
     for (const v of voicings) {
-        if (typeof v?.position === 'number' && v.position >= 0 && v.position <= 3 && v.frets) {
-            invMap.set(v.position, v);
+        if (!v?.frets) continue;
+        const pos = v.position;
+        if (typeof pos === 'number' && pos >= 1 && pos <= 3) {
+            invMap.set(pos, v);
+        } else if ((pos === 0 || pos == null) && (!rootVoicing || (v.name && v.name.includes('Open')))) {
+            rootVoicing = v;
         }
     }
+    if (rootVoicing) invMap.set(0, rootVoicing);
 
-    // Add a diagram under each inversion card if present.
     const cards = inversionsContainer.querySelectorAll('.inversion-card');
     cards.forEach((card, idx) => {
         const v = invMap.get(idx);
