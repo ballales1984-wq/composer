@@ -338,13 +338,17 @@ def _generate_realistic_voicings(chord, max_fret=12):
     # Add triad voicings (movable shapes)
     # position 0=root, 1=1st inv, 2=2nd inv per allineare diagrammi alle inversioni
     if quality in ['maj', 'min', 'dim', 'aug']:
-        # Triad shapes: 2nd inv ha G al basso → 6a e 5a corda mute (altrimenti E/A al basso)
+        # Fixed triad voicings with CORRECT inversions:
+        # Root position: bass=root (C-E-G)
+        # 1st inversion: bass=3rd (E-G-C for maj, G-B-D for min)
+        # 2nd inversion: bass=5th (G-C-E for maj, D-F-A for min)
         triad_voicings = [
             {'name': 'Triad (D-shape)', 'frets': [None, None, 0, 2, 3, 2], 'position': 0},
             {'name': 'Triad (A-shape)', 'frets': [None, 0, 2, 2, 1, 0], 'position': 0},
             {'name': 'Triad (E-shape)', 'frets': [0, 2, 2, 1, 0, 0], 'position': 0},
-            {'name': 'Triad (1st inv)', 'frets': [None, 0, 0, 2, 3, 2], 'position': 1},
-            # 2nd inv: G al basso - 3a open=G, 2a fret1=C, 1a open=E; 6a,5a,4a mute
+            # 1st inversion: bass=3rd of chord (E-G-C for Cmaj) - E on low E open, G on D 3, C on B 1
+            {'name': 'Triad (1st inv)', 'frets': [0, None, 3, 1, None, None], 'position': 1},
+            # 2nd inversion: bass=5th (G-C-E for Cmaj) - G on D open, C on G 1, E on B open
             {'name': 'Triad (2nd inv)', 'frets': [None, None, None, 0, 1, 0], 'position': 2},
         ]
         for tv in triad_voicings:
