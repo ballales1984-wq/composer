@@ -741,14 +741,15 @@ function toVexChordFrets(frets) {
     });
 }
 
-function buildCustomChordDiagramSvg(frets, chordName, fingers) {
+function buildCustomChordDiagramSvg(frets, chordName, fingers, baseFret = 1) {
     const numStrings = 6;
     const numFrets = 5;
-    const width = 150;
-    const height = 180;
-    const stringSpacing = 20;
     const fretSpacing = 25;
+    const stringSpacing = 20;
+    const leftMargin = 32;
     const padding = 20;
+    const width = leftMargin + (numStrings - 1) * stringSpacing + padding * 2;
+    const height = 200;
 
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" 
                style="font-family: Arial, sans-serif; background: white; border-radius: 8px;">`;
@@ -757,42 +758,59 @@ function buildCustomChordDiagramSvg(frets, chordName, fingers) {
     svg += `<text x="${width/2}" y="18" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a202c">${chordName}</text>`;
 
     const yStart = 35;
-    const xStart = padding;
+    const xStart = leftMargin + padding;
+    const diagramWidth = (numStrings - 1) * stringSpacing;
 
-    // Draw nut
-    svg += `<rect x="${xStart - 2}" y="${yStart}" width="${(numStrings-1)*stringSpacing + 4}" height="3" fill="#1a202c" rx="1"/>`;
+    // Sempre mostrare numero tasto a sinistra (1fr = capotasto, 3fr = barre al 3° tasto)
+    svg += `<text x="14" y="${yStart + 14}" text-anchor="middle" font-size="12" font-weight="bold" fill="#4a5568">${baseFret}fr</text>`;
 
-    // Draw frets
+    // Nut o doppia linea (capo) per baseFret > 1
+    if (baseFret > 1) {
+        svg += `<rect x="${xStart - 2}" y="${yStart}" width="${diagramWidth + 4}" height="4" fill="#1a202c" rx="1"/>`;
+        svg += `<line x1="${xStart - 2}" y1="${yStart + 6}" x2="${xStart + diagramWidth + 2}" y2="${yStart + 6}" stroke="#1a202c" stroke-width="2"/>`;
+    } else {
+        svg += `<rect x="${xStart - 2}" y="${yStart}" width="${diagramWidth + 4}" height="3" fill="#1a202c" rx="1"/>`;
+    }
+
+    const nutBottom = baseFret > 1 ? yStart + 10 : yStart + 3;
+
+    // baseFret>1: frets assoluti → relativi (1-5); baseFret=1: 0=open, 1-5 nel diagramma
+    const toDisplayFret = (f) => {
+        if (f === null || f === -1 || f === 'x') return null;
+        if (f === 0) return baseFret > 1 ? null : 0;
+        const rel = baseFret > 1 ? (f - baseFret + 1) : f;
+        return (rel >= 0 && rel <= numFrets) ? rel : null;  // 0=open, 1-5=fretted
+    };
+
+    // Linee dei tasti (sempre 5 spazi)
     for (let i = 0; i <= numFrets; i++) {
-        const y = yStart + 3 + i * fretSpacing;
+        const y = nutBottom + i * fretSpacing;
         const lineWidth = i === 0 ? 2 : 1;
         const color = i === 0 ? '#1a202c' : '#cbd5e0';
-        svg += `<line x1="${xStart}" y1="${y}" x2="${xStart + (numStrings-1)*stringSpacing}" y2="${y}" 
-                stroke="${color}" stroke-width="${lineWidth}"/>`;
+        svg += `<line x1="${xStart}" y1="${y}" x2="${xStart + diagramWidth}" y2="${y}" stroke="${color}" stroke-width="${lineWidth}"/>`;
     }
 
-    // Draw strings
+    // Corde
     for (let i = 0; i < numStrings; i++) {
         const x = xStart + i * stringSpacing;
-        svg += `<line x1="${x}" y1="${yStart}" x2="${x}" y2="${yStart + numFrets*fretSpacing}" 
-                stroke="#4a5568" stroke-width="1.5"/>`;
+        svg += `<line x1="${x}" y1="${nutBottom}" x2="${x}" y2="${nutBottom + numFrets*fretSpacing}" stroke="#4a5568" stroke-width="1.5"/>`;
     }
 
-    // frets in ordine tablatura: frets[0]=6ª corda (E), frets[5]=1ª corda (e) - sinistra=6ª, destra=1ª
+    // Punti e dita: frets[0]=6ª corda (E), frets[5]=1ª corda (e)
     for (let i = 0; i < numStrings; i++) {
         const x = xStart + i * stringSpacing;
-        const fret = frets[i];
+        const absFret = frets[i];
+        const displayFret = toDisplayFret(absFret);
         const finger = fingers && fingers[i] !== undefined ? fingers[i] : 0;
+        const isMuted = absFret === null || absFret === -1 || absFret === 'x';
 
-        if (fret === null || fret === -1) {
-            // Muted string
-            svg += `<text x="${x}" y="${yStart - 5}" text-anchor="middle" font-size="16" font-weight="bold" fill="#718096">×</text>`;
-        } else if (fret === 0) {
-            // Open string
-            svg += `<circle cx="${x}" cy="${yStart + 1.5}" r="5" fill="none" stroke="#2d3748" stroke-width="2"/>`;
-        } else if (fret > 0) {
-            // Fretted note
-            const y = yStart + 3 + (fret - 0.5) * fretSpacing;
+        if (isMuted || displayFret === null) {
+            svg += `<text x="${x}" y="${nutBottom - 5}" text-anchor="middle" font-size="16" font-weight="bold" fill="#718096">×</text>`;
+        } else if (displayFret === 0) {
+            const openY = yStart + 1.5;
+            svg += `<circle cx="${x}" cy="${openY}" r="5" fill="none" stroke="#2d3748" stroke-width="2"/>`;
+        } else {
+            const y = nutBottom + (displayFret - 0.5) * fretSpacing;
             svg += `<circle cx="${x}" cy="${y}" r="8" fill="#2d3748"/>`;
             if (finger > 0) {
                 svg += `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="10" font-weight="bold" fill="white">${finger}</text>`;
@@ -804,7 +822,7 @@ function buildCustomChordDiagramSvg(frets, chordName, fingers) {
     const labels = ['E', 'A', 'D', 'G', 'B', 'E'];
     for (let i = 0; i < numStrings; i++) {
         const x = xStart + i * stringSpacing;
-        svg += `<text x="${x}" y="${yStart + numFrets*fretSpacing + 18}" text-anchor="middle" 
+        svg += `<text x="${x}" y="${nutBottom + numFrets*fretSpacing + 18}" text-anchor="middle" 
                 font-size="11" fill="#718096">${labels[i]}</text>`;
     }
 
@@ -812,32 +830,11 @@ function buildCustomChordDiagramSvg(frets, chordName, fingers) {
     return svg;
 }
 
-function renderDiagramInto(el, frets, title, fingers) {
+function renderDiagramInto(el, frets, title, fingers, baseFret) {
     if (!el) return;
 
-    // Prefer VexChord if available, fallback to SVG.
-    if (typeof Vexchord !== 'undefined' && Vexchord.Chord) {
-        try {
-            // Ensure the target is empty and has a unique selector via id
-            if (!el.id) {
-                el.id = `vexchord-${Math.random().toString(36).slice(2)}`;
-            }
-            el.innerHTML = '';
-            // VexChord 0.6.4 API: new Vexchord.Chord(selector, options)
-            // eslint-disable-next-line no-unused-vars
-            const chord = new Vexchord.Chord(`#${el.id}`, {
-                chord: toVexChordFrets(frets),
-                position: 1,
-                title,
-                tuning: ['E', 'A', 'D', 'G', 'B', 'E']
-            });
-            return;
-        } catch (error) {
-            console.error('VexChord error (fallback to SVG):', error);
-        }
-    }
-
-    const svg = buildCustomChordDiagramSvg(frets, title, fingers);
+    const bf = (baseFret != null && baseFret > 0) ? baseFret : 1;
+    const svg = buildCustomChordDiagramSvg(frets, title, fingers, bf);
     el.innerHTML = `<div style="display:flex;justify-content:center;">${svg}</div>`;
 }
 
@@ -867,7 +864,7 @@ function renderInversionDiagramsFromVoicings(voicings, chordName) {
         card.appendChild(host);
 
         const title = idx === 0 ? `${chordName} (Root)` : `${chordName} (Inv ${idx})`;
-        renderDiagramInto(host, v.frets, title, v.fingers);
+        renderDiagramInto(host, v.frets, title, v.fingers, v.base_fret);
     });
 }
 
@@ -916,20 +913,23 @@ async function mostraAccordo(root, quality, mode = 'realistic') {
         `;
 
         const grid = document.getElementById('chord-diagram-grid');
-        const cardsHtml = voicings.map((v, idx) => `
+        const cardsHtml = voicings.map((v, idx) => {
+            const bf = v.base_fret || 1;
+            const fretInfo = `Tasto ${bf} · `;
+            return `
           <div class="chord-diagram-card">
             <div class="chord-diagram-title">${v.name || `Voicing ${idx+1}`}</div>
-            <div class="chord-diagram-subtitle">Frets: ${(v.frets || []).map(f => (f === null ? 'x' : f)).join(' - ')}</div>
+            <div class="chord-diagram-subtitle">${fretInfo}Frets: ${(v.frets || []).map(f => (f === null ? 'x' : f)).join(' - ')}</div>
             <div class="chord-diagram-canvas" id="chord-diagram-${idx}"></div>
           </div>
-        `).join('');
+        `;}).join('');
         grid.innerHTML = cardsHtml;
 
         // Draw each diagram
         voicings.forEach((v, idx) => {
             const host = document.getElementById(`chord-diagram-${idx}`);
             const title = `${chordName} — ${v.name || `Voicing ${idx+1}`}`;
-            renderDiagramInto(host, v.frets, title, v.fingers);
+            renderDiagramInto(host, v.frets, title, v.fingers, v.base_fret);
         });
 
         // Also enrich the inversions section with diagrams (same page)
