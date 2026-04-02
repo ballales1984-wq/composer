@@ -267,7 +267,9 @@
             <li><a href="/chords" {% if '/chords' in request.path %}class="active"{% endif %}>🎸 Chords</a></li>
             <li><a href="/progressions" {% if '/progressions' in request.path %}class="active"{% endif %}>🎶 Progressions</a></li>
             <li><a href="/fretboard" {% if '/fretboard' in request.path %}class="active"{% endif %}>🎹 Fretboard</a></li>
-            <li><a href="/about" {% if '/about' in request.path %}class="active"{% endif %}>ℹ️ About</a></li>
+            <li><a href="/about" {% if "/about" in request.path %}class="active"{% endif %}>ℹ️ About</a></li>
+            <li><a href="/privacy">🔒 Privacy</a></li>
+            <li><a href="/terms">📜 Terms</a></li>
         </ul>
     </nav>
     

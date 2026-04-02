@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Terms of Service - Music Theory Engine{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .subtitle { color: #94a3b8; margin-bottom: 2rem; }
+        section { margin-bottom: 2rem; }
+        h2 { font-size: 1.5rem; margin-bottom: 1rem; color: #a5b4fc; }
+        p { color: #cbd5e1; margin-bottom: 1rem; }
+        ul { margin-left: 1.5rem; color: #cbd5e1; }
+        li { margin-bottom: 0.5rem; }
+        a { color: #818cf8; }
+        .warning-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .warning-box p { color: #fcd34d; margin: 0; }
+        .footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #334155; text-align: center; color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Terms of Service</h1>
+        <p class="subtitle">Last updated: April 2, 2026</p>
+
+        <div class="warning-box">
+            <p><strong>⚠️ Educational Use Only</strong></p>
+            <p>Music Theory Engine is an educational tool for learning music theory. It is not a substitute for professional music instruction.</p>
+        </div>
+
+        <section>
+            <h2>1. Acceptance of Terms</h2>
+            <p>By using Music Theory Engine, you agree to be bound by these Terms of Service. If you do not agree, please do not use our service.</p>
+        </section>
+
+        <section>
+            <h2>2. Description of Service</h2>
+            <p>Music Theory Engine provides:</p>
+            <ul>
+                <li>Scale and chord analysis tools</li>
+                <li>Chord progression generation</li>
+                <li>Interactive fretboard visualization</li>
+                <li>MIDI file generation</li>
+                <li>Virtual keyboard and audio playback</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>3. Educational Disclaimer</h2>
+            <p>This tool is for educational and entertainment purposes only. While we strive for accuracy in music theory calculations, results should be verified with a qualified music professional for serious composition or study.</p>
+        </section>
+
+        <section>
+            <h2>4. Acceptable Use</h2>
+            <p>You agree NOT to:</p>
+            <ul>
+                <li>Use the service for illegal purposes</li>
+                <li>Attempt to reverse-engineer or copy the core algorithms</li>
+                <li>Resell or redistribute the service without authorization</li>
+                <li>Upload malicious content or attempt to compromise the service</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. Intellectual Property</h2>
+            <p>The music theory engine code, algorithms, and design are © 2026 Music Theory Engine. Your compositions created using our tool are yours to use as you wish.</p>
+        </section>
+
+        <section>
+            <h2>6. Limitation of Liability</h2>
+            <p>The service is provided "as is" without warranties of any kind. We are not liable for any damages arising from use of this tool, including but not limited to musical compositions, MIDI files, or educational decisions.</p>
+        </section>
+
+        <section>
+            <h2>7. Changes to Terms</h2>
+            <p>We reserve the right to modify these terms at any time. Continued use after changes constitutes acceptance.</p>
+        </section>
+
+        <section>
+            <h2>8. Contact</h2>
+            <p>For questions about these Terms, contact us at: <a href="mailto:ballales1984@yahoo.it">ballales1984&#64;yahoo.it</a></p>
+        </section>
+
+        <div class="footer">
+            <p>&copy; 2026 Music Theory Engine. All rights reserved. | <a href="/privacy">Privacy Policy</a> | <a href="/">Home</a></p>
+        </div>
+    </div>
+</body>
+</html>
