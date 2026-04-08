@@ -2,6 +2,7 @@
 
 [![Tests](https://github.com/ballales1984-wq/composer/actions/workflows/test.yml/badge.svg)](https://github.com/ballales1984-wq/composer/actions/workflows/test.yml)
 [![Coverage](https://codecov.io/gh/ballales1984-wq/composer/branch/main/graph/badge.svg)](https://codecov.io/gh/ballales1984-wq/composer)
+[![Live Demo](https://img.shields.io/badge/demo-live-success?style=for-the-badge)](https://composer-06ak.onrender.com)
 [![Python Version](https://img.shields.io/pypi/pyversions/music-theory-engine.svg)](https://pypi.org/project/music-theory-engine/)
 
 A comprehensive Python library and web application for music theory analysis, composition, and education.
@@ -17,6 +18,10 @@ A comprehensive Python library and web application for music theory analysis, co
 - **MIDI Support**: Generate and export MIDI files
 - **Integration Adapters**: Connect with music21 and mingus libraries
 - **Audio Playback**: Play scales and chords directly in the browser with Web Audio API
+
+## 🚀 Try It Now
+
+**Live Demo**: https://composer-06ak.onrender.com
 
 ## Installation
 

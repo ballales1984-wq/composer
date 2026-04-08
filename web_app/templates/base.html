@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Music Theory Engine{% endblock %}</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2145959534306055" crossorigin="anonymous"></script>
+  <title>{% block title %}Music Theory Engine{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -267,7 +268,9 @@
             <li><a href="/chords" {% if '/chords' in request.path %}class="active"{% endif %}>🎸 Chords</a></li>
             <li><a href="/progressions" {% if '/progressions' in request.path %}class="active"{% endif %}>🎶 Progressions</a></li>
             <li><a href="/fretboard" {% if '/fretboard' in request.path %}class="active"{% endif %}>🎹 Fretboard</a></li>
-            <li><a href="/about" {% if '/about' in request.path %}class="active"{% endif %}>ℹ️ About</a></li>
+            <li><a href="/about" {% if "/about" in request.path %}class="active"{% endif %}>ℹ️ About</a></li>
+            <li><a href="/privacy">🔒 Privacy</a></li>
+            <li><a href="/terms">📜 Terms</a></li>
         </ul>
     </nav>
     
